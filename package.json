@@ -1,0 +1,51 @@
+{
+  "name": "commonappnode",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^7.2.1",
+    "adm-zip": "^0.5.1",
+    "archiver": "^5.1.0",
+    "aws-sdk": "^2.754.0",
+    "bcryptjs": "^2.4.3",
+    "compare-versions": "^3.6.0",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "~1.4.4",
+    "cookie-session": "^1.4.0",
+    "cors": "^2.8.5",
+    "country-state-city": "^1.0.5",
+    "cron": "^1.8.2",
+    "debug": "~2.6.9",
+    "ejs": "^3.1.5",
+    "express": "~4.16.1",
+    "express-validator": "^6.6.0",
+    "firebase-admin": "^9.12.0",
+    "fs": "0.0.1-security",
+    "fs-extra": "^9.0.1",
+    "google-play-billing-validator": "^2.1.1",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.20",
+    "moment": "^2.27.0",
+    "moment-timezone": "^0.5.31",
+    "mongoose": "^5.9.23",
+    "morgan": "~1.9.1",
+    "multer": "^1.4.2",
+    "multer-s3": "^2.9.0",
+    "node-excel-export": "^1.4.4",
+    "nodemon": "^3.1.0",
+    "path": "^0.12.7",
+    "request": "^2.88.2",
+    "swagger-ui-express": "^4.1.4",
+    "uuid": "^9.0.1"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "public/cms/*"
+    ]
+  }
+}
