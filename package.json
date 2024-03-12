@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "nodemon ./bin/www",
+    "dev" : "pm2 start ./bin/www",
+    "stop": "pm2 stop ./bin/www",
+    "restart": "pm2 restart ./bin/www"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.2.1",
