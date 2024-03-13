@@ -6,13 +6,14 @@ const {
   signUp,
   login,
   logout,
+  verifyOtp,
 } = require('../controllers/user.controller')
 
 
 router.post('/signUp',  signUp)
 router.post('/login', login_validator, ValidatorResult, login)
 router.get('/logout', authenticate, logout)
-
+router.post('/verifyOtp' , authenticate , verifyOtp)
 
 
 

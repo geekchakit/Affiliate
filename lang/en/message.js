@@ -43,7 +43,9 @@ module.exports = {
         user_deleted: 'User deleted successfully.',
         user_not_found: 'user not found',
         get_all_users: 'successfully get all users',
-        already_exist: 'this email already is exists'
+        already_exist: 'this email already is exists',
+        otp_not_matched: 'otp not matched',
+        verify_otp: 'Your Otp is successfully verified'
     },
     'GENERAL': {
 

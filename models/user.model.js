@@ -10,6 +10,7 @@ const {
 
 const Schema = mongoose.Schema;
 
+
 //Define user schema
 const userSchema = new Schema({
 
@@ -73,6 +74,14 @@ const userSchema = new Schema({
     },
     tempTokens: {
         type: String
+    },
+    OTP: {
+        type: String,
+        default: null,
+    },
+    isVerify: {
+        type: Boolean,
+        default: false
     },
     created_at: {
         type: String,

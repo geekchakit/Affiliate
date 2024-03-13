@@ -1,4 +1,15 @@
 
+
+
+exports.sendWelcomeEmail = (customerName, OTP) => {
+    return `Welcome To Our AFFILIATE MARKETING Services !
+            Dear ${customerName},
+            Thank you for signing up with Your App! We are thrilled to have you as part of our community.
+            Your account has been successfully created. To get started, YOUR OTP IS :- ${OTP} `;
+}
+
+
+
 exports.signUpResponse = (users) => {
 
     const user = {
