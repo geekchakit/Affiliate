@@ -6,12 +6,13 @@ const {
   login,
   logout,
   getAllUsers
-} = require('../controllers/admin.controller')
+} = require('../controllers/admin.controller');
+const authenticate = require('../../middleware/authenticate');
 
 
 router.post('/login', login_validator, ValidatorResult, login)
-router.get('/logout', verifyAccessToken, logout)
-router.get('/getAllUsers' , verifyAccessToken , getAllUsers)
+router.get('/logout', authenticate, logout)
+router.get('/getAllUsers' , authenticate , getAllUsers)
 
 
 

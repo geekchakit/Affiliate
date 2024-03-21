@@ -9,7 +9,6 @@ const {
     isValid
 } = require('../../services/blackListMail')
 const {
-    getUser,
     Usersave,
 } = require('../services/user.service');
 const Keys = require('../../keys/keys')
@@ -20,6 +19,8 @@ const {
 const { v4: uuid } = require('uuid');
 const { LoginResponse, signUpResponse, sendWelcomeEmail } = require('../../ResponseData/user.response');
 const { sendMail } = require('../../services/email.services')
+const Campaign = require('../../models/campaign.model')
+
 
 
 
@@ -46,12 +47,20 @@ exports.signUp = async (req, res, next) => {
             data: reqBody.email
         }, JWT_SECRET, {
             expiresIn: constants.URL_EXPIRE_TIME
-        })
-
+        });
+        let arr = [];
+        arr.push(reqBody.campaign)
+        reqBody.campaign = arr
         reqBody.IdNumber = uuid()
         reqBody.device_type = (reqBody.device_type) ? reqBody.device_type : null
         reqBody.device_token = (reqBody.device_token) ? reqBody.device_token : null
         const user = await Usersave(reqBody);
+
+        const campaigns = await Campaign.findOne({ campaignName: reqBody.campaign });
+        let arr2 = []
+        arr2.push(user._id);
+        campaigns.userId = arr2;
+        await campaigns.save();
         const users = signUpResponse(user)
 
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.signUp_success', users, req.headers.lang);
@@ -61,6 +70,7 @@ exports.signUp = async (req, res, next) => {
         return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang)
     }
 }
+
 
 
 
@@ -125,6 +135,7 @@ exports.login = async (req, res, next) => {
 }
 
 
+
 exports.verifyOtp = async (req, res) => {
 
     try {
@@ -145,7 +156,7 @@ exports.verifyOtp = async (req, res) => {
 
         let user = signUpResponse(users)
 
-        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.verify_otp', user , req.headers.lang);
+        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.verify_otp', user, req.headers.lang);
 
     } catch (err) {
         console.log('err(verifyOtp).....', err)

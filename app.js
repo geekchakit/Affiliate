@@ -4,21 +4,16 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
-
 const cookie = require('cookie-session');
 const flash = require('connect-flash');
-
 const indexRouter = require('./v1/routes/index');
 const usersRouter = require('./v1/routes/users');
-
 const indexAdminRouter = require('./admin/routes/index');
 const adminRouter = require('./admin/routes/admin');
-
+const campaginRouter = require('./v1/routes/campaign.rout')
 
 
 const app = express();
-
-// require('./cronJobs/removeOldData');
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
@@ -55,8 +50,7 @@ app.use('/', indexRouter);
 app.use('/v1/users', usersRouter);
 app.use('/v1/', indexAdminRouter);
 app.use('/admin', adminRouter);
-
-
+app.use('/v1/campaigns', campaginRouter)
 
 
 // catch 404 and forward to error handler

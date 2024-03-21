@@ -17,15 +17,14 @@ exports.login = async (req, res) => {
 
         const user = await User.findOne({ email: email, deleted_at: null });
 
-        if (!user) {
+        if (!user)
             return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.invalid_username_password', {}, req.headers.lang);
-        }
-        if (!user.validPassword(password)) {
+
+        if (!user.validPassword(password))
             return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.invalid_username_password', {}, req.headers.lang);
-        }
-        if (user.user_type !== constants.USER_TYPE.ADMIN) {
+
+        if (user.user_type !== constants.USER_TYPE.ADMIN)
             return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'GENERAL.unauthorized_user', {}, req.headers.lang);
-        }
 
         await user.generateAuthToken();
         await user.generateRefreshToken();
@@ -71,10 +70,10 @@ exports.refreshToken = async (req, res) => {
 
         await user.generateAuthToken();
         await user.generateRefreshToken();
-        sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.get_user_auth_token', user, req.headers.lang);
+        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.get_user_auth_token', user, req.headers.lang);
     } catch (error) {
         console.log("err........", error)
-        sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang)
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang)
     }
 }
 
@@ -84,43 +83,34 @@ exports.getAllUsers = async (req, res) => {
     try {
 
         const userId = req.user._id;
-        const { page = 1, limit = 10, username, country, email, mobileNumber } = req.query;
+        const { fullname, email, campaign} = req.query;
         const user = await User.findById(userId);
 
-        if (user.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.FAIL, 'GENERAL.unauthorized_user', {}, req.headers.lang);
-
-        if (parseInt(page) < 1 || parseInt(limit) < 1)
-            return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'PUJA.Invalid_page', {}, req.headers.lang);
+        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
 
         const query = {};
 
-        if (username) {
-            query.userName = username;
+        if (fullname) {
+            query.full_name = { $regex: fullname, $options: 'i' }; // Case-insensitive regex search for fullname
         }
 
         if (email) {
-            query.email = email;
+            query.email = { $regex: email, $options: 'i' }; // Case-insensitive regex search for email
         }
 
-        if (country) {
-            query.country = country;
+        if (campaign) {
+            query.campaign = campaign;
         }
 
-        if (mobileNumber) {
-            query.mobile_number = mobileNumber;
-        }
-
-        let usersQuery = User.find({ user_type: 2 }); 
+        let usersQuery = User.find({ user_type: 2 });
 
         if (Object.keys(query).length > 0) {
             usersQuery = usersQuery.where(query);
         }
 
-        const selectFields = '_id email full_name mobile_number userName user_type idNumber campagin country created_at updated_at';
+        const selectFields = '_id email full_name mobile_number userName user_type idNumber campaign country';
         const users = await usersQuery.select(selectFields)
-            .skip((parseInt(page) - 1) * parseInt(limit))
-            .limit(parseInt(limit))
             .lean();
 
         if (!users || users.length === 0) {
@@ -129,12 +119,12 @@ exports.getAllUsers = async (req, res) => {
 
         const totalUser = await User.countDocuments(query);
         const data = {
-            page: parseInt(page),
             totalUser: totalUser,
             users
         };
 
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.get_all_users', data, req.headers.lang);
+        
     } catch (err) {
         console.error('Error(getAllUsers)....', err);
         return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);

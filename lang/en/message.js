@@ -48,11 +48,16 @@ module.exports = {
         verify_otp: 'Your Otp is successfully verified'
     },
     'GENERAL': {
-
         general_error_content: 'Something went wrong. Please try again later.',
         unauthorized_user: 'Unauthorized, please login.',
         invalid_user: 'You are not authorized to do this operation.',
         invalid_login: 'You are not authorized.',
         blackList_mail: `Please enter a valid email, we don't allow dummy emails.`
     },
+    'CAMPAIGN':{
+        addNewCampaign:"successfully Add New campaign",
+        not_found:'No campaign are not registered',
+        getAllCampaigns:"successfully get all the campaigns",
+        already_existing_campaigns:'this campaign already exists'
+    }
 }

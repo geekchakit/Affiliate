@@ -33,9 +33,9 @@ const userSchema = new Schema({
     userName: {
         type: String,
     },
-    campaign: {
+    campaign: [{
         type: String
-    },
+    }],
     idNumber: {
         type: String
     },
