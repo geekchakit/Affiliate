@@ -35,6 +35,14 @@ const campaginSchema = new mongoose.Schema({
     created_at: {
         type: String
     },
+    isFavourite: {
+        type: Boolean,
+        default: false
+    },
+    CampaignImage: {
+        type: String,
+        default: null
+    },
     updated_at: {
         type: String
     },

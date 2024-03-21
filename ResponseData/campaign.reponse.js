@@ -9,6 +9,7 @@ exports.addCampaignResponse = (data) => {
         commissionName: data.commissionName,
         paymentTerm: data.paymentTerm,
         conversionRate: data.conversionRate,
-        confirmationRate: Date.confirmationRate
+        confirmationRate: data.confirmationRate,
+        isFavourite: data.isFavourite
     }
 }

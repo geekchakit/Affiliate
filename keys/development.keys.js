@@ -6,5 +6,5 @@ module.exports = {
     'PASSWORD_FORM': 'ezTruck@3579',
     'EMAIL_SERVICE': 'gmail',
     'MONGODB_URI': 'mongodb+srv://root:akki909@cluster0.sm3rshd.mongodb.net/Affiliate',
-    'BASEURL': 'http://16.170.253.177:8001',
+    'BASEURL': 'http://localhost:7001',
 }

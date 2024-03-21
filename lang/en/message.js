@@ -54,10 +54,13 @@ module.exports = {
         invalid_login: 'You are not authorized.',
         blackList_mail: `Please enter a valid email, we don't allow dummy emails.`
     },
-    'CAMPAIGN':{
-        addNewCampaign:"successfully Add New campaign",
-        not_found:'No campaign are not registered',
-        getAllCampaigns:"successfully get all the campaigns",
-        already_existing_campaigns:'this campaign already exists'
+    'CAMPAIGN': {
+        addNewCampaign: "successfully Add New campaign",
+        not_found: 'No campaign are not registered',
+        getAllCampaigns: "successfully get all the campaigns",
+        already_existing_campaigns: 'this campaign already exists',
+        faviorite_campaigns: 'add into your favourite campaign',
+        delete_campaign: "successfully delete this campaign",
+        update_campaign: "successfully update this campaign"
     }
 }
