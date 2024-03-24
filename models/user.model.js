@@ -75,6 +75,10 @@ const userSchema = new Schema({
     tempTokens: {
         type: String
     },
+    trackingId: {
+        type: String,
+        default: null
+    },
     OTP: {
         type: String,
         default: null,

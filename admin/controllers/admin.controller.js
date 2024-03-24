@@ -83,7 +83,7 @@ exports.getAllUsers = async (req, res) => {
     try {
 
         const userId = req.user._id;
-        const { fullname, email, campaign ,keyword} = req.query;
+        const { fullname, email, campaign ,keyword , userType} = req.query;
         const user = await User.findById(userId);
 
         if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
@@ -97,6 +97,10 @@ exports.getAllUsers = async (req, res) => {
 
         if (email) {
             query.email = { $regex: email, $options: 'i' }; // Case-insensitive regex search for email
+        }
+
+        if(userType){
+            query.user_type = userType;
         }
 
         if (keyword) {
@@ -120,7 +124,7 @@ exports.getAllUsers = async (req, res) => {
             query.campaign = campaign;
         }
 
-        let usersQuery = User.find({ user_type: 2 });
+        let usersQuery = User.find();
 
         if (Object.keys(query).length > 0) {
             usersQuery = usersQuery.where(query);

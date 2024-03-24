@@ -45,7 +45,9 @@ module.exports = {
         get_all_users: 'successfully get all users',
         already_exist: 'this email already is exists',
         otp_not_matched: 'otp not matched',
-        verify_otp: 'Your Otp is successfully verified'
+        verify_otp: 'Your Otp is successfully verified',
+        upload_data:'successfully upload excel file',
+        getAllExcelData:'successfully get all excel data'
     },
     'GENERAL': {
         general_error_content: 'Something went wrong. Please try again later.',
