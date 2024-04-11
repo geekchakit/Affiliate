@@ -14,11 +14,10 @@ exports.signUpResponse = (users) => {
 
     const user = {
         email: users.email,
-        userName: users.userName,
-        full_name: users.full_name,
+        name: users.name,
+        user_id: users._id,
         user_type: users.user_type,
         mobile_number: users.mobile_number,
-        campaign: users.campaign,
         created_at: users.created_at,
         updated_at: users.updated_at
     }
@@ -29,16 +28,51 @@ exports.signUpResponse = (users) => {
 exports.LoginResponse = (users) => {
 
     const user = {
+        user_id: users._id,
         email: users.email,
-        userName: users.userName,
-        full_name: users.full_name,
+        name: users.name,
         user_type: users.user_type,
         mobile_number: users.mobile_number,
         tokens: users.tokens,
         refresh_tokens: users.refresh_tokens,
-        campaign: users.campaign,
         created_at: users.created_at,
         updated_at: users.updated_at
+    }
+    return user
+}
+
+
+exports.updateResponse = (users) => {
+
+    const user = {
+
+        user_id: users._id,
+        email: users.email,
+        name: users.name,
+        user_type: users.user_type,
+        mobile_number: users.mobile_number,
+        is_upload: users.is_upload,
+        gender: users.gender,
+        city: users.city,
+        country: users.country,
+        state: users.state,
+        pancard: users.pancard,
+        address: users.address,
+        adharacard: users.adharacard,
+        date_of_birth: users.date_of_birth,
+    }
+    return user
+}
+
+exports.accountVerifyResponse = (users) => {
+
+    const user = {
+        user_id: users._id,
+        email: users.email,
+        name: users.name,
+        user_type: users.user_type,
+        mobile_number: users.mobile_number,
+        is_verify: users.is_verify,
     }
     return user
 }

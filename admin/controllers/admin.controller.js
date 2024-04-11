@@ -83,45 +83,40 @@ exports.getAllUsers = async (req, res) => {
     try {
 
         const userId = req.user._id;
-        const { fullname, email, campaign ,keyword , userType} = req.query;
+        const { name, email, keyword, userType } = req.query;
         const user = await User.findById(userId);
 
         if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
             return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
 
-        const query = {};
+        const query = { user_type: 2 };
 
-        if (fullname) {
-            query.full_name = { $regex: fullname, $options: 'i' }; // Case-insensitive regex search for fullname
+        if (name) {
+            query.name = { $regex: name, $options: 'i' }; // Case-insensitive regex search for fullname
         }
 
         if (email) {
             query.email = { $regex: email, $options: 'i' }; // Case-insensitive regex search for email
         }
 
-        if(userType){
+        if (userType) {
             query.user_type = userType;
         }
 
         if (keyword) {
             const keywordRegex = new RegExp(keyword, 'i');
             query.$or = [
-                { full_name: keywordRegex },
+                { name: keywordRegex },
                 { email: keywordRegex }
             ];
         }
 
-        if (fullname) {
-            const fullnameRegex = new RegExp(fullname, 'i');
+        if (name) {
+            const nameRegex = new RegExp(name, 'i');
             query.$or = [
-                { full_name:fullnameRegex },
-                { $text: { $search: fullname } }
+                { name: nameRegex },
+                { $text: { $search: name } }
             ];
-        }
-
-
-        if (campaign) {
-            query.campaign = campaign;
         }
 
         let usersQuery = User.find();
@@ -130,7 +125,7 @@ exports.getAllUsers = async (req, res) => {
             usersQuery = usersQuery.where(query);
         }
 
-        const selectFields = '_id email full_name mobile_number userName user_type idNumber campaign country';
+        const selectFields = '_id email name mobile_number user_type state country city gender date_of_birth';
         const users = await usersQuery.select(selectFields)
             .lean();
 
@@ -145,7 +140,7 @@ exports.getAllUsers = async (req, res) => {
         };
 
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.get_all_users', data, req.headers.lang);
-        
+
     } catch (err) {
         console.error('Error(getAllUsers)....', err);
         return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);

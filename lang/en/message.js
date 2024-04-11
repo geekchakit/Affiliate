@@ -46,8 +46,14 @@ module.exports = {
         already_exist: 'this email already is exists',
         otp_not_matched: 'otp not matched',
         verify_otp: 'Your Otp is successfully verified',
-        upload_data:'successfully upload excel file',
-        getAllExcelData:'successfully get all excel data'
+        upload_data: 'successfully upload excel file',
+        getAllExcelData: 'successfully get all excel data',
+        document_is_not_updated: 'document was not updated please update your document details',
+        acount_not_verify: 'account was not verifyed please wait',
+        document_already_updated: 'already updated your document',
+        update_documents: 'successfully updated yout document',
+        already_verify: 'account already verified',
+        user_account_verify: 'successfully verified user account'
     },
     'GENERAL': {
         general_error_content: 'Something went wrong. Please try again later.',

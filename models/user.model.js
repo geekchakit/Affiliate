@@ -19,7 +19,7 @@ const userSchema = new Schema({
         trim: true,
         lowercase: true,
     },
-    full_name: {
+    name: {
         type: String,
         default: null
     },
@@ -30,17 +30,37 @@ const userSchema = new Schema({
     mobile_number: {
         type: String
     },
-    userName: {
+    gender: {
         type: String,
+        default: null,
     },
-    campaign: [{
-        type: String
-    }],
-    idNumber: {
-        type: String
+    date_of_birth: {
+        type: String,
+        default: null
+    },
+    state: {
+        type: String,
+        default: null
     },
     country: {
-        type: String
+        type: String,
+        default: null
+    },
+    ciy: {
+        type: String,
+        default: null
+    },
+    adharacard: {
+        type: Number,
+        default: null
+    },
+    address: {
+        type: String,
+        default: null
+    },
+    pancard: {
+        type: String,
+        default: null
     },
     user_type: {
         type: Number, //1-admin 2-user
@@ -53,10 +73,6 @@ const userSchema = new Schema({
     signup_status: {
         type: Number,
         default: 1 //
-    },
-    is_verify: {
-        type: Boolean,
-        default: false
     },
     device_token: {
         type: String,
@@ -75,15 +91,15 @@ const userSchema = new Schema({
     tempTokens: {
         type: String
     },
-    trackingId: {
+    tracking_id: {
         type: String,
         default: null
     },
-    OTP: {
-        type: String,
-        default: null,
+    is_verify: {
+        type: Boolean,
+        default: false
     },
-    isVerify: {
+    is_upload: {
         type: Boolean,
         default: false
     },

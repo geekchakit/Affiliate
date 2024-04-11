@@ -17,7 +17,7 @@ const {
     JWT_SECRET
 } = require('../../keys/keys');
 const { v4: uuid } = require('uuid');
-const { LoginResponse, signUpResponse, sendWelcomeEmail } = require('../../ResponseData/user.response');
+const { LoginResponse, signUpResponse, sendWelcomeEmail, updateResponse, accountVerifyResponse } = require('../../ResponseData/user.response');
 const { sendMail } = require('../../services/email.services')
 const Campaign = require('../../models/campaign.model')
 const excelData = require('../../models/excelData.model')
@@ -37,30 +37,23 @@ exports.signUp = async (req, res, next) => {
             return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'GENERAL.blackList_mail', {}, req.headers.lang);
 
         const existEmail = await User.findOne({ email: reqBody.email });
+
         if (existEmail)
             return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.already_exist', {}, req.headers.lang);
 
         reqBody.password = await bcrypt.hash(reqBody.password, 10);
         reqBody.created_at = await dateFormat.set_current_timestamp();
         reqBody.updated_at = await dateFormat.set_current_timestamp();
+
         reqBody.tempTokens = await jwt.sign({
             data: reqBody.email
         }, JWT_SECRET, {
             expiresIn: constants.URL_EXPIRE_TIME
         });
-        let arr = [];
-        arr.push(reqBody.campaign)
-        reqBody.campaign = arr
-        reqBody.IdNumber = uuid()
+
         reqBody.device_type = (reqBody.device_type) ? reqBody.device_type : null
         reqBody.device_token = (reqBody.device_token) ? reqBody.device_token : null
         const user = await Usersave(reqBody);
-
-        const campaigns = await Campaign.findOne({ campaignName: reqBody.campaign });
-        let arr2 = []
-        arr2.push(user._id);
-        campaigns.userId = arr2;
-        await campaigns.save();
         const users = signUpResponse(user)
 
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.signUp_success', users, req.headers.lang);
@@ -113,15 +106,17 @@ exports.login = async (req, res, next) => {
         if (user.status == 2) return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.deactive_account', {}, req.headers.lang);
         if (user.deleted_at != null) return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.inactive_account', {}, req.headers.lang);
 
+        if (user.is_upload === false)
+            return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.document_is_not_updated', {}, req.headers.lang);
+
+        if (user.is_verify === false)
+            return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.acount_not_verify', {}, req.headers.lang);
+
         let newToken = await user.generateAuthToken();
         let refreshToken = await user.generateRefreshToken()
 
         user.device_type = (reqBody.device_type) ? reqBody.device_type : null
         user.device_token = (reqBody.device_token) ? reqBody.device_token : null;
-        let otp = Math.floor(100000 + Math.random() * 900000);
-        user.OTP = otp
-        let text = sendWelcomeEmail(user.full_name, otp)
-        sendMail(user.email, text)
 
         await user.save();
         let users = LoginResponse(user)
@@ -136,30 +131,86 @@ exports.login = async (req, res, next) => {
 
 
 
-exports.verifyOtp = async (req, res) => {
+exports.update_document = async (req, res) => {
 
     try {
 
-        const userId = req.user._id;
-        const users = await User.findById(userId);
+        const reqBody = req.body;
+        const { userId } = req.params;
 
-        if (!users || users.user_type !== constants.USER_TYPE.USER)
-            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.FAIL, 'USER.invalid_user', {}, req.headers.lang);
+        const user = await User.findById(userId);
 
-        if (users.OTP !== req.body.otp && users.OTP === null)
-            return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.otp_not_matched', {}, req.headers.lang);
+        if (!user || user.user_type !== constants.USER_TYPE.USER)
+            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
 
-        users.OTP = null;
-        users.isVerify = true;
-        users.updated_at = dateFormat.set_current_timestamp();
-        await users.save();
+        if (user.is_upload === true)
+            return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.document_already_updated', {}, req.headers.lang);
 
-        let user = signUpResponse(users)
+        const userData = await User.findOneAndUpdate({ _id: userId },
+            {
+                $set:
+                {
+                    gender: reqBody.gender,
+                    city: reqBody.city,
+                    country: reqBody.country,
+                    state: reqBody.state,
+                    pancard: reqBody.pancard,
+                    address: reqBody.address,
+                    adharacard: reqBody.adharacard,
+                    date_of_birth: reqBody.date_of_birth,
+                    is_upload: true,
+                    updated_at: dateFormat.set_current_timestamp()
 
-        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.verify_otp', user, req.headers.lang);
+                }
+            },
+            { new: true }
+        );
+
+        const responseData = updateResponse(userData);
+
+        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.update_documents', responseData, req.headers.lang);
 
     } catch (err) {
-        console.log('err(verifyOtp).....', err)
+        console.log('err(update_document).....', err)
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang)
+    }
+}
+
+
+exports.account_verify = async (req, res) => {
+
+    try {
+
+        const adminId = req.user._id;
+        const { userId } = req.params;
+
+        const user = await User.findById(adminId);
+
+        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
+
+        const users = await User.findById(userId);
+
+        if (users.is_verify === true)
+            return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.already_verify', {}, req.headers.lang);
+
+        const userData = await User.findOneAndUpdate({ _id: userId },
+            {
+                $set:
+                {
+                    is_verify: true,
+                    updated_at: dateFormat.set_current_timestamp()
+                }
+            },
+            { new: true }
+        );
+
+        const responseData = accountVerifyResponse(userData);
+
+        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.user_account_verify', responseData, req.headers.lang);
+
+    } catch (err) {
+        console.log('err(update_document).....', err)
         return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang)
     }
 }
