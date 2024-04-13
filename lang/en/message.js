@@ -53,7 +53,8 @@ module.exports = {
         document_already_updated: 'already updated your document',
         update_documents: 'successfully updated yout document',
         already_verify: 'account already verified',
-        user_account_verify: 'successfully verified user account'
+        user_account_verify: 'successfully verified user account',
+        get_profile: 'successfully get the profile'
     },
     'GENERAL': {
         general_error_content: 'Something went wrong. Please try again later.',

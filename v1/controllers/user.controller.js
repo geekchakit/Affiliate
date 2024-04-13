@@ -23,6 +23,7 @@ const Campaign = require('../../models/campaign.model')
 const excelData = require('../../models/excelData.model')
 const fs = require('fs');
 const xlsx = require('xlsx');
+const Tax = require('../../models/tax.model');
 
 
 
@@ -109,6 +110,9 @@ exports.login = async (req, res, next) => {
         if (user.status == 0) return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.inactive_account', {}, req.headers.lang);
         if (user.status == 2) return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.deactive_account', {}, req.headers.lang);
         if (user.deleted_at != null) return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.inactive_account', {}, req.headers.lang);
+
+        if (user.is_upload === false)
+            return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.document_is_not_updated', user, req.headers.lang);
 
         if (user.is_verify === false)
             return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.acount_not_verify', user, req.headers.lang);
@@ -218,25 +222,140 @@ exports.account_verify = async (req, res) => {
 }
 
 
-exports.account_verify = async (req, res) => {
+exports.get_profile = async (req, res) => {
+
+    try {
+
+        const { user_id } = req.body;
+
+        const userData = await User.findById(user_id);
+        const taxList = await Tax.find({ userId: userData._id });
+
+        const data = {
+            userData: {
+                user_id: userData._id,
+                email: userData.email,
+                name: userData.name,
+                mobile_number: userData.mobile_number,
+                state: userData.state,
+                country: userData.country,
+                city: userData.city,
+                gender: userData.gender,
+                date_of_birth: userData.date_of_birth,
+                is_verify: userData.is_verify,
+                is_upload: userData.is_upload,
+                pancard: userData.pancard,
+                address: userData.address,
+                adharacard: userData.adharacard
+            },
+            taxList: taxList.map(data => ({
+                tax_id: data._id,
+                name: data.name,
+                type_of_entity: data.type_of_entity,
+                pancard: data.pancard,
+                country: data.country,
+                city: data.city,
+                ref_id: data.ref_id,
+                address: data.address,
+                zipcode: data.zipcode,
+            })),
+            billingList: []
+        }
+
+
+        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.get_profile', data, req.headers.lang);
+
+    } catch (err) {
+        console.log('err(get_profile).....', err)
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang)
+    }
+}
+
+
+exports.update_profile = async (req, res) => {
 
     try {
 
         const userId = req.user._id;
-
         const user = await User.findById(userId);
 
-        if (!user || (user.user_type !== constants.USER_TYPE.USER || user.user_type !== constants.USER_TYPE.USER))
+        if (!user || user.user_type !== constants.USER_TYPE.USER)
             return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
 
+        const userData = await User.findOneAndUpdate({ _id: userId }, req.body, { new: true });
 
-        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.user_account_verify', responseData, req.headers.lang);
+        if (!userData)
+            return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.user_not_found', {}, req.headers.lang);
+
+        const data = {
+            user_id: userData._id,
+            email: userData.email,
+            name: userData.name,
+            mobile_number: userData.mobile_number,
+            state: userData.state,
+            country: userData.country,
+            city: userData.city,
+            gender: userData.gender,
+            date_of_birth: userData.date_of_birth,
+            is_verify: userData.is_verify,
+            is_upload: userData.is_upload,
+            pancard: userData.pancard,
+            address: userData.address,
+            adharacard: userData.adharacard
+        }
+
+
+        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.update_documents', data, req.headers.lang);
 
     } catch (err) {
-        console.log('err(update_document).....', err)
+        console.log('err(update_profile).....', err)
         return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang)
     }
 }
+
+
+
+exports.delete_profile = async (req, res) => {
+
+    try {
+
+        const adminId = req.user._id;
+        const user = await User.findOne({ _id: adminId });
+        const { userId } = req.params;
+
+        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
+
+        const userData = await User.findOneAndDelete({ _id: userId });
+
+        if (!userData)
+            return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.user_not_found', {}, req.headers.lang);
+
+        const data = {
+            user_id: userData._id,
+            email: userData.email,
+            name: userData.name,
+            mobile_number: userData.mobile_number,
+            state: userData.state,
+            country: userData.country,
+            city: userData.city,
+            gender: userData.gender,
+            date_of_birth: userData.date_of_birth,
+            is_verify: userData.is_verify,
+            is_upload: userData.is_upload,
+            pancard: userData.pancard,
+            address: userData.address,
+            adharacard: userData.adharacard
+        }
+
+        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.user_deleted', data, req.headers.lang);
+
+    } catch (err) {
+        console.log('err(delete_profile).....', err)
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang)
+    }
+}
+
 
 
 
