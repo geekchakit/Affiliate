@@ -15,6 +15,7 @@ const { v4: uuid } = require('uuid');
 
 
 
+
 exports.addTax = async (req, res, next) => {
 
     try {
@@ -29,6 +30,7 @@ exports.addTax = async (req, res, next) => {
         reqBody.created_at = await dateFormat.set_current_timestamp();
         reqBody.updated_at = await dateFormat.set_current_timestamp();
         reqBody.ref_id = uuid()
+        reqBody.userId = userId;
         const addTaxs = await Tax.create(reqBody);
 
         const data = {

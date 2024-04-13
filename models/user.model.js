@@ -155,13 +155,10 @@ userSchema.methods.generateAuthToken = async function () {
     const user = this;
     const token = await jwt.sign({
         _id: user._id.toString()
-    }, JWT_SECRET, { expiresIn: '24h' })
-    // user.tokens = user.tokens.concat({
-    //     token
-    // });
+    }, JWT_SECRET, { expiresIn: '48h' })
     user.tokens = token
     user.updated_at = await dateFormat.set_current_timestamp();
-    user.refresh_tokens_expires = await dateFormat.add_time_current_date(1, 'days')
+    user.refresh_tokens_expires = await dateFormat.add_time_current_date(7, 'days')
     await user.save()
     return token
 }
@@ -171,7 +168,6 @@ userSchema.methods.generateRefreshToken = async function () {
     const refresh_tokens = await jwt.sign({
         _id: user._id.toString()
     }, JWT_SECRET)
-
     user.refresh_tokens = refresh_tokens
     user.updated_at = await dateFormat.set_current_timestamp();
     await user.save()

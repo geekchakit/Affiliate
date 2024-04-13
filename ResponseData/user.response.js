@@ -8,6 +8,12 @@ exports.sendWelcomeEmail = (customerName, OTP) => {
             Your account has been successfully created. To get started, YOUR OTP IS :- ${OTP} `;
 }
 
+exports.sendVerifyEmail = (customerName) => {
+    return `Welcome To Our AFFILIATE MARKETING Services !
+            Dear ${customerName},
+            Your account has been successfully verified please go to login`;
+}
+
 
 
 exports.signUpResponse = (users) => {

@@ -4,6 +4,11 @@ const mongoose = require('mongoose');
 // Define schema for the entity
 const taxSchema = new mongoose.Schema({
 
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users',
+        default: null
+    },
     name: {
         type: String
     },

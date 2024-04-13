@@ -17,7 +17,7 @@ const {
     JWT_SECRET
 } = require('../../keys/keys');
 const { v4: uuid } = require('uuid');
-const { LoginResponse, signUpResponse, sendWelcomeEmail, updateResponse, accountVerifyResponse } = require('../../ResponseData/user.response');
+const { LoginResponse, signUpResponse, sendVerifyEmail, updateResponse, accountVerifyResponse } = require('../../ResponseData/user.response');
 const { sendMail } = require('../../services/email.services')
 const Campaign = require('../../models/campaign.model')
 const excelData = require('../../models/excelData.model')
@@ -111,7 +111,7 @@ exports.login = async (req, res, next) => {
         if (user.deleted_at != null) return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.inactive_account', {}, req.headers.lang);
 
         if (user.is_verify === false)
-            return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.acount_not_verify', {}, req.headers.lang);
+            return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.acount_not_verify', user, req.headers.lang);
 
         let newToken = await user.generateAuthToken();
         let refreshToken = await user.generateRefreshToken()
@@ -207,6 +207,28 @@ exports.account_verify = async (req, res) => {
         );
 
         const responseData = accountVerifyResponse(userData);
+        await sendMail(userData.email, sendVerifyEmail(userData.name))
+
+        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.user_account_verify', responseData, req.headers.lang);
+
+    } catch (err) {
+        console.log('err(update_document).....', err)
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang)
+    }
+}
+
+
+exports.account_verify = async (req, res) => {
+
+    try {
+
+        const userId = req.user._id;
+
+        const user = await User.findById(userId);
+
+        if (!user || (user.user_type !== constants.USER_TYPE.USER || user.user_type !== constants.USER_TYPE.USER))
+            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
+
 
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.user_account_verify', responseData, req.headers.lang);
 
