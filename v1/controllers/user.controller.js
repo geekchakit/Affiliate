@@ -182,6 +182,7 @@ exports.update_document = async (req, res) => {
 }
 
 
+
 exports.account_verify = async (req, res) => {
 
     try {
@@ -270,6 +271,7 @@ exports.get_profile = async (req, res) => {
         return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang)
     }
 }
+
 
 
 exports.update_profile = async (req, res) => {

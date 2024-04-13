@@ -16,7 +16,6 @@ const { BASEURL } = require('../../keys/development.keys')
 
 
 
-
 exports.addNewCampaign = async (req, res, next) => {
 
     try {
@@ -96,7 +95,7 @@ exports.getAllCampaignsList = async (req, res) => {
             // If no filters, fetch all campaigns
             campaigns = await Campaign.find(query)
                 .select('_id campaignName status countryName commissionName paymentTerm conversionRate confirmationRate isFavourite')
-                .populate('userId', '_id full_name email campaign')
+                .populate('userId', '_id name email mobile_number')
                 .sort()
                 .lean();
 
@@ -185,10 +184,9 @@ exports.updateCampaign = async (req, res) => {
         const { campaignId } = req.params;
         const userId = req.user._id;
         const reqBody = req.body;
-
         const users = await User.findById(userId);
 
-        if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
+        if (!users || (users.user_type !== constants.USER_TYPE.ADMIN))
             return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
 
         const campaign = await Campaign.findById(campaignId);
@@ -214,6 +212,31 @@ exports.updateCampaign = async (req, res) => {
 
     } catch (err) {
         console.error('Error(updateCampaign)....', err);
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
+    }
+}
+
+
+exports.getCampaign = async (req, res) => {
+
+    try {
+
+        const { campaignId } = req.params;
+        const userId = req.user._id;
+        const users = await User.findById(userId);
+
+        if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
+
+        const campaign = await Campaign.findById(campaignId);
+
+        if (!campaign)
+            return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, 'CAMPAIGN.not_found', {}, req.headers.lang);
+
+        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'CAMPAIGN.get_campaign', campaign, req.headers.lang);
+
+    } catch (err) {
+        console.error('Error(getCampaign)....', err);
         return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
     }
 }

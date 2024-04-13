@@ -70,7 +70,8 @@ module.exports = {
         already_existing_campaigns: 'this campaign already exists',
         faviorite_campaigns: 'add into your favourite campaign',
         delete_campaign: "successfully delete this campaign",
-        update_campaign: "successfully update this campaign"
+        update_campaign: "successfully update this campaign",
+        get_campaign: "successfully get this campaign",
     },
     'TAX':{
         add_tax:'successfully add a new tax'
