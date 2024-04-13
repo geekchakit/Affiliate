@@ -70,5 +70,8 @@ module.exports = {
         faviorite_campaigns: 'add into your favourite campaign',
         delete_campaign: "successfully delete this campaign",
         update_campaign: "successfully update this campaign"
+    },
+    'TAX':{
+        add_tax:'successfully add a new tax'
     }
 }

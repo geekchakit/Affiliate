@@ -125,7 +125,7 @@ exports.getAllUsers = async (req, res) => {
             usersQuery = usersQuery.where(query);
         }
 
-        const selectFields = '_id email name mobile_number user_type state country city gender date_of_birth';
+        const selectFields = '_id email name mobile_number user_type state country city gender date_of_birth is_verify is_upload gender reqBody.gender city country state pancard address adharacard';
         const users = await usersQuery.select(selectFields)
             .lean();
 

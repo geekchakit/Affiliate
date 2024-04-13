@@ -11,6 +11,7 @@ const usersRouter = require('./v1/routes/users');
 const indexAdminRouter = require('./admin/routes/index');
 const adminRouter = require('./admin/routes/admin');
 const campaginRouter = require('./v1/routes/campaign.rout');
+const taxRouter = require('./v1/routes/tax.rout')
 
 
 
@@ -55,13 +56,17 @@ app.use('/', indexRouter);
 app.use('/v1/users', usersRouter);
 app.use('/v1/', indexAdminRouter);
 app.use('/admin', adminRouter);
-app.use('/v1/campaigns', campaginRouter)
+app.use('/v1/campaigns', campaginRouter);
+app.use('/v1/tax' , taxRouter);
+
 
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
 });
+
+
 
 // error handler
 app.use(function (err, req, res, next) {

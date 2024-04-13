@@ -26,6 +26,10 @@ const xlsx = require('xlsx');
 
 
 
+
+
+
+
 exports.signUp = async (req, res, next) => {
 
     try {
@@ -105,9 +109,6 @@ exports.login = async (req, res, next) => {
         if (user.status == 0) return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.inactive_account', {}, req.headers.lang);
         if (user.status == 2) return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.deactive_account', {}, req.headers.lang);
         if (user.deleted_at != null) return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.inactive_account', {}, req.headers.lang);
-
-        if (user.is_upload === false)
-            return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.document_is_not_updated', {}, req.headers.lang);
 
         if (user.is_verify === false)
             return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'USER.acount_not_verify', {}, req.headers.lang);
