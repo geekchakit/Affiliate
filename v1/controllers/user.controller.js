@@ -24,6 +24,8 @@ const excelData = require('../../models/excelData.model')
 const fs = require('fs');
 const xlsx = require('xlsx');
 const Tax = require('../../models/tax.model');
+const Billing = require('../../models/billing.model');
+const { addBill } = require('./billing.controller');
 
 
 
@@ -231,6 +233,7 @@ exports.get_profile = async (req, res) => {
 
         const userData = await User.findById(user_id);
         const taxList = await Tax.find({ userId: userData._id });
+        const billList = await Billing.find({ userId: user_id })
 
         const data = {
             userData: {
@@ -248,7 +251,7 @@ exports.get_profile = async (req, res) => {
                 pancard: userData.pancard,
                 address: userData.address,
                 adharacard: userData.adharacard
-            },
+            } || {},
             taxList: taxList.map(data => ({
                 tax_id: data._id,
                 name: data.name,
@@ -259,10 +262,21 @@ exports.get_profile = async (req, res) => {
                 ref_id: data.ref_id,
                 address: data.address,
                 zipcode: data.zipcode,
-            })),
-            billingList: []
+            })) || [],
+            billingList: billList.map(addBill => ({
+                name: addBill.name,
+                pan_number: addBill.pan_number,
+                entity_type: addBill.entity_type,
+                entity: addBill.entity,
+                country: addBill.country,
+                currency: addBill.currency,
+                account_owner_name: addBill.account_owner_name,
+                bank_name: addBill.bank_name,
+                account_number: addBill.account_number,
+                ref_id: addBill.ref_id,
+                biil_id: addBill._id,
+            })) || []
         }
-
 
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.get_profile', data, req.headers.lang);
 

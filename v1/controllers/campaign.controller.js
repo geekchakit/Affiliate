@@ -31,7 +31,7 @@ exports.addNewCampaign = async (req, res, next) => {
 
         if (existCampaignName)
             return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'CAMPAIGN.already_existing_campaigns', {}, req.headers.lang);
-
+     
         reqBody.created_at = await dateFormat.set_current_timestamp();
         reqBody.updated_at = await dateFormat.set_current_timestamp();
 
@@ -85,7 +85,7 @@ exports.getAllCampaignsList = async (req, res) => {
         // Check if query has any filters
         if (Object.keys(query).length === 0) {
             campaigns = await Campaign.find()
-                .select('_id campaignName status countryName commissionName paymentTerm conversionRate confirmationRate isFavourite')
+                .select('_id campaignName status countryName commissionName CampaignImage paymentTerm conversionRate confirmationRate isFavourite')
                 .populate('userId', '_id full_name email campaign')
                 .sort()
                 .lean();
@@ -94,7 +94,7 @@ exports.getAllCampaignsList = async (req, res) => {
         } else {
             // If no filters, fetch all campaigns
             campaigns = await Campaign.find(query)
-                .select('_id campaignName status countryName commissionName paymentTerm conversionRate confirmationRate isFavourite')
+                .select('_id campaignName status countryName CampaignImage commissionName paymentTerm conversionRate confirmationRate isFavourite')
                 .populate('userId', '_id name email mobile_number')
                 .sort()
                 .lean();

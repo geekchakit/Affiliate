@@ -74,6 +74,17 @@ module.exports = {
         get_campaign: "successfully get this campaign",
     },
     'TAX':{
-        add_tax:'successfully add a new tax'
+        add_tax:'successfully add a new tax',
+        tax_not_found:'tax data not found',
+        get_all_tax:'successfully get all the tax',
+        update_tax:'successfully update the tax details',
+        delete_tax:'successfully delete the tax details'
+    },
+    'BILL':{
+        add_bill:'successfully add a new bill',
+        bill_not_found:'bill data not found',
+        get_all_bill:'successfully get all the bill',
+        update_bill:'successfully update the bill details',
+        delete_bill:'successfully delete the bill details'
     }
 }
