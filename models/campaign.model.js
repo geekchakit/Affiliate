@@ -12,6 +12,10 @@ const campaginSchema = new mongoose.Schema({
         type: String,
         enum: ['active', 'inactive']
     },
+    campaignRequest: {
+        type: String,
+        enum: ['request', 'pending', 'joined']
+    },
     countryName: {
         type: String,
     },
@@ -27,11 +31,11 @@ const campaginSchema = new mongoose.Schema({
     confirmationRate: {
         type: String
     },
-    userId: [{
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users',
         default: null
-    }],
+    },
     created_at: {
         type: String
     },

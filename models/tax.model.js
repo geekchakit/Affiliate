@@ -24,6 +24,9 @@ const taxSchema = new mongoose.Schema({
     city: {
         type: String,
     },
+    state: {
+        type: String,
+    },
     ref_id: {
         type: String
     },

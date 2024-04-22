@@ -72,6 +72,8 @@ module.exports = {
         delete_campaign: "successfully delete this campaign",
         update_campaign: "successfully update this campaign",
         get_campaign: "successfully get this campaign",
+        campaign_request_list:"successfully get all the request campaign list",
+        update_campaign_request:'successfully update the request'
     },
     'TAX':{
         add_tax:'successfully add a new tax',

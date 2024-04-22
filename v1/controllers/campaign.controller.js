@@ -16,6 +16,7 @@ const { BASEURL } = require('../../keys/development.keys')
 
 
 
+
 exports.addNewCampaign = async (req, res, next) => {
 
     try {
@@ -31,7 +32,7 @@ exports.addNewCampaign = async (req, res, next) => {
 
         if (existCampaignName)
             return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'CAMPAIGN.already_existing_campaigns', {}, req.headers.lang);
-     
+
         reqBody.created_at = await dateFormat.set_current_timestamp();
         reqBody.updated_at = await dateFormat.set_current_timestamp();
 
@@ -288,7 +289,7 @@ exports.uploadImage = async (req, res) => {
             return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, 'CAMPAIGN.not_found', {}, req.headers.lang);
 
         const files = req.file;
-        console.log("files" , files);
+        console.log("files", files);
         campaign.CampaignImage = `${BASEURL}/uploads/${files.filename}`;
         await campaign.save()
 
@@ -301,3 +302,101 @@ exports.uploadImage = async (req, res) => {
 }
 
 
+
+exports.getAllCampaignsRequestList = async (req, res) => {
+
+    try {
+
+        const userId = req.user._id;
+        const { status, campaignRequest } = req.query;
+
+        const user = await User.findById(userId);
+
+        if (!user || ![constants.USER_TYPE.ADMIN, constants.USER_TYPE.USER].includes(user.user_type))
+            return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'GENERAL.unauthorized_user', {}, req.headers.lang);
+
+        const query = {};
+        if (status) {
+            query.status = status
+        }
+
+        if (campaignRequest) {
+            const campaignRequestRegex = new RegExp(campaignRequest, 'i');
+            query.$or = [
+                { campaignRequest: campaignRequestRegex },
+            ];
+        }
+
+        let campaigns;
+        let totalCampaigns;
+        if (Object.keys(query).length === 0) {
+            campaigns = await Campaign.find()
+                .select('_id campaignName status campaignRequest countryName commissionName CampaignImage paymentTerm conversionRate confirmationRate isFavourite')
+                .populate('userId', '_id full_name email campaign')
+                .sort()
+                .lean();
+
+            totalCampaigns = await Campaign.countDocuments();
+        } else {
+            campaigns = await Campaign.find(query)
+                .select('_id campaignName status campaignRequest countryName CampaignImage commissionName paymentTerm conversionRate confirmationRate isFavourite')
+                .populate('userId', '_id name email mobile_number')
+                .sort()
+                .lean();
+
+            totalCampaigns = await Campaign.countDocuments(query);
+        }
+
+        const responseData = campaigns.map(data => ({
+            totalCampaigns: totalCampaigns,
+            CampaignName: data.campaignName,
+            Status: data.status,
+            countryName: data.countryName,
+            commissionName: data.commissionName,
+            paymentTerm: data.paymentTerm,
+            ConversionRate: data.ConversionRate,
+            confirmationRate: data.confirmationRate,
+            CampaignImage: data.CampaignImage,
+            campaignRequest: data.campaignRequest,
+            isFavourite: data.isFavourite,
+            created_at: data.created_at,
+        })) || []
+
+
+        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'CAMPAIGN.campaign_request_list', responseData, req.headers.lang);
+
+
+    } catch (err) {
+        console.error('Error(getAllCampaignsRequestList)....', err);
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
+    }
+};
+
+
+exports.updateCampaignRequest = async (req, res) => {
+
+    try {
+
+        const { campaignId } = req.params;
+        const userId = req.user._id;
+        const users = await User.findById(userId);
+
+        if (!users || (users.user_type !== constants.USER_TYPE.USER))
+            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
+
+        const campaign = await Campaign.findById(campaignId);
+
+        if (!campaign)
+            return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, 'CAMPAIGN.not_found', {}, req.headers.lang);
+
+        campaign.userId = userId;
+        campaign.campaignRequest = "pending"
+        await campaign.save();
+
+        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'CAMPAIGN.update_campaign_request', campaign, req.headers.lang);
+
+    } catch (err) {
+        console.error('Error(updateCampaignRequest)....', err);
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
+    }
+}

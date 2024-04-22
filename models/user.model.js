@@ -11,6 +11,8 @@ const {
 const Schema = mongoose.Schema;
 
 
+
+
 //Define user schema
 const userSchema = new Schema({
 
@@ -102,6 +104,9 @@ const userSchema = new Schema({
     is_upload: {
         type: Boolean,
         default: false
+    },
+    campaign_request_accepted: {
+        type: Boolean
     },
     created_at: {
         type: String,

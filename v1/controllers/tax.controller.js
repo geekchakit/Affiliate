@@ -60,11 +60,10 @@ exports.getAllTax = async (req, res, next) => {
 
     try {
 
-        const reqBody = req.body
-        const { userId } = reqBody
-        const { limit } = req.query;
 
-        const selectFields = '_id name type_of_entity pancard country city ref_id address zipcode';
+        const { limit, userId } = req.query;
+
+        const selectFields = '_id name type_of_entity state pancard country city ref_id address zipcode';
         const alltheTaxList = await Tax.find({ userId: userId }).limit(limit).sort().populate('userId', 'name email _id').select(selectFields)
 
         if (!alltheTaxList || alltheTaxList.length === 0)
@@ -108,6 +107,7 @@ exports.updateTax = async (req, res, next) => {
             city: addTaxs.city,
             ref_id: addTaxs.ref_id,
             address: addTaxs.address,
+            state:addTaxs.state,
             zipcode: addTaxs.zipcode,
             created_at: addTaxs.created_at
         }
@@ -135,7 +135,7 @@ exports.deleteTax = async (req, res, next) => {
             return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
 
         const addTaxs = await Tax.findOneAndDelete({ _id: taxId });
-    
+
         if (!addTaxs)
             return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'TAX.tax_not_found', {}, req.headers.lang);
 
