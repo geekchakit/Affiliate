@@ -12,6 +12,8 @@ const constants = require('../../config/constants')
 const { addCampaignResponse } = require('../../ResponseData/campaign.reponse');
 const Campaign = require('../../models/campaign.model');
 const { BASEURL } = require('../../keys/development.keys')
+const JoinedCampaign = require('../../models/joinedCampaign.model')
+
 
 
 
@@ -303,6 +305,7 @@ exports.uploadImage = async (req, res) => {
 
 
 
+
 exports.getAllCampaignsRequestList = async (req, res) => {
 
     try {
@@ -362,9 +365,7 @@ exports.getAllCampaignsRequestList = async (req, res) => {
             created_at: data.created_at,
         })) || []
 
-
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'CAMPAIGN.campaign_request_list', responseData, req.headers.lang);
-
 
     } catch (err) {
         console.error('Error(getAllCampaignsRequestList)....', err);
@@ -373,25 +374,26 @@ exports.getAllCampaignsRequestList = async (req, res) => {
 };
 
 
+
+
 exports.updateCampaignRequest = async (req, res) => {
 
     try {
 
-        const { campaignId } = req.params;
         const userId = req.user._id;
+        const reqBody = req.body;
+        const { campaignId } = reqBody
         const users = await User.findById(userId);
 
         if (!users || (users.user_type !== constants.USER_TYPE.USER))
             return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
 
-        const campaign = await Campaign.findById(campaignId);
+        reqBody.created_at = dateFormat.set_current_timestamp();
+        reqBody.updated_at = dateFormat.set_current_timestamp();
+        reqBody.campaignId = campaignId;
+        reqBody.userId = userId;
 
-        if (!campaign)
-            return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, 'CAMPAIGN.not_found', {}, req.headers.lang);
-
-        campaign.userId = userId;
-        campaign.campaignRequest = "pending"
-        await campaign.save();
+        const campaign = await JoinedCampaign.create(reqBody);
 
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'CAMPAIGN.update_campaign_request', campaign, req.headers.lang);
 
@@ -400,3 +402,5 @@ exports.updateCampaignRequest = async (req, res) => {
         return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
     }
 }
+
+

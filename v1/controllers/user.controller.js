@@ -26,6 +26,7 @@ const xlsx = require('xlsx');
 const Tax = require('../../models/tax.model');
 const Billing = require('../../models/billing.model');
 const { addBill } = require('./billing.controller');
+const JoinedCampaign = require('../../models/joinedCampaign.model')
 
 
 
@@ -320,7 +321,6 @@ exports.update_profile = async (req, res) => {
             adharacard: userData.adharacard
         }
 
-
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.update_documents', data, req.headers.lang);
 
     } catch (err) {
@@ -379,23 +379,23 @@ exports.uploadUserData = async (req, res) => {
 
     try {
 
-        const userId = req.user._id;
-        const users = await User.findById(userId);
-
-        const { userID } = req.body;
-        const user = await User.findById(userID)
-        console.log(user)
+        const userIds = req.user._id;
+        const users = await User.findById(userIds);
 
         if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.FAIL, 'USER.invalid_user', {}, req.headers.lang);
+        return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.FAIL, 'USER.invalid_user', {}, req.headers.lang);
 
+
+        const { userId } = req.body;
+        const userData = await User.findById(userId);
+
+        const user = await JoinedCampaign.findOne({ userId: userData._id })
 
         const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
 
         const data = xlsx.utils.sheet_to_json(worksheet);
-        console.log(users.trackingId)
         const dataWithoutSpaces = data.map(obj => {
             const newObj = {};
             Object.keys(obj).forEach(key => {
@@ -409,7 +409,7 @@ exports.uploadUserData = async (req, res) => {
         const mappedData = uploadData.map(item => {
             const totalAmount = item.Revenue * 0.05;
             return {
-                userId: user._id,
+                userId: userData._id,
                 category: item.Category,
                 name: item.Name,
                 ascin: item.ASIN,
@@ -434,18 +434,21 @@ exports.uploadUserData = async (req, res) => {
     }
 }
 
+
 exports.AllExcelData = async (req, res) => {
+
     try {
+
         const { userId } = req.body;
 
-        // Find data based on the userId
         const users = await excelData.find({ userId: userId });
 
-        if (!users || users.length === 0) {
+        if (!users || users.length === 0) 
             return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, 'USER.user_not_found', {}, req.headers.lang);
-        }
+        
 
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.getAllExcelData', users, req.headers.lang);
+
     } catch (err) {
         console.error('Error(AllExcelData)....', err);
         return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);

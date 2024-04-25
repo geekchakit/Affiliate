@@ -93,10 +93,6 @@ const userSchema = new Schema({
     tempTokens: {
         type: String
     },
-    tracking_id: {
-        type: String,
-        default: null
-    },
     is_verify: {
         type: Boolean,
         default: false

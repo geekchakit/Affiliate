@@ -15,7 +15,7 @@ router.delete('/deleteCampaign/:campaignId', authenticate, deleteCampaign)
 router.post('/uploadImage', upload.single('image'), authenticate, uploadImage)
 router.get('/getCampaign/:campaignId', authenticate, getCampaign);
 router.get('/getAllCampaignsRequestList' , authenticate , getAllCampaignsRequestList);
-router.put('/updateCampaignRequest/:campaignId' , authenticate , updateCampaignRequest)
+router.post('/updateCampaignRequest' , authenticate , updateCampaignRequest)
 
 
 module.exports = router;

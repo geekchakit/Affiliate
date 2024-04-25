@@ -54,7 +54,9 @@ module.exports = {
         update_documents: 'successfully updated yout document',
         already_verify: 'account already verified',
         user_account_verify: 'successfully verified user account',
-        get_profile: 'successfully get the profile'
+        get_profile: 'successfully get the profile',
+        all_the_pending_user_list: 'successfully get all the pending user list',
+        joined_user: 'user successfully joined the campaign'
     },
     'GENERAL': {
         general_error_content: 'Something went wrong. Please try again later.',
@@ -72,21 +74,21 @@ module.exports = {
         delete_campaign: "successfully delete this campaign",
         update_campaign: "successfully update this campaign",
         get_campaign: "successfully get this campaign",
-        campaign_request_list:"successfully get all the request campaign list",
-        update_campaign_request:'successfully update the request'
+        campaign_request_list: "successfully get all the request campaign list",
+        update_campaign_request: 'successfully update the request'
     },
-    'TAX':{
-        add_tax:'successfully add a new tax',
-        tax_not_found:'tax data not found',
-        get_all_tax:'successfully get all the tax',
-        update_tax:'successfully update the tax details',
-        delete_tax:'successfully delete the tax details'
+    'TAX': {
+        add_tax: 'successfully add a new tax',
+        tax_not_found: 'tax data not found',
+        get_all_tax: 'successfully get all the tax',
+        update_tax: 'successfully update the tax details',
+        delete_tax: 'successfully delete the tax details'
     },
-    'BILL':{
-        add_bill:'successfully add a new bill',
-        bill_not_found:'bill data not found',
-        get_all_bill:'successfully get all the bill',
-        update_bill:'successfully update the bill details',
-        delete_bill:'successfully delete the bill details'
+    'BILL': {
+        add_bill: 'successfully add a new bill',
+        bill_not_found: 'bill data not found',
+        get_all_bill: 'successfully get all the bill',
+        update_bill: 'successfully update the bill details',
+        delete_bill: 'successfully delete the bill details'
     }
 }

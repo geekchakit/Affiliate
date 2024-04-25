@@ -4,6 +4,8 @@ const dateFormat = require('../../helper/dateformat.helper');
 const constants = require('../../config/constants');
 const User = require('../../models/user.model');
 const { LoginResponse } = require('../../ResponseData/user.response');
+const JoinedCampaign = require('../../models/joinedCampaign.model')
+
 
 
 
@@ -143,6 +145,122 @@ exports.getAllUsers = async (req, res) => {
 
     } catch (err) {
         console.error('Error(getAllUsers)....', err);
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
+    }
+};
+
+
+
+exports.getAllPendingUsersList = async (req, res) => {
+
+    try {
+
+        const userId = req.user._id;
+        const user = await User.findById(userId);
+        const { status } = req.query;
+
+        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
+
+        const selectFields = '_id status';
+        const users = await JoinedCampaign.find({ status }).select(selectFields).populate('userId').populate('campaignId')
+
+        const totalUser = await JoinedCampaign.countDocuments(status);
+
+        let responseData = users.map(data => ({
+            totalPendingUser: totalUser,
+            _id: data._id,
+            status: users.status,
+            name: data.userId.name,
+            userId: data.userId._id,
+            gender: data.userId.gender,
+            date_of_birth: data.userId.date_of_birth,
+            state: data.userId.state,
+            country: data.userId.country,
+            city: data.userId.city,
+            adharacard: data.userId.adharacard,
+            address: data.userId.address,
+            pancard: data.userId.pancard,
+            user_type: data.userId.user_type,
+            is_verify: data.userId.is_verify,
+            is_upload: data.userId.is_upload,
+            email: data.userId.email,
+            campaignId: data.campaignId._id,
+            CampaignImage: data.campaignId.CampaignImage,
+            campaignName: data.campaignId.campaignName,
+            countryName: data.campaignId.countryName,
+            commissionName: data.campaignId.commissionName,
+            paymentTerm: data.campaignId.paymentTerm,
+            conversionRate: data.campaignId.conversionRate,
+            confirmationRate: data.campaignId.confirmationRate,
+
+        })) || []
+
+        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.all_the_pending_user_list', responseData, req.headers.lang);
+
+    } catch (err) {
+        console.error('Error(getAllPendingUsersList)....', err);
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
+    }
+};
+
+
+
+
+exports.userJoinedCampaigned = async (req, res) => {
+
+    try {
+
+        const adminId = req.user._id;
+        const user = await User.findById(adminId);
+        const { id, trackingId } = req.body;
+
+        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
+
+        const selectFields = '_id status';
+        const data = await JoinedCampaign.findOneAndUpdate({ _id: id }, {
+            $set:
+            {
+                status: 'joined',
+                trackingId: trackingId
+            }
+        },
+            { new: true },
+        ).select(selectFields).populate('userId').populate('campaignId')
+
+        let responseData = {
+            name: data.userId.name,
+            userId: data.userId._id,
+            _id:data._id,
+            status: data.status,
+            gender: data.userId.gender,
+            date_of_birth: data.userId.date_of_birth,
+            state: data.userId.state,
+            country: data.userId.country,
+            city: data.userId.city,
+            adharacard: data.userId.adharacard,
+            address: data.userId.address,
+            pancard: data.userId.pancard,
+            user_type: data.userId.user_type,
+            is_verify: data.userId.is_verify,
+            is_upload: data.userId.is_upload,
+            email: data.userId.email,
+            campaignId: data.campaignId._id,
+            CampaignImage: data.campaignId.CampaignImage,
+            campaignName: data.campaignId.campaignName,
+            countryName: data.campaignId.countryName,
+            commissionName: data.campaignId.commissionName,
+            paymentTerm: data.campaignId.paymentTerm,
+            conversionRate: data.campaignId.conversionRate,
+            confirmationRate: data.campaignId.confirmationRate,
+
+        } || {}
+
+        return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.joined_user', responseData, req.headers.lang);
+
+    } catch (err) {
+        console.error('Error(userJoinedCampaigned)....', err);
         return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
     }
 };
