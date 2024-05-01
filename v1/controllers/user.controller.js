@@ -233,9 +233,12 @@ exports.get_profile = async (req, res) => {
 
     try {
 
-        const { user_id } = req.body;
-
+        const user_id = req.user._id
         const userData = await User.findById(user_id);
+
+        if (!userData || userData.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
+
         const taxList = await Tax.find({ userId: userData._id });
         const billList = await Billing.find({ userId: user_id })
 
