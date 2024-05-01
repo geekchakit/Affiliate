@@ -50,21 +50,13 @@ exports.addNewCampaign = async (req, res, next) => {
 }
 
 
+
 exports.getAllCampaignsList = async (req, res) => {
 
     try {
-
-        const { campaignName, isFavourite, keyword } = req.query;
-
+        
+        const { campaignName, isFavourite } = req.query;
         const query = {};
-
-        if (campaignName) {
-            query.campaignName = campaignName;
-        }
-
-        if (isFavourite) {
-            query.isFavourite = isFavourite
-        }
 
         if (campaignName) {
             const campaignNameRegex = new RegExp(campaignName, 'i');
@@ -74,65 +66,32 @@ exports.getAllCampaignsList = async (req, res) => {
             ];
         }
 
-        if (campaignName) {
-            const campaignNameRegex = new RegExp(campaignName, 'i');
-            query.$or = [
-                { campaignName: campaignNameRegex },
-                { $text: { $search: campaignName } }
-            ];
+        if (isFavourite) {
+            query.isFavourite = isFavourite;
         }
 
-        let campaigns;
-        let totalCampaigns;
-
-        // Check if query has any filters
-        if (Object.keys(query).length === 0) {
-            campaigns = await Campaign.find()
-                .select('_id campaignName status countryName commissionName CampaignImage paymentTerm conversionRate confirmationRate isFavourite')
-                .populate('userId', '_id full_name email campaign')
-                .sort()
-                .lean();
-
-            totalCampaigns = await Campaign.countDocuments();
-        } else {
-            // If no filters, fetch all campaigns
-            campaigns = await Campaign.find(query)
+        const [campaigns, totalCampaigns] = await Promise.all([
+            Campaign.find(query)
                 .select('_id campaignName status countryName CampaignImage commissionName paymentTerm conversionRate confirmationRate isFavourite')
-                .populate('userId', '_id name email mobile_number')
-                .sort()
-                .lean();
-
-            totalCampaigns = await Campaign.countDocuments(query);
-        }
+                .populate('userId', '_id full_name email mobile_number')
+                .sort({ createdAt: -1 }),
+            Campaign.countDocuments(query)
+        ]);
 
         if (!campaigns || campaigns.length === 0) {
-            return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, 'CAMPAIGN.not_found', {}, req.headers.lang);
+            return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'CAMPAIGN.not_found', [], req.headers.lang);
         }
 
         const campaignNameCounts = {};
-        const userIdCounts = {};
+        const userIdSet = new Set();
 
         campaigns.forEach(campaign => {
-            const campaignName = campaign.campaignName;
-
+            const { campaignName} = campaign;
             if (!campaignNameCounts[campaignName]) {
                 campaignNameCounts[campaignName] = 0;
-                userIdCounts[campaignName] = new Set();
             }
-
-            if (campaign.userId) {
-                campaign.userId.forEach(user => {
-                    userIdCounts[campaignName].add(user._id.toString());
-                });
-                campaignNameCounts[campaignName]++;
-            }
+            campaignNameCounts[campaignName]++;
         });
-
-        // Count the total number of unique users across all campaigns
-        let totalUniqueUsers = 0;
-        for (const campaignName in userIdCounts) {
-            totalUniqueUsers += userIdCounts[campaignName].size;
-        }
 
         const data = {
             totalCampaigns: totalCampaigns,
@@ -361,6 +320,7 @@ exports.getAllCampaignsRequestList = async (req, res) => {
             confirmationRate: data.confirmationRate,
             CampaignImage: data.CampaignImage,
             campaignRequest: data.campaignRequest,
+            conversionRate: data.conversionRate,
             isFavourite: data.isFavourite,
             created_at: data.created_at,
         })) || []

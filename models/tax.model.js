@@ -34,7 +34,7 @@ const taxSchema = new mongoose.Schema({
         type: String,
     },
     zipcode: {
-        type: String
+        type: Number
     },
     created_at: {
         type: String

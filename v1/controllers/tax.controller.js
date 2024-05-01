@@ -43,6 +43,7 @@ exports.addTax = async (req, res, next) => {
             ref_id: addTaxs.ref_id,
             address: addTaxs.address,
             zipcode: addTaxs.zipcode,
+            user_id: addTaxs.userId,
             created_at: addTaxs.created_at
         }
 
@@ -60,8 +61,13 @@ exports.getAllTax = async (req, res, next) => {
 
     try {
 
+        const { limit } = req.query;
+        const userId = req.user._id;
 
-        const { limit, userId } = req.query;
+        const user = await User.findById(userId)
+
+        if (!user || ![constants.USER_TYPE.ADMIN, constants.USER_TYPE.USER].includes(user.user_type))
+            return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'GENERAL.unauthorized_user', {}, req.headers.lang);
 
         const selectFields = '_id name type_of_entity state pancard country city ref_id address zipcode';
         const alltheTaxList = await Tax.find({ userId: userId }).limit(limit).sort().populate('userId', 'name email _id').select(selectFields)
@@ -107,7 +113,7 @@ exports.updateTax = async (req, res, next) => {
             city: addTaxs.city,
             ref_id: addTaxs.ref_id,
             address: addTaxs.address,
-            state:addTaxs.state,
+            state: addTaxs.state,
             zipcode: addTaxs.zipcode,
             created_at: addTaxs.created_at
         }

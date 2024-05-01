@@ -10,6 +10,7 @@ exports.addCampaignResponse = (data) => {
         paymentTerm: data.paymentTerm,
         conversionRate: data.conversionRate,
         confirmationRate: data.confirmationRate,
-        isFavourite: data.isFavourite
+        isFavourite: data.isFavourite,
+        userId:data.userId,
     }
 }
