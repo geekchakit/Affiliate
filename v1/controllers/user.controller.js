@@ -383,21 +383,23 @@ exports.delete_profile = async (req, res) => {
 
 
 
-
 exports.uploadUserData = async (req, res) => {
 
     try {
+        
+        const userId = req.user._id;
+        const { userId: targetUserId } = req.body;
 
-        const userIds = req.user._id;
-        const { userId } = req.body;
-        const users = await User.findById(userIds);
+        const user = await User.findById(userId);
 
-        if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
+        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
             return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.FAIL, 'USER.invalid_user', {}, req.headers.lang);
 
-        const userData = await User.findById(userId);
+        const allUsers = await User.find();
+        const userList = allUsers.map(user => user._id);
 
-        const user = await JoinedCampaign.findOne({ userId: userData._id })
+        const joinedCampaigns = await JoinedCampaign.find({ userId: { $in: userList } });
+        const trackingIds = joinedCampaigns.map(campaign => campaign.trackingId);
 
         const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
@@ -412,35 +414,34 @@ exports.uploadUserData = async (req, res) => {
             return newObj;
         });
 
-        const uploadData = dataWithoutSpaces.filter((data) => data.TrackingID == user.trackingId);
-
-        const mappedData = uploadData.map(item => {
-
-            const totalAmount = item.Revenue * 0.05;
-            return {
-                userId: userData._id,
-                category: item.Category,
-                name: item.Name,
-                ascin: item.ASIN,
-                seller: item.Seller,
-                trackingId: item.TrackingID,
-                shippedDate: item.DateShipped,
-                price: item.Price,
-                itemShipped: item.ItemsShipped,
-                returns: item.Returns,
-                revenue: item.Revenue,
-                rate: item.Rate,
-                date: convertDaysToDate(item.Date),
-                totalAmount: totalAmount
-            };
-        });
+        const mappedData = dataWithoutSpaces
+            .filter(item => trackingIds.includes(item.TrackingID))
+            .map(item => {
+                const totalAmount = item.Revenue * 0.05;
+                return {
+                    userId: targetUserId || userId,
+                    category: item.Category,
+                    name: item.Name,
+                    ascin: item.ASIN,
+                    seller: item.Seller,
+                    trackingId: item.TrackingID,
+                    shippedDate: item.DateShipped,
+                    price: item.Price,
+                    itemShipped: item.ItemsShipped,
+                    returns: item.Returns,
+                    revenue: item.Revenue,
+                    rate: item.Rate,
+                    date: convertDaysToDate(item.Date),
+                    totalAmount: totalAmount
+                };
+            });
 
         const result = await excelData.insertMany(mappedData);
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.upload_data', result, req.headers.lang);
 
     } catch (err) {
-        console.log('err(uploadUserData).....', err)
-        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang)
+        console.log('Error in uploadUserData:', err);
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
     }
 }
 
