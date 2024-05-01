@@ -9,7 +9,7 @@ const {
     isValid
 } = require('../../services/blackListMail')
 const {
-    Usersave,
+    Usersave, convertDaysToDate,
 } = require('../services/user.service');
 const Keys = require('../../keys/keys')
 const constants = require('../../config/constants')
@@ -27,6 +27,9 @@ const Tax = require('../../models/tax.model');
 const Billing = require('../../models/billing.model');
 const { addBill } = require('./billing.controller');
 const JoinedCampaign = require('../../models/joinedCampaign.model')
+
+
+
 
 
 
@@ -380,13 +383,12 @@ exports.uploadUserData = async (req, res) => {
     try {
 
         const userIds = req.user._id;
+        const { userId } = req.body;
         const users = await User.findById(userIds);
 
         if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
-        return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.FAIL, 'USER.invalid_user', {}, req.headers.lang);
+            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.FAIL, 'USER.invalid_user', {}, req.headers.lang);
 
-
-        const { userId } = req.body;
         const userData = await User.findById(userId);
 
         const user = await JoinedCampaign.findOne({ userId: userData._id })
@@ -407,6 +409,7 @@ exports.uploadUserData = async (req, res) => {
         const uploadData = dataWithoutSpaces.filter((data) => data.TrackingID == user.trackingId);
 
         const mappedData = uploadData.map(item => {
+
             const totalAmount = item.Revenue * 0.05;
             return {
                 userId: userData._id,
@@ -421,6 +424,7 @@ exports.uploadUserData = async (req, res) => {
                 returns: item.Returns,
                 revenue: item.Revenue,
                 rate: item.Rate,
+                date: convertDaysToDate(item.Date),
                 totalAmount: totalAmount
             };
         });
@@ -443,9 +447,12 @@ exports.AllExcelData = async (req, res) => {
 
         const users = await excelData.find({ userId: userId });
 
-        if (!users || users.length === 0) 
+        if (!users || ![constants.USER_TYPE.ADMIN, constants.USER_TYPE.USER].includes(users.user_type))
+            return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'GENERAL.unauthorized_user', {}, req.headers.lang);
+
+        if (!users || users.length === 0)
             return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, 'USER.user_not_found', {}, req.headers.lang);
-        
+
 
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'USER.getAllExcelData', users, req.headers.lang);
 
