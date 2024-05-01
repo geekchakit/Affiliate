@@ -234,13 +234,16 @@ exports.get_profile = async (req, res) => {
     try {
 
         const user_id = req.user._id
-        const userData = await User.findById(user_id);
+        const { userId } = req.params;
+        const user = await User.findById(user_id);
 
-        if (!userData || userData.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
+        if (!user || ![constants.USER_TYPE.ADMIN, constants.USER_TYPE.USER].includes(user.user_type))
+            return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'GENERAL.unauthorized_user', {}, req.headers.lang);
+
+        const userData = await User.findById(userId);
 
         const taxList = await Tax.find({ userId: userData._id });
-        const billList = await Billing.find({ userId: user_id })
+        const billList = await Billing.find({ userId: userData._id })
 
         const data = {
             userData: {

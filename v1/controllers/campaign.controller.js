@@ -54,7 +54,7 @@ exports.addNewCampaign = async (req, res, next) => {
 exports.getAllCampaignsList = async (req, res) => {
 
     try {
-        
+
         const { campaignName, isFavourite } = req.query;
         const query = {};
 
@@ -105,6 +105,7 @@ exports.getAllCampaignsList = async (req, res) => {
         return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
     }
 };
+
 
 
 exports.isFavouriteCampaign = async (req, res) => {
