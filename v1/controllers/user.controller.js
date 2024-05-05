@@ -27,6 +27,7 @@ const Tax = require('../../models/tax.model');
 const Billing = require('../../models/billing.model');
 const { addBill } = require('./billing.controller');
 const JoinedCampaign = require('../../models/joinedCampaign.model')
+const ExcelHeaders = require('../../models/excelheaders');
 
 
 
@@ -389,6 +390,8 @@ exports.uploadUserData = async (req, res) => {
         
         const userId = req.user._id;
         const { userId: targetUserId } = req.body;
+        const campaignId = req.body.campaignId;
+        console.log('campaignId:', campaignId);
 
         const user = await User.findById(userId);
 
@@ -414,18 +417,21 @@ exports.uploadUserData = async (req, res) => {
             return newObj;
         });
 
+        console.log('dataWithoutSpaces:', dataWithoutSpaces);
+
         const mappedData = dataWithoutSpaces
             .filter(item => trackingIds.includes(item.TrackingID))
             .map(item => {
                 const totalAmount = item.Revenue * 0.05;
                 return {
+                    campaignId: campaignId,
                     userId: targetUserId || userId,
                     category: item.Category,
                     name: item.Name,
                     ascin: item.ASIN,
                     seller: item.Seller,
                     trackingId: item.TrackingID,
-                    shippedDate: item.DateShipped,
+                    shippedDate: convertDaysToDate(item.ShippedDate),
                     price: item.Price,
                     itemShipped: item.ItemsShipped,
                     returns: item.Returns,
@@ -465,6 +471,66 @@ exports.AllExcelData = async (req, res) => {
 
     } catch (err) {
         console.error('Error(AllExcelData)....', err);
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
+    }
+};
+
+exports.getExcelHeaders = async (req, res) => {
+    try{
+        const headers = await ExcelHeaders.find();
+        res.status(200).json(headers);
+    }
+    catch(err){
+        console.error('Error(getExcelHeaders)....', err);
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
+    }
+};
+
+exports.calculateUserRevenue = async (req, res) => {
+    try{
+        const { trackingId } = req.body;
+        if (!trackingId) {
+          //for all the users
+          console.log("For all the users");
+          const users = await excelData.find({});
+          const userRevenueData = users.reduce((acc, user) => {
+            if (!acc[user.userId]) {
+              acc[user.userId] = {
+                userId: user.userId,
+                totalAmount: 0,
+              };
+            }
+            acc[user.userId].totalAmount += user.totalAmount;
+            return acc;
+          }, {});
+            return sendResponse(
+                res,
+                constants.WEB_STATUS_CODE.OK,
+                constants.STATUS_CODE.SUCCESS,
+                "USER.calculateUserRevenue",
+                Object.values(userRevenueData),
+                req.headers.lang
+            );
+        } else {
+          console.log("trackingId", trackingId);
+          const users = await excelData.find({ trackingId: trackingId });
+          const userRevenueData = {
+            userId: users[0].userId,
+            trackingId: trackingId,
+            totalAmount: users.reduce((acc, user) => acc + user.totalAmount, 0),
+          };
+          return sendResponse(
+            res,
+            constants.WEB_STATUS_CODE.OK,
+            constants.STATUS_CODE.SUCCESS,
+            "USER.calculateUserRevenue",
+            userRevenueData,
+            req.headers.lang
+          );
+        }
+    }
+    catch(err){
+        console.error('Error(calculateUserRevenue)....', err);
         return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
     }
 };

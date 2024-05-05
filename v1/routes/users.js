@@ -13,6 +13,8 @@ const {
   get_profile,
   update_profile,
   delete_profile,
+  getExcelHeaders,
+  calculateUserRevenue,
 } = require('../controllers/user.controller');
 const upload = require('../../middleware/excelUpload')
 
@@ -29,6 +31,8 @@ router.put('/updateProfile', authenticate, update_profile);
 router.delete('/deleteProfile/:userId', authenticate, delete_profile)
 router.post('/uploadExcelFile', upload.single('file'), authenticate, uploadUserData)
 router.post('/getAllExcelData', AllExcelData)
+router.get('/getExcelHeaders', getExcelHeaders);
+router.post('/calculateUserRevenue', calculateUserRevenue);
 
 
 

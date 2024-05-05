@@ -1,12 +1,16 @@
 
 const mongoose = require('mongoose');
+const Campaign = require('./campaign.model');
 
 
 const excelSchema = new mongoose.Schema({
-
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users'
+    },
+    CampaignId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Campaign'
     },
     category: String,
     name: String,
@@ -22,7 +26,6 @@ const excelSchema = new mongoose.Schema({
     amount: Number,
     date: String,
     totalAmount:Number
-
 });
 
 const excelData = mongoose.model('excelData', excelSchema);
