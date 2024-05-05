@@ -364,4 +364,60 @@ exports.updateCampaignRequest = async (req, res) => {
     }
 }
 
+exports.requestToJoinCampaign = async (req, res) => {
+    try{
+       const {userId,campaignId} = req.body;
+       const update_campaign = await Campaign.findOneAndUpdate({_id:campaignId},{$push:{usersList:{userId:userId,status:"pending"}}},{new:true});
+       res.status(200).send({status:200,message:"Request sent successfully",data:update_campaign});
+    }
+    catch(err){
+        console.error('Error(requestToJoinCampaign)....', err);
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
+    }
+};
+
+exports.getRequestedUserList = async (req, res) => {
+    try{
+        const {campaignId} = req.body;
+        console.log("campaignId",campaignId);
+        const campaign = await Campaign.findOne({_id:campaignId});
+        if(!campaign){
+            return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, 'CAMPAIGN.not_found', {}, req.headers.lang);
+        }
+        const requestedUserList = campaign.usersList;
+        res.status(200).send({status:200,message:"Requested User List",data:requestedUserList});
+    }
+    catch(err){
+        console.error('Error(getRequestedUserList)....', err);
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
+    }
+};
+
+exports.updateRequestToJoinCampaign = async (req, res) => {
+  try {
+    const { userId, campaignId } = req.body;
+    const update_campaign = await Campaign.findOneAndUpdate(
+      { _id: campaignId, "usersList.userId": userId },
+      { $set: { "usersList.$.status": "joined" } },
+      { new: true }
+    );
+    res
+      .status(200)
+      .send({
+        status: 200,
+        message: "Request updated successfully",
+        data: update_campaign,
+      });
+  } catch (err) {
+    console.error("Error(updateRequestToJoinCampaign)....", err);
+    return sendResponse(
+      res,
+      constants.WEB_STATUS_CODE.SERVER_ERROR,
+      constants.STATUS_CODE.FAIL,
+      "GENERAL.general_error_content",
+      err.message,
+      req.headers.lang
+    );
+  }
+};
 
