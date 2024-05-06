@@ -324,6 +324,7 @@ exports.getAllCampaignsRequestList = async (req, res) => {
             conversionRate: data.conversionRate,
             isFavourite: data.isFavourite,
             created_at: data.created_at,
+            CampaignId:data._id,
         })) || []
 
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'CAMPAIGN.campaign_request_list', responseData, req.headers.lang);
@@ -367,7 +368,9 @@ exports.updateCampaignRequest = async (req, res) => {
 exports.requestToJoinCampaign = async (req, res) => {
     try{
        const {userId,campaignId} = req.body;
-       const update_campaign = await Campaign.findOneAndUpdate({_id:campaignId},{$push:{usersList:{userId:userId,status:"pending"}}},{new:true});
+       const userDetails = await User.findById(userId);
+       console.log(userDetails);
+       const update_campaign = await Campaign.findOneAndUpdate({_id:campaignId},{$push:{usersList:{userId:userId,status:"pending",name:userDetails.name,email:userDetails.email,mobile_number:userDetails.mobile_number,adharacard:userDetails.adharacard}}},{new:true});
        res.status(200).send({status:200,message:"Request sent successfully",data:update_campaign});
     }
     catch(err){

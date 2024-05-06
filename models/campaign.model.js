@@ -41,6 +41,22 @@ const campaginSchema = new mongoose.Schema({
         type: String,
         enum: ["pending", "joined", "rejected"],
       },
+      name:{
+        type:String,
+        require:false
+      },
+      email:{
+        type:String,
+        require:false
+      },
+      mobile_number:{
+        type:String,
+        require:false
+      },
+      adharacard:{
+        type:String,
+        requre:false
+      }
     },
   ],
   created_at: {

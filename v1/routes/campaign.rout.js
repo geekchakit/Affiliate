@@ -14,7 +14,7 @@ router.put('/updateCampaign/:campaignId', authenticate, updateCampaign)
 router.delete('/deleteCampaign/:campaignId', authenticate, deleteCampaign)
 router.post('/uploadImage', upload.single('image'), authenticate, uploadImage)
 router.get('/getCampaign/:campaignId', authenticate, getCampaign);
-router.get('/getAllCampaignsRequestList'  ,authenticate, getAllCampaignsRequestList);
+router.get('/getAllCampaignsRequestList'  , getAllCampaignsRequestList);
 router.post('/updateCampaignRequest' , authenticate , updateCampaignRequest);
 router.post('/requestToJoinCampaign'  , requestToJoinCampaign);
 router.post('/getRequestedUserList'  , getRequestedUserList);
