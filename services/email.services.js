@@ -52,3 +52,57 @@ const retry = require('retry');
     });
   });
 }
+
+exports.sendMailForCampaign = (email, text) => {
+  // Create a transporter using SMTP
+  const transporter = nodemailer.createTransport({
+
+    service: EMAIL_SERVICE,
+    auth: {
+      user: EMAIL_FORM,
+      pass: PASSWORD_FORM,
+    },
+  });
+
+  const retry = require("retry");
+
+  const operation = retry.operation({
+    retries: 3, // Number of retry attempts
+    factor: 2,
+    minTimeout: 1000,
+    maxTimeout: 60000,
+    randomize: true,
+  });
+
+  return new Promise((resolve, reject) => {
+    operation.attempt(async (currentAttempt) => {
+      try {
+        const mailOptions = {
+          from: {
+            name: "AFFILIATE MARKETING Services",
+            address: EMAIL_FORM,
+          },
+          to: "chakitsharma444@gmail.com",
+          subject: "AFFILIATE MARKETING Services",
+          html: text,
+        };
+        const info = await transporter.sendMail(mailOptions);
+        console.log("Email sent successfully:", info.response);
+        resolve(info);
+      } catch (error) {
+        console.error(
+          `Error sending email (attempt ${currentAttempt}):`,
+          error
+        );
+
+        if (operation.retry(error)) {
+          console.log(
+            `Retrying after ${operation._timeouts[operation._attempts - 1]} ms`
+          );
+        } else {
+          reject(error);
+        }
+      }
+    });
+  });
+};

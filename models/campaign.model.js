@@ -1,7 +1,4 @@
-
-const mongoose = require('mongoose');
-
-
+const mongoose = require("mongoose");
 
 const campaginSchema = new mongoose.Schema({
   campaignName: {
@@ -40,22 +37,6 @@ const campaginSchema = new mongoose.Schema({
       status: {
         type: String,
         enum: ["pending", "joined", "rejected"],
-      },
-      name:{
-        type:String,
-        require:false
-      },
-      email:{
-        type:String,
-        require:false
-      },
-      mobile_number:{
-        type:String,
-        require:false
-      },
-      adharacard:{
-        type:String,
-        requre:false
       }
     },
   ],
@@ -79,6 +60,5 @@ const campaginSchema = new mongoose.Schema({
   },
 });
 
-
-const Campaign = mongoose.model('campaign', campaginSchema);
+const Campaign = mongoose.model("campaign", campaginSchema);
 module.exports = Campaign;

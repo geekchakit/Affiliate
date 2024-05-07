@@ -13,6 +13,8 @@ const { addCampaignResponse } = require('../../ResponseData/campaign.reponse');
 const Campaign = require('../../models/campaign.model');
 const { BASEURL } = require('../../keys/development.keys')
 const JoinedCampaign = require('../../models/joinedCampaign.model')
+const { sendMailForCampaign } = require('../../services/email.services')
+const { sendCampignAcceptanceEmail } = require('../../ResponseData/user.response');
 
 
 
@@ -370,7 +372,7 @@ exports.requestToJoinCampaign = async (req, res) => {
        const {userId,campaignId} = req.body;
        const userDetails = await User.findById(userId);
        console.log(userDetails);
-       const update_campaign = await Campaign.findOneAndUpdate({_id:campaignId},{$push:{usersList:{userId:userId,status:"pending",name:userDetails.name,email:userDetails.email,mobile_number:userDetails.mobile_number,adharacard:userDetails.adharacard}}},{new:true});
+       const update_campaign = await Campaign.findOneAndUpdate({_id:campaignId},{$push:{usersList:{userId:userId,status:"pending"}}},{new:true});
        res.status(200).send({status:200,message:"Request sent successfully",data:update_campaign});
     }
     catch(err){
@@ -388,7 +390,30 @@ exports.getRequestedUserList = async (req, res) => {
             return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, 'CAMPAIGN.not_found', {}, req.headers.lang);
         }
         const requestedUserList = campaign.usersList;
-        res.status(200).send({status:200,message:"Requested User List",data:requestedUserList});
+        let requestedUserListData = await Promise.all(requestedUserList.map(async (requestedUser) => {
+            const userDetails = await User.findById(requestedUser.userId);
+            const data = {
+                name: userDetails.name,
+                gender: userDetails.gender,
+                date_of_birth: userDetails.date_of_birth,
+                email: userDetails.email,
+                mobile_number: userDetails.mobile_number,
+                adharacard: userDetails.adharacard,
+                status: requestedUser.status,
+                state: userDetails.state,
+                country: userDetails.country,
+                city: userDetails.city,
+                address: userDetails.address,
+                pancard: userDetails.pancard,
+                user_type: userDetails.user_type,
+                is_verify: userDetails.is_verify,
+                is_upload: userDetails.is_upload,
+                userId: userDetails._id
+            };
+            console.log(data);
+            return data;
+        }));
+        res.status(200).send({status:200,message:"Requested User List",data:requestedUserListData});
     }
     catch(err){
         console.error('Error(getRequestedUserList)....', err);
@@ -404,6 +429,9 @@ exports.updateRequestToJoinCampaign = async (req, res) => {
       { $set: { "usersList.$.status": "joined" } },
       { new: true }
     );
+    const userData = await User.findById(userId);
+    // await sendMail(update_campaign.email, sendCampignAcceptanceEmail(update_campaign.name, campignDetails.campaignName));
+    await sendMailForCampaign("chakitsharma444@gmail.com", sendCampignAcceptanceEmail(userData.name,update_campaign.name));
     res
       .status(200)
       .send({

@@ -14,6 +14,12 @@ exports.sendVerifyEmail = (customerName) => {
             Your account has been successfully verified please go to login`;
 }
 
+exports.sendCampignAcceptanceEmail = (customerName, campaignName) => {
+    return `Welcome To Our AFFILIATE MARKETING Services !
+            Dear ${customerName},
+            Your campaign ${campaignName} has been successfully accepted by the admin`;
+}
+
 
 
 exports.signUpResponse = (users) => {
