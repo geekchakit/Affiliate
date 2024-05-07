@@ -430,6 +430,7 @@ exports.updateRequestToJoinCampaign = async (req, res) => {
       { new: true }
     );
     const userData = await User.findById(userId);
+    console.log("update_campaign", update_campaign);
     // await sendMail(update_campaign.email, sendCampignAcceptanceEmail(update_campaign.name, campignDetails.campaignName));
     await sendMailForCampaign("chakitsharma444@gmail.com", sendCampignAcceptanceEmail(userData.name,update_campaign.name));
     res
@@ -451,4 +452,41 @@ exports.updateRequestToJoinCampaign = async (req, res) => {
     );
   }
 };
+
+exports.getCampaignForUser = async (req, res) => {
+    try{
+      const { userId } = req.body;
+      console.log("userId", userId);
+      const campaign = await Campaign.find({ usersList: { $elemMatch: { userId: userId } },});
+
+      let campignDetails = await Promise.all(campaign.map(async (camp) => {
+        const data ={
+            campaignName: camp.campaignName,
+            status: camp.status,
+            countryName: camp.countryName,
+            commissionName: camp.commissionName,
+            paymentTerm: camp.paymentTerm,
+            conversionRate: camp.conversionRate,
+            confirmationRate: camp.confirmationRate,
+            CampaignImage: camp.CampaignImage,
+            campaignRequest: await camp.usersList.find((user) => user.userId == userId).status,
+            conversionRate: camp.conversionRate,
+            isFavourite: camp.isFavourite,
+            created_at: camp.created_at,
+            CampaignId: camp._id,
+            userId: userId
+        };
+        return data;
+      }));
+
+      if (!campaign) {
+        return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, "CAMPAIGN.not_found",{},req.headers.lang);
+      }
+      res.status(200).send({ status: 200, message: "Campaign List", data: campignDetails });
+    }
+    catch(err){
+        console.error('Error(getCampaignForUser)....', err);
+        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
+    }
+}; 
 

@@ -36,7 +36,7 @@ const campaginSchema = new mongoose.Schema({
       },
       status: {
         type: String,
-        enum: ["pending", "joined", "rejected"],
+        enum: ["pending", "joined", "requested"],
       }
     },
   ],
