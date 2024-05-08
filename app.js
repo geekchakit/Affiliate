@@ -11,9 +11,8 @@ const usersRouter = require('./v1/routes/users');
 const indexAdminRouter = require('./admin/routes/index');
 const adminRouter = require('./admin/routes/admin');
 const campaginRouter = require('./v1/routes/campaign.rout');
-const taxRouter = require('./v1/routes/tax.rout')
-const billRouter = require('./v1/routes/bill.routes')
-
+const taxRouter = require('./v1/routes/tax.rout');
+const billRouter = require('./v1/routes/bill.routes');
 
 
 const app = express();
@@ -59,8 +58,7 @@ app.use('/v1/', indexAdminRouter);
 app.use('/admin', adminRouter);
 app.use('/v1/campaigns', campaginRouter);
 app.use('/v1/tax' , taxRouter);
-app.use('/v1/bill' , billRouter)
-
+app.use('/v1/bill' , billRouter);
 
 
 // catch 404 and forward to error handler

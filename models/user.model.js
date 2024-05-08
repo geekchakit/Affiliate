@@ -9,13 +9,8 @@ const {
 } = require('../keys/keys')
 
 const Schema = mongoose.Schema;
-
-
-
-
 //Define user schema
 const userSchema = new Schema({
-
     email: {
         type: String,
         trim: true,

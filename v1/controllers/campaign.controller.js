@@ -15,6 +15,7 @@ const { BASEURL } = require('../../keys/development.keys')
 const JoinedCampaign = require('../../models/joinedCampaign.model')
 const { sendMailForCampaign } = require('../../services/email.services')
 const { sendCampignAcceptanceEmail } = require('../../ResponseData/user.response');
+const {upload} = require('../../middleware/multer');
 
 
 
@@ -236,7 +237,10 @@ exports.deleteCampaign = async (req, res) => {
 
 
 
+
 exports.uploadImage = async (req, res) => {
+
+    
 
     try {
 
@@ -410,10 +414,11 @@ exports.getRequestedUserList = async (req, res) => {
                 is_upload: userDetails.is_upload,
                 userId: userDetails._id
             };
-            console.log(data);
+            // console.log(data);
             return data;
         }));
-        res.status(200).send({status:200,message:"Requested User List",data:requestedUserListData});
+        const filteredData = requestedUserListData.filter(requestedData =>requestedData.status=="pending");
+        res.status(200).send({status:200,message:"Requested User List",data:filteredData});
     }
     catch(err){
         console.error('Error(getRequestedUserList)....', err);
@@ -423,14 +428,17 @@ exports.getRequestedUserList = async (req, res) => {
 
 exports.updateRequestToJoinCampaign = async (req, res) => {
   try {
-    const { userId, campaignId } = req.body;
+    const { userId, campaignId, trackingId } = req.body;
+    console.log(userId);
+    console.log(campaignId);
+    console.log(trackingId);
     const update_campaign = await Campaign.findOneAndUpdate(
-      { _id: campaignId, "usersList.userId": userId },
-      { $set: { "usersList.$.status": "joined" } },
+      { _id: campaignId, "usersList.userId": userId},
+      { $set: { "usersList.$.status": "joined", "usersList.$.trackingId": trackingId } },
       { new: true }
     );
     const userData = await User.findById(userId);
-    console.log("update_campaign", update_campaign);
+    // console.log("update_campaign", update_campaign);
     // await sendMail(update_campaign.email, sendCampignAcceptanceEmail(update_campaign.name, campignDetails.campaignName));
     await sendMailForCampaign("chakitsharma444@gmail.com", sendCampignAcceptanceEmail(userData.name,update_campaign.name));
     res
@@ -454,39 +462,41 @@ exports.updateRequestToJoinCampaign = async (req, res) => {
 };
 
 exports.getCampaignForUser = async (req, res) => {
-    try{
+    try {
       const { userId } = req.body;
       console.log("userId", userId);
-      const campaign = await Campaign.find({ usersList: { $elemMatch: { userId: userId } },});
-
-      let campignDetails = await Promise.all(campaign.map(async (camp) => {
-        const data ={
-            campaignName: camp.campaignName,
-            status: camp.status,
-            countryName: camp.countryName,
-            commissionName: camp.commissionName,
-            paymentTerm: camp.paymentTerm,
-            conversionRate: camp.conversionRate,
-            confirmationRate: camp.confirmationRate,
-            CampaignImage: camp.CampaignImage,
-            campaignRequest: await camp.usersList.find((user) => user.userId == userId).status,
-            conversionRate: camp.conversionRate,
-            isFavourite: camp.isFavourite,
-            created_at: camp.created_at,
-            CampaignId: camp._id,
-            userId: userId
+      
+      // Fetch all campaigns
+      const campaigns = await Campaign.find();
+  
+      // Process each campaign
+      const campaignDetails = await Promise.all(campaigns.map(async (camp) => {
+        // Check if userId exists in usersList
+        const userIndex = camp.usersList.findIndex(user => user.userId == userId);
+        const campaignRequest = userIndex !== -1 ? camp.usersList[userIndex].status : 'request';
+  
+        return {
+          campaignName: camp.campaignName,
+          status: camp.status,
+          countryName: camp.countryName,
+          commissionName: camp.commissionName,
+          paymentTerm: camp.paymentTerm,
+          conversionRate: camp.conversionRate,
+          confirmationRate: camp.confirmationRate,
+          CampaignImage: camp.CampaignImage,
+          campaignRequest: campaignRequest,
+          isFavourite: camp.isFavourite,
+          created_at: camp.created_at,
+          CampaignId: camp._id,
+          userId: userId
         };
-        return data;
       }));
-
-      if (!campaign) {
-        return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, "CAMPAIGN.not_found",{},req.headers.lang);
-      }
-      res.status(200).send({ status: 200, message: "Campaign List", data: campignDetails });
+  
+      res.status(200).send({ status: 200, message: "Campaign List", data: campaignDetails });
+    } catch (err) {
+      console.error('Error(getCampaignForUser)....', err);
+      return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
     }
-    catch(err){
-        console.error('Error(getCampaignForUser)....', err);
-        return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang);
-    }
-}; 
+};
+  
 

@@ -10,7 +10,7 @@ const campaginSchema = new mongoose.Schema({
   },
   campaignRequest: {
     type: String,
-    enum: ["pending", "joined"],
+    enum: ["pending", "joined", "request"],
   },
   countryName: {
     type: String,
@@ -37,6 +37,9 @@ const campaginSchema = new mongoose.Schema({
       status: {
         type: String,
         enum: ["pending", "joined", "requested"],
+      },
+      trackingId:{
+        type: String,
       }
     },
   ],

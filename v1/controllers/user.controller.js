@@ -477,6 +477,7 @@ exports.AllExcelData = async (req, res) => {
 
 exports.getExcelHeaders = async (req, res) => {
     try{
+        console.log('getExcelHeaders');
         const headers = await ExcelHeaders.find();
         res.status(200).json(headers);
     }
