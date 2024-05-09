@@ -4,11 +4,11 @@ const Campaign = require('./campaign.model');
 
 
 const excelSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'users'
-    },
-    CampaignId:{
+    // userId: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'users'
+    // },
+    campaignId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Campaign'
     },
