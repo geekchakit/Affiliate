@@ -868,28 +868,28 @@ exports.getExcelDataForAdmin = async (req, res) => {
 exports.getExcelDataForUser = async (req, res) => {
   try {
     const { userId, campaignId } = req.body;
-    let trackingId;
+    var trackingId;
     Campaign.findOne({ "usersList.userId": userId })
-      .then((campaign) => {
+      .then(async (campaign) => {
         if (campaign) {
           const user = campaign.usersList.find(
             (user) => user.userId.toString() === userId
           );
           trackingId = user ? user.trackingId : null;
-          console.log("Tracking ID:", trackingId);
+          const data = await excelData.find({
+            trackingId: trackingId,
+            campaignId: campaignId,
+          });
+          res.status(200).json(data);
         } else {
           console.log("Campaign not found for userId:", userId);
+          res.status(200).json("Campaign not found for userId:", userId);
         }
       })
       .catch((err) => {
         console.error("Error:", err);
+        res.status(500).json({ error: "Internal server error" });
       });
-    const data = await excelData.find({
-      trackingId: trackingId,
-      campaignId: campaignId,
-    });
-    console.log(data);
-    res.status(200).json(data);
   } catch (err) {
     console.error("Error(getExcelData)....", err);
     return sendResponse(

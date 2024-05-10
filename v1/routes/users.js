@@ -15,7 +15,9 @@ const {
   delete_profile,
   getExcelHeaders,
   calculateUserRevenue,
-  saveExcelData
+  saveExcelData,
+  getExcelDataForAdmin,
+  getExcelDataForUser
 } = require('../controllers/user.controller');
 const upload = require('../../middleware/excelUpload')
 
@@ -35,6 +37,8 @@ router.post('/getAllExcelData', AllExcelData)
 router.get('/getExcelHeaders', getExcelHeaders);
 router.post('/calculateUserRevenue', calculateUserRevenue);
 router.post('/saveExcelData',upload.single('file'), authenticate,saveExcelData);
+router.post('/getExcelDataForAdmin', getExcelDataForAdmin);
+router.post('/getExcelDataForUser', getExcelDataForUser);
 
 
 
