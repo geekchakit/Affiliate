@@ -388,9 +388,9 @@ exports.requestToJoinCampaign = async (req, res) => {
 
 exports.getRequestedUserList = async (req, res) => {
     try{
-        const {campaignId} = req.body;
-        console.log("campaignId",campaignId);
-        const campaign = await Campaign.findOne({_id:campaignId});
+        const {campaignID} = req.body;
+        console.log("campaignId",campaignID);
+        const campaign = await Campaign.findOne({_id:campaignID});
         if(!campaign){
             return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, 'CAMPAIGN.not_found', {}, req.headers.lang);
         }
