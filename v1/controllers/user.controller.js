@@ -849,8 +849,9 @@ exports.saveExcelData = async (req, res) => {
 
 exports.getExcelDataForAdmin = async (req, res) => {
   try {
-    const { campaignId } = req.body;
-    const users = await excelData.find({ campaignId: campaignId });
+    const { campaignId, page = 1, pageSize = 10 } = req.body;
+    const skip = (page - 1) * pageSize;
+    const users = await excelData.find({ campaignId: campaignId }).skip(skip).limit(pageSize);
     res.status(200).json(users);
   } catch (err) {
     console.error("Error(getExcelData)....", err);
@@ -865,9 +866,10 @@ exports.getExcelDataForAdmin = async (req, res) => {
   }
 };
 
+
 exports.getExcelDataForUser = async (req, res) => {
   try {
-    const { userId, campaignId } = req.body;
+    const { userId, campaignId, page = 1, pageSize = 10 } = req.body;
     var trackingId;
     Campaign.findOne({ "usersList.userId": userId })
       .then(async (campaign) => {
@@ -876,10 +878,11 @@ exports.getExcelDataForUser = async (req, res) => {
             (user) => user.userId.toString() === userId
           );
           trackingId = user ? user.trackingId : null;
-          const data = await excelData.find({
-            trackingId: trackingId,
-            campaignId: campaignId,
-          });
+          const skip = (page - 1) * pageSize;
+          const data = await excelData
+            .find({ trackingId: trackingId, campaignId: campaignId })
+            .skip(skip)
+            .limit(pageSize);
           res.status(200).json(data);
         } else {
           console.log("Campaign not found for userId:", userId);
