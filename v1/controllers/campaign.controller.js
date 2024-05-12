@@ -373,10 +373,11 @@ exports.updateCampaignRequest = async (req, res) => {
 
 exports.requestToJoinCampaign = async (req, res) => {
     try{
+       console.log("requestToJoinCampaign");
        const {userId,campaignId} = req.body;
        const userDetails = await User.findById(userId);
-       console.log(userDetails);
        const update_campaign = await Campaign.findOneAndUpdate({_id:campaignId},{$push:{usersList:{userId:userId,status:"pending"}}},{new:true});
+         console.log(update_campaign);
        res.status(200).send({status:200,message:"Request sent successfully",data:update_campaign});
     }
     catch(err){
@@ -417,8 +418,9 @@ exports.getRequestedUserList = async (req, res) => {
             // console.log(data);
             return data;
         }));
-        const filteredData = requestedUserListData.filter(requestedData =>requestedData.status=="pending");
-        res.status(200).send({status:200,message:"Requested User List",data:filteredData});
+        const pendingUser = requestedUserListData.filter(requestedData =>requestedData.status=="pending");
+        const joinedUser = requestedUserListData.filter(requestedData =>requestedData.status=="joined");
+        res.status(200).send({status:200,message:"Requested User List",data:{pendingUser,joinedUser}});
     }
     catch(err){
         console.error('Error(getRequestedUserList)....', err);
