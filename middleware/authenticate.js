@@ -10,9 +10,9 @@ const { JWT_SECRET } = require('../keys/keys')
 let authenticate = async (req, res, next) => {
     
     try {
-
+        
         if (!req.header('Authorization')) return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.unauthorized_user', {}, req.headers.lang);
-
+        console.log("Authorization....", req.header('Authorization'));
         const token = req.header('Authorization').replace('Bearer ', '');
         if (!token) sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'GENERAL.not_token', {}, req.headers.lang)
 

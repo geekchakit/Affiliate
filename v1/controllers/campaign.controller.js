@@ -187,14 +187,14 @@ exports.getCampaign = async (req, res) => {
 
     try {
 
-        const { campaignId } = req.params;
+        const { campaignID } = req.params;
         const userId = req.user._id;
         const users = await User.findById(userId);
 
         if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
             return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
 
-        const campaign = await Campaign.findById(campaignId);
+        const campaign = await Campaign.findById(campaignID);
 
         if (!campaign)
             return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, 'CAMPAIGN.not_found', {}, req.headers.lang);
@@ -395,8 +395,11 @@ exports.getRequestedUserList = async (req, res) => {
             return sendResponse(res, constants.WEB_STATUS_CODE.NOT_FOUND, constants.STATUS_CODE.FAIL, 'CAMPAIGN.not_found', {}, req.headers.lang);
         }
         const requestedUserList = campaign.usersList;
+        // console.log(requestedUserList);
         let requestedUserListData = await Promise.all(requestedUserList.map(async (requestedUser) => {
+            // console.log("requested user"+requestedUser);
             const userDetails = await User.findById(requestedUser.userId);
+            // console.log(userDetails);
             const data = {
                 name: userDetails.name,
                 gender: userDetails.gender,

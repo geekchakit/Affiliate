@@ -870,6 +870,8 @@ exports.getExcelDataForAdmin = async (req, res) => {
 exports.getExcelDataForUser = async (req, res) => {
   try {
     const { userId, campaignId, page = 1, pageSize = 10 } = req.body;
+    console.log("userId:", userId);
+    console.log("campaignId:", campaignId);
     var trackingId;
     Campaign.findOne({ "usersList.userId": userId })
       .then(async (campaign) => {

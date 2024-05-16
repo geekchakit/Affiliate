@@ -1,7 +1,6 @@
 
 
 const jwt = require('jsonwebtoken');
-
 const User = require('../models/user.model');
 const constants = require('../config/constants')
 const { sendResponse } = require('../services/common.service');
@@ -14,9 +13,9 @@ module.exports = {
     verifyAccessToken: async (req, res, next) => {
 
         try {
-
+            console.log("Authorization....", req.header('Authorization'));
             if (!req.header('Authorization')) return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.unauthorized_user', {}, req.headers.lang);
-
+            
             const token = req.header('Authorization').replace('Bearer ', '');
             if (!token) sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'GENERAL.not_token', {}, req.headers.lang)
 
@@ -43,6 +42,7 @@ module.exports = {
     verifyRefreshToken: async (refreshToken) => {
         try {
             const decoded = await jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+            console.log("decoded....", decoded);
 
             const user = await User.findOne({ _id: decoded._id });
             if (!user) return false;
