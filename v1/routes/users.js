@@ -17,7 +17,8 @@ const {
   calculateUserRevenue,
   saveExcelData,
   getExcelDataForAdmin,
-  getExcelDataForUser
+  getExcelDataForUser,
+  addUserViaAdmin
 } = require('../controllers/user.controller');
 const upload = require('../../middleware/excelUpload')
 
@@ -39,6 +40,7 @@ router.post('/calculateUserRevenue', calculateUserRevenue);
 router.post('/saveExcelData',upload.single('file'), authenticate,saveExcelData);
 router.post('/getExcelDataForAdmin', getExcelDataForAdmin);
 router.post('/getExcelDataForUser', getExcelDataForUser);
+router.post('/addUserViaAdmin', addUserViaAdmin);
 
 
 

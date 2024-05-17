@@ -15,6 +15,7 @@ const {
   sendVerifyEmail,
   updateResponse,
   accountVerifyResponse,
+  sendUserWelcomeEmailJoinedViaAdmin,
 } = require("../../ResponseData/user.response");
 const { sendMail } = require("../../services/email.services");
 const Campaign = require("../../models/campaign.model");
@@ -905,5 +906,28 @@ exports.getExcelDataForUser = async (req, res) => {
       err.message,
       req.headers.lang
     );
+  }
+};
+
+exports.addUserViaAdmin = async (req, res) => {
+  try {
+    let { email, name, mobile_number,password } = req.body;
+
+    const unHasedPassword = password;
+    password = await bcrypt.hash(password, 10);
+    
+    const user = new User({
+      email,
+      name,
+      mobile_number,
+      password,
+      status: 1,
+    });
+    const newUser = await user.save();
+    await sendMail(email, sendUserWelcomeEmailJoinedViaAdmin(name,unHasedPassword,email));
+    res.status(200).json(newUser);
+  } catch (err) {
+    console.error("Error(addUserViaAdmin)....", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

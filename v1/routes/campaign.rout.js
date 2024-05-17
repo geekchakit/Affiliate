@@ -1,6 +1,6 @@
 
 const express = require('express');
-const { addNewCampaign, getAllCampaignsList, isFavouriteCampaign, updateCampaign, deleteCampaign, uploadImage, getCampaign, getAllCampaignsRequestList, updateCampaignRequest,requestToJoinCampaign,getRequestedUserList,updateRequestToJoinCampaign,getCampaignForUser } = require('../controllers/campaign.controller');
+const { addNewCampaign, getAllCampaignsList, isFavouriteCampaign, updateCampaign, deleteCampaign, uploadImage, getCampaign, getAllCampaignsRequestList, updateCampaignRequest,requestToJoinCampaign,getRequestedUserList,updateRequestToJoinCampaign,getCampaignForUser,adduserToCampaignViaAdmin } = require('../controllers/campaign.controller');
 const router = express.Router();
 const authenticate = require('../../middleware/authenticate');
 const upload = require('../../middleware/multer')
@@ -20,6 +20,7 @@ router.post('/requestToJoinCampaign'  , requestToJoinCampaign);
 router.post('/getRequestedUserList'  , getRequestedUserList);
 router.post('/updateRequestToJoinCampaign'  , updateRequestToJoinCampaign);
 router.post('/getCampaignForUser' , getCampaignForUser);
+router.post('/adduserToCampaignViaAdmin' , adduserToCampaignViaAdmin);
 
 
 module.exports = router;

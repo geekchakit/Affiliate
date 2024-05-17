@@ -8,6 +8,20 @@ exports.sendWelcomeEmail = (customerName, OTP) => {
             Your account has been successfully created. To get started, YOUR OTP IS :- ${OTP} `;
 }
 
+exports.sendUserWelcomeEmailJoinedViaAdmin = (customerName,password,email) => {
+    return `Welcome To Our AFFILIATE MARKETING Services !
+            Dear ${customerName},
+            Your account has been successfully created by admin. Please login to your account with below credentials.
+            Email :- ${email}
+            Password :- ${password}`;
+};
+
+exports.sendConfirmationForAddedToCampignViaAdmin = (customerName, campaignName) => {
+    return `Welcome To Our AFFILIATE MARKETING Services !
+            Dear ${customerName},
+            You have been successfully added to the campaign ${campaignName} by admin`;
+};
+
 exports.sendVerifyEmail = (customerName) => {
     return `Welcome To Our AFFILIATE MARKETING Services !
             Dear ${customerName},
