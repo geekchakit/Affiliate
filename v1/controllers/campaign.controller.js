@@ -770,7 +770,7 @@ exports.getCampaignForUser = async (req, res) => {
 
 exports.adduserToCampaignViaAdmin = async (req, res) => {
   try {
-    const { userId, campaignId, trackingId } = req.body;
+    const { userId, campaignId, trackingId,email } = req.body;
     const campaign = await Campaign.findOne({ _id: campaignId });
     if (!campaign) {
       return sendResponse(
@@ -782,7 +782,7 @@ exports.adduserToCampaignViaAdmin = async (req, res) => {
         req.headers.lang
       );
     }
-    const user = await User.findOne({ _id: userId });
+    const user = await User.findOne({ email: email});
     if (!user) {
       return sendResponse(
         res,
