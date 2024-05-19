@@ -382,6 +382,9 @@ exports.deleteCampaign = async (req, res) => {
 
 exports.uploadImage = async (req, res) => {
   try {
+    console.log("uploadImage");
+    console.log(req.file);
+    console.log(req.campaignId);
     const { campaignId } = req.body;
     const userId = req.user._id;
     const users = await User.findById(userId);
