@@ -27,6 +27,8 @@ const Billing = require("../../models/billing.model");
 const { addBill } = require("./billing.controller");
 const JoinedCampaign = require("../../models/joinedCampaign.model");
 const ExcelHeaders = require("../../models/excelheaders");
+const Category = require("../../models/category");
+const { name } = require("ejs");
 
 exports.signUp = async (req, res, next) => {
   try {
@@ -641,8 +643,6 @@ exports.uploadUserData = async (req, res) => {
       return newObj;
     });
 
-    console.log("dataWithoutSpaces:", dataWithoutSpaces);
-
     const mappedData = dataWithoutSpaces
       .filter((item) => trackingIds.includes(item.TrackingID))
       .map((item) => {
@@ -667,6 +667,7 @@ exports.uploadUserData = async (req, res) => {
       });
 
     const result = await excelData.insertMany(mappedData);
+
     return sendResponse(
       res,
       constants.WEB_STATUS_CODE.OK,
@@ -677,6 +678,27 @@ exports.uploadUserData = async (req, res) => {
     );
   } catch (err) {
     console.log("Error in uploadUserData:", err);
+    return sendResponse(
+      res,
+      constants.WEB_STATUS_CODE.SERVER_ERROR,
+      constants.STATUS_CODE.FAIL,
+      "GENERAL.general_error_content",
+      err.message,
+      req.headers.lang
+    );
+  }
+};
+
+exports.addCategory = async (req, res) => {
+  try {
+    const { categoryName } = req.body;
+    const category = new Category({
+      categoryName,
+    });
+    const newCategory = await category.save();
+    res.status(200).json(newCategory);
+  } catch (err) {
+    console.error("Error(addCategory)....", err);
     return sendResponse(
       res,
       constants.WEB_STATUS_CODE.SERVER_ERROR,
@@ -837,14 +859,48 @@ exports.saveExcelData = async (req, res) => {
         return newItem;
     });
 
-    console.log("updatedData:", updatedData);
+    // console.log("updatedData:", updatedData);
     const dataWithCampaignId = updatedData.map((item) => ({ ...item, campaignId }));
-    console.log("data", dataWithCampaignId);
+    // console.log("data", dataWithCampaignId);
     const saveData = await excelData.insertMany(dataWithCampaignId);
+
+    const categoryData = dataWithCampaignId.map((item) => item.category);
+    const uniqueCategories = [...new Set(categoryData)];
+    // console.log("uniqueCategories:", uniqueCategories);
+    const saveCategories = uniqueCategories.map((category) => {
+      const dataCount = Category.countDocuments();
+      if(dataCount > 0) {
+        const existingData = Category.findOne({ categoryName: category });
+        return new Category({ categoryName: category });
+      }
+      else{
+        return new Category({ categoryName: category });
+      }
+    });
+    await Category.insertMany(saveCategories);
+
     res.status(200).json("Data saved successfully");
   } catch (err) {
     console.error("Error fetching or adding product data:", err);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.getCategory = async (req, res) => {
+  try {
+    const categories = await Category.find();
+    res.status(200).json(categories);
+  }
+  catch (err) {
+    console.error("Error(getCategory)....", err);
+    return sendResponse(
+      res,
+      constants.WEB_STATUS_CODE.SERVER_ERROR,
+      constants.STATUS_CODE.FAIL,
+      "GENERAL.general_error_content",
+      err.message,
+      req.headers.lang
+    );
   }
 };
 

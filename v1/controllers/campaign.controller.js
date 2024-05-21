@@ -624,12 +624,12 @@ exports.getRequestedUserList = async (req, res) => {
       );
     }
     const requestedUserList = campaign.usersList;
-    // console.log(requestedUserList);
     let requestedUserListData = await Promise.all(
       requestedUserList.map(async (requestedUser) => {
-        // console.log("requested user"+requestedUser);
         const userDetails = await User.findById(requestedUser.userId);
-        // console.log(userDetails);
+        if (!userDetails) {
+          return null;
+        }
         const data = {
           name: userDetails.name,
           gender: userDetails.gender,
@@ -652,11 +652,12 @@ exports.getRequestedUserList = async (req, res) => {
         return data;
       })
     );
+    requestedUserListData = requestedUserListData.filter(data => data !== null);
     const pendingUser = requestedUserListData.filter(
-      (requestedData) => requestedData.status == "pending"
+      (requestedData) => requestedData.status !== undefined && requestedData.status === "pending"
     );
     const joinedUser = requestedUserListData.filter(
-      (requestedData) => requestedData.status == "joined"
+      (requestedData) => requestedData.status !== undefined && requestedData.status === "joined"
     );
     res
       .status(200)
