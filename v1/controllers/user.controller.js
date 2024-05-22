@@ -901,7 +901,8 @@ exports.saveExcelData = async (req, res) => {
 
 exports.getCategory = async (req, res) => {
   try {
-    const categories = await Category.findById(req.body.campaignId);
+    const campignId=req.params.campignId;
+    const categories = await Category.find({campignId:campignId});
     res.status(200).json(categories);
   }
   catch (err) {

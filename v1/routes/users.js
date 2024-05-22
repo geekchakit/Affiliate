@@ -43,7 +43,7 @@ router.post('/saveExcelData',upload.single('file'), authenticate,saveExcelData);
 router.post('/getExcelDataForAdmin', getExcelDataForAdmin);
 router.post('/getExcelDataForUser', getExcelDataForUser);
 router.post('/addUserViaAdmin', addUserViaAdmin);
-router.get('/getCategory', getCategory);
+router.get('/getCategory/:campignId', getCategory);
 router.post('/addCatergory', addCategory);
 
 
