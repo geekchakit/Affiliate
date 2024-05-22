@@ -882,7 +882,8 @@ module.exports.addSpecialCategory = async (req, res) => {
 
 module.exports.getSpecialCategory = async (req, res) => {
   try{
-    const specialCategory = await SpecialDiscountCategory.find();
+    const campignId= req.params.campignId;
+    const specialCategory = await SpecialDiscountCategory.find({campignId: campignId});
     return sendResponse(
       res,
       constants.WEB_STATUS_CODE.OK,
