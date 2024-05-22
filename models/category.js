@@ -9,6 +9,10 @@ const CategorySchema = new mongoose.Schema({
     defaultRate:{
         type:Number,
         default:8
+    },
+    campignId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'campaigns'
     }
 });
 

@@ -835,6 +835,21 @@ exports.calculateUserRevenue = async (req, res) => {
   }
 };
 
+function convertExcelSerialToMongoDBDate(serial) {
+  // Excel's date format starts on January 1, 1900
+  const excelStartDate = new Date(1900, 0, 1);
+  
+  // Adjust for the fact that Excel considers 1900 a leap year, which it is not
+  const offsetDays = Math.floor(serial) - 2; // Subtract 2 to account for the leap year bug
+  const offsetMilliseconds = (serial % 1) * 24 * 60 * 60 * 1000; // Convert fractional part to milliseconds
+  
+  // Add the serial date offset to the start date
+  const jsDate = new Date(excelStartDate.getTime() + offsetDays * 24 * 60 * 60 * 1000 + offsetMilliseconds);
+  
+  // Convert to ISO string for MongoDB
+  return jsDate.toISOString();
+}
+
 exports.saveExcelData = async (req, res) => {
   try {
     const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
@@ -859,14 +874,17 @@ exports.saveExcelData = async (req, res) => {
         return newItem;
     });
 
-    const dataWithCampaignId = updatedData.map((item) => ({ ...item, campaignId }));
+    console.log("updatedData:", updatedData);
+
+    const dataWithCampaignId = updatedData.map((item) => ({ ...item, campaignId,shippedDate:convertExcelSerialToMongoDBDate(item.shippedDate) }));
+    console.log("dataWithCampaignId:", dataWithCampaignId);
     const saveData = await excelData.insertMany(dataWithCampaignId);
     const categoryData = dataWithCampaignId.map((item) => item.category);
-    const saveCategories = uniqueCategories.map((category) => {
+    const saveCategories = categoryData.map((category) => {
       const dataCount = Category.countDocuments();
       if(dataCount > 0) {
         const existingData = Category.findOne({ categoryName: category });
-        return new Category({ categoryName: category });
+        return new Category({ categoryName: category ,campignId:campaignId});
       }
       else{
         return new Category({ categoryName: category });
@@ -883,7 +901,7 @@ exports.saveExcelData = async (req, res) => {
 
 exports.getCategory = async (req, res) => {
   try {
-    const categories = await Category.find();
+    const categories = await Category.findById(req.body.campaignId);
     res.status(200).json(categories);
   }
   catch (err) {

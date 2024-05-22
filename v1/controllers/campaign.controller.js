@@ -14,6 +14,8 @@ const {
   sendConfirmationForAddedToCampignViaAdmin,
 } = require("../../ResponseData/user.response");
 const { upload } = require("../../middleware/multer");
+const SpecialDiscountCategory = require('../../models/specialDiscountCategory');
+const Category = require("../../models/category");
 
 exports.addNewCampaign = async (req, res, next) => {
   try {
@@ -832,6 +834,66 @@ exports.adduserToCampaignViaAdmin = async (req, res) => {
       });
   } catch (err) {
     console.error("Error(adduserToCampaignViaAdmin)....", err);
+    return sendResponse(
+      res,
+      constants.WEB_STATUS_CODE.SERVER_ERROR,
+      constants.STATUS_CODE.FAIL,
+      "GENERAL.general_error_content",
+      err.message,
+      req.headers.lang
+    );
+  }
+};
+
+module.exports.addSpecialCategory = async (req, res) => {
+  try{
+    const data = req.body;
+    const category= await Category.findById(data.categoryId);
+    const specialCategory ={
+      categoryName: category.categoryName,
+      categoryId: data.categoryId,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      rate: data.rate,
+      campignId: data.campignId,
+    };
+    const specialCategoryData = await SpecialDiscountCategory.create(specialCategory);
+    return sendResponse(
+      res,
+      constants.WEB_STATUS_CODE.CREATED,
+      constants.STATUS_CODE.SUCCESS,
+      "CAMPAIGN.add_special_category",
+      specialCategoryData,
+      req.headers.lang
+    );
+  }
+  catch(err){
+    console.error("Error(addSpecialCategory)....", err);
+    return sendResponse(
+      res,
+      constants.WEB_STATUS_CODE.SERVER_ERROR,
+      constants.STATUS_CODE.FAIL,
+      "GENERAL.general_error_content",
+      err.message,
+      req.headers.lang
+    );
+  }
+};
+
+module.exports.getSpecialCategory = async (req, res) => {
+  try{
+    const specialCategory = await SpecialDiscountCategory.find();
+    return sendResponse(
+      res,
+      constants.WEB_STATUS_CODE.OK,
+      constants.STATUS_CODE.SUCCESS,
+      "CAMPAIGN.get_special_category",
+      specialCategory,
+      req.headers.lang
+    );
+  }
+  catch(err){
+    console.error("Error(getSpecialCategory)....", err);
     return sendResponse(
       res,
       constants.WEB_STATUS_CODE.SERVER_ERROR,
