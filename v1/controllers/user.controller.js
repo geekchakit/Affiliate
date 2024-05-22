@@ -691,9 +691,9 @@ exports.uploadUserData = async (req, res) => {
 
 exports.addCategory = async (req, res) => {
   try {
-    const { categoryName } = req.body;
+    const { categoryName,rate } = req.body;
     const category = new Category({
-      categoryName,
+      categoryName,defaultRate:rate
     });
     const newCategory = await category.save();
     res.status(200).json(newCategory);
@@ -859,14 +859,9 @@ exports.saveExcelData = async (req, res) => {
         return newItem;
     });
 
-    // console.log("updatedData:", updatedData);
     const dataWithCampaignId = updatedData.map((item) => ({ ...item, campaignId }));
-    // console.log("data", dataWithCampaignId);
     const saveData = await excelData.insertMany(dataWithCampaignId);
-
     const categoryData = dataWithCampaignId.map((item) => item.category);
-    const uniqueCategories = [...new Set(categoryData)];
-    // console.log("uniqueCategories:", uniqueCategories);
     const saveCategories = uniqueCategories.map((category) => {
       const dataCount = Category.countDocuments();
       if(dataCount > 0) {
