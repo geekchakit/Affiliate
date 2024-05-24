@@ -29,6 +29,7 @@ const JoinedCampaign = require("../../models/joinedCampaign.model");
 const ExcelHeaders = require("../../models/excelheaders");
 const Category = require("../../models/category");
 const { name } = require("ejs");
+const SpecialDiscountCategory = require("../../models/specialDiscountCategory");
 
 exports.signUp = async (req, res, next) => {
   try {
@@ -691,9 +692,10 @@ exports.uploadUserData = async (req, res) => {
 
 exports.addCategory = async (req, res) => {
   try {
-    const { categoryName,rate } = req.body;
+    const { categoryName, rate } = req.body;
     const category = new Category({
-      categoryName,defaultRate:rate
+      categoryName,
+      defaultRate: rate,
     });
     const newCategory = await category.save();
     res.status(200).json(newCategory);
@@ -838,14 +840,18 @@ exports.calculateUserRevenue = async (req, res) => {
 function convertExcelSerialToMongoDBDate(serial) {
   // Excel's date format starts on January 1, 1900
   const excelStartDate = new Date(1900, 0, 1);
-  
+
   // Adjust for the fact that Excel considers 1900 a leap year, which it is not
   const offsetDays = Math.floor(serial) - 2; // Subtract 2 to account for the leap year bug
   const offsetMilliseconds = (serial % 1) * 24 * 60 * 60 * 1000; // Convert fractional part to milliseconds
-  
+
   // Add the serial date offset to the start date
-  const jsDate = new Date(excelStartDate.getTime() + offsetDays * 24 * 60 * 60 * 1000 + offsetMilliseconds);
-  
+  const jsDate = new Date(
+    excelStartDate.getTime() +
+      offsetDays * 24 * 60 * 60 * 1000 +
+      offsetMilliseconds
+  );
+
   // Convert to ISO string for MongoDB
   return jsDate.toISOString();
 }
@@ -860,37 +866,43 @@ exports.saveExcelData = async (req, res) => {
     const campaignId = req.body.campaignId;
     const parsedHeaders = JSON.parse(headers);
 
-    const mappingLookup = parsedHeaders.reduce((acc,{oldHeader, newHeader}) => {
+    const mappingLookup = parsedHeaders.reduce(
+      (acc, { oldHeader, newHeader }) => {
         acc[oldHeader] = newHeader;
         return acc;
-    },{});
+      },
+      {}
+    );
 
     const updatedData = jsonData.map((item) => {
-        const newItem = {};
-        for(const key in item){
-            const newKey = mappingLookup[key];
-            newItem[newKey] = item[key];
-        }
-        return newItem;
+      const newItem = {};
+      for (const key in item) {
+        const newKey = mappingLookup[key];
+        newItem[newKey] = item[key];
+      }
+      return newItem;
     });
 
     console.log("updatedData:", updatedData);
 
-    const dataWithCampaignId = updatedData.map((item) => ({ ...item, campaignId,shippedDate:convertExcelSerialToMongoDBDate(item.shippedDate) }));
+    const dataWithCampaignId = updatedData.map((item) => ({
+      ...item,
+      campaignId,
+      shippedDate: convertExcelSerialToMongoDBDate(item.shippedDate),
+    }));
     console.log("dataWithCampaignId:", dataWithCampaignId);
     const saveData = await excelData.insertMany(dataWithCampaignId);
-    const categoryData = dataWithCampaignId.map((item) => item.category);
-    const saveCategories = categoryData.map((category) => {
-      const dataCount = Category.countDocuments();
-      if(dataCount > 0) {
-        const existingData = Category.findOne({ categoryName: category });
-        return new Category({ categoryName: category ,campignId:campaignId});
-      }
-      else{
-        return new Category({ categoryName: category });
-      }
-    });
-    await Category.insertMany(saveCategories);
+    // const categoryData = dataWithCampaignId.map((item) => item.category);
+    // const saveCategories = categoryData.map((category) => {
+    //   const dataCount = Category.countDocuments();
+    //   if (dataCount > 0) {
+    //     const existingData = Category.findOne({ categoryName: category });
+    //     return new Category({ categoryName: category, campignId: campaignId });
+    //   } else {
+    //     return new Category({ categoryName: category });
+    //   }
+    // });
+    // await Category.insertMany(saveCategories);
 
     res.status(200).json("Data saved successfully");
   } catch (err) {
@@ -901,11 +913,10 @@ exports.saveExcelData = async (req, res) => {
 
 exports.getCategory = async (req, res) => {
   try {
-    const campignId=req.params.campignId;
-    const categories = await Category.find({campignId:campignId});
+    const campignId = req.params.campignId;
+    const categories = await Category.find({ campaignId: campignId });
     res.status(200).json(categories);
-  }
-  catch (err) {
+  } catch (err) {
     console.error("Error(getCategory)....", err);
     return sendResponse(
       res,
@@ -922,7 +933,10 @@ exports.getExcelDataForAdmin = async (req, res) => {
   try {
     const { campaignId, page = 1, pageSize = 10 } = req.body;
     const skip = (page - 1) * pageSize;
-    const users = await excelData.find({ campaignId: campaignId }).skip(skip).limit(pageSize);
+    const users = await excelData
+      .find({ campaignId: campaignId })
+      .skip(skip)
+      .limit(pageSize);
     res.status(200).json(users);
   } catch (err) {
     console.error("Error(getExcelData)....", err);
@@ -937,55 +951,118 @@ exports.getExcelDataForAdmin = async (req, res) => {
   }
 };
 
+// exports.getExcelDataForUser = async (req, res) => {
+//   try {
+//     const { userId, campaignId, page = 1, pageSize = 10 } = req.body;
+//     console.log("userId:", userId);
+//     console.log("campaignId:", campaignId);
+//     var trackingId;
+//     Campaign.findOne({ "usersList.userId": userId })
+//       .then(async (campaign) => {
+//         if (campaign) {
+//           const user = campaign.usersList.find(
+//             (user) => user.userId.toString() === userId
+//           );
+//           trackingId = user ? user.trackingId : null;
+//           const skip = (page - 1) * pageSize;
+//           const data = await excelData.find({ trackingId: trackingId, campaignId: campaignId }).skip(skip).limit(pageSize);
+
+//           res.status(200).json(data);
+//         } else {
+//           console.log("Campaign not found for userId:", userId);
+//           res.status(200).json("Campaign not found for userId:", userId);
+//         }
+//       })
+//       .catch((err) => {
+//         console.error("Error:", err);
+//         res.status(500).json({ error: "Internal server error" });
+//       });
+//   } catch (err) {
+//     console.error("Error(getExcelData)....", err);
+//     return sendResponse(
+//       res,
+//       constants.WEB_STATUS_CODE.SERVER_ERROR,
+//       constants.STATUS_CODE.FAIL,
+//       "GENERAL.general_error_content",
+//       err.message,
+//       req.headers.lang
+//     );
+//   }
+// };
 
 exports.getExcelDataForUser = async (req, res) => {
   try {
     const { userId, campaignId, page = 1, pageSize = 10 } = req.body;
     console.log("userId:", userId);
     console.log("campaignId:", campaignId);
-    var trackingId;
-    Campaign.findOne({ "usersList.userId": userId })
-      .then(async (campaign) => {
-        if (campaign) {
-          const user = campaign.usersList.find(
-            (user) => user.userId.toString() === userId
-          );
-          trackingId = user ? user.trackingId : null;
-          const skip = (page - 1) * pageSize;
-          const data = await excelData
-            .find({ trackingId: trackingId, campaignId: campaignId })
-            .skip(skip)
-            .limit(pageSize);
-          res.status(200).json(data);
-        } else {
-          console.log("Campaign not found for userId:", userId);
-          res.status(200).json("Campaign not found for userId:", userId);
+    
+    const currentDate = new Date();
+    let trackingId;
+
+    const campaign = await Campaign.findOne({ "usersList.userId": userId });
+    if (campaign) {
+      const user = campaign.usersList.find(user => user.userId.toString() === userId);
+      trackingId = user ? user.trackingId : null;
+
+      const skip = (page - 1) * pageSize;
+      const data = await excelData.find({ trackingId: trackingId, campaignId: campaignId }).skip(skip).limit(pageSize);
+
+      // Calculate the commission for each data entry
+      const resultData = await Promise.all(data.map(async entry => {
+        const revenue = entry.revenue || 0; // Assuming 'revenue' field exists in excelData
+        const categoryName = entry.category; // Assuming each entry has a category field with the name of the category
+
+        let commissionRate;
+        console.log(categoryName)
+        console.log(campaignId)
+        const category = await Category.findOne({categoryName:categoryName,campaignId:campaignId});
+
+        console.log(category);
+
+        if (category) {
+          const categoryId = category._id;
+          const specialDiscount = await SpecialDiscountCategory.findOne({
+            categoryId: categoryId,
+            campaignId: campaignId,
+            startDate: { $lte: currentDate },
+            endDate: { $gte: currentDate },
+            isActive: true
+          });
+
+          if (specialDiscount) {
+            console.log("Special");
+            commissionRate = specialDiscount.rate;
+          } else {
+            console.log("Master");
+            commissionRate = category.defaultRate;
+          }
         }
-      })
-      .catch((err) => {
-        console.error("Error:", err);
-        res.status(500).json({ error: "Internal server error" });
-      });
+
+        const commission = (commissionRate && revenue) ? (revenue * (commissionRate / 100)) : 0;
+        return {
+          ...entry._doc,
+          commission
+        };
+      }));
+
+      res.status(200).json(resultData);
+    } else {
+      console.log("Campaign not found for userId:", userId);
+      res.status(200).json({ message: "Campaign not found for userId" });
+    }
   } catch (err) {
-    console.error("Error(getExcelData)....", err);
-    return sendResponse(
-      res,
-      constants.WEB_STATUS_CODE.SERVER_ERROR,
-      constants.STATUS_CODE.FAIL,
-      "GENERAL.general_error_content",
-      err.message,
-      req.headers.lang
-    );
+    console.error("Error(getExcelDataForUser)....", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
 exports.addUserViaAdmin = async (req, res) => {
   try {
-    let { email, name, mobile_number,password } = req.body;
+    let { email, name, mobile_number, password } = req.body;
 
     const unHasedPassword = password;
     password = await bcrypt.hash(password, 10);
-    
+
     const user = new User({
       email,
       name,
@@ -994,7 +1071,10 @@ exports.addUserViaAdmin = async (req, res) => {
       status: 1,
     });
     const newUser = await user.save();
-    await sendMail(email, sendUserWelcomeEmailJoinedViaAdmin(name,unHasedPassword,email));
+    await sendMail(
+      email,
+      sendUserWelcomeEmailJoinedViaAdmin(name, unHasedPassword, email)
+    );
     res.status(200).json(newUser);
   } catch (err) {
     console.error("Error(addUserViaAdmin)....", err);

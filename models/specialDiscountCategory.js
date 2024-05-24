@@ -9,9 +9,17 @@ const specialDiscountCategorySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'category'
     },
-    campignId:{
+    campaignId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'campaigns'
+    },
+    userId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
+    },
+    rate:{
+        type:Number,
+        require:true
     },
     startDate:{
         type: Date,

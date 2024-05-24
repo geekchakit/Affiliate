@@ -8,11 +8,11 @@ const CategorySchema = new mongoose.Schema({
     },
     defaultRate:{
         type:Number,
-        default:8
+        require:true
     },
-    campignId:{
+    campaignId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'campaigns'
+        // ref: 'campaigns'
     }
 });
 
