@@ -1064,7 +1064,7 @@ exports.getExcelDataForUser = async (req, res) => {
     
     //const currentDate = new Date();
     let trackingId;
-
+    
     const campaign = await Campaign.findOne({ "usersList.userId": userId });
     if (campaign) {
       const user = campaign.usersList.find(user => user.userId.toString() === userId);

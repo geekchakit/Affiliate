@@ -845,6 +845,32 @@ exports.adduserToCampaignViaAdmin = async (req, res) => {
   }
 };
 
+module.exports.addCategory = async (req,res) =>{
+try{
+  const data = req.body;
+  const savedData = await Category.create(data);
+  return sendResponse(
+    res,
+    constants.WEB_STATUS_CODE.CREATED,
+    constants.STATUS_CODE.SUCCESS,
+    "CAMPAIGN.add_category",
+    savedData,
+    req.headers.lang
+  );
+}
+catch(err){
+  console.error("Error(addCategory)....", err);
+  return sendResponse(
+    res,
+    constants.WEB_STATUS_CODE.SERVER_ERROR,
+    constants.STATUS_CODE.FAIL,
+    "GENERAL.general_error_content",
+    err.message,
+    req.headers.lang
+  );
+}
+};
+
 module.exports.addSpecialCategory = async (req, res) => {
   try{
     const data = req.body;
