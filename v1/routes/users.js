@@ -20,7 +20,8 @@ const {
   getExcelDataForUser,
   addUserViaAdmin,
   getCategory,
-  addCategory
+  addCategory,
+  getTotalRevenueAndCommissionForUser
 } = require('../controllers/user.controller');
 const upload = require('../../middleware/excelUpload')
 
@@ -45,6 +46,7 @@ router.post('/getExcelDataForUser', getExcelDataForUser);
 router.post('/addUserViaAdmin', addUserViaAdmin);
 router.get('/getCategory/:campignId', getCategory);
 router.post('/addCatergory', addCategory);
+router.post('/getTotalRevenueAndCommissionForUser',getTotalRevenueAndCommissionForUser)
 
 
 

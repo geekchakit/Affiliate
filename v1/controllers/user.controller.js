@@ -929,26 +929,92 @@ exports.getCategory = async (req, res) => {
   }
 };
 
+// exports.getExcelDataForAdmin = async (req, res) => {
+//   try {
+//     const { campaignId, page = 1, pageSize = 10 } = req.body;
+//     const skip = (page - 1) * pageSize;
+//     const users = await excelData
+//       .find({ campaignId: campaignId })
+//       .skip(skip)
+//       .limit(pageSize);
+//     res.status(200).json(users);
+//   } catch (err) {
+//     console.error("Error(getExcelData)....", err);
+//     return sendResponse(
+//       res,
+//       constants.WEB_STATUS_CODE.SERVER_ERROR,
+//       constants.STATUS_CODE.FAIL,
+//       "GENERAL.general_error_content",
+//       err.message,
+//       req.headers.lang
+//     );
+//   }
+// };
+
 exports.getExcelDataForAdmin = async (req, res) => {
   try {
     const { campaignId, page = 1, pageSize = 10 } = req.body;
     const skip = (page - 1) * pageSize;
-    const users = await excelData
-      .find({ campaignId: campaignId })
-      .skip(skip)
-      .limit(pageSize);
-    res.status(200).json(users);
+
+    // Fetch campaign data to get the list of users
+    const campaign = await Campaign.findById(campaignId);
+    if (!campaign) {
+      return res.status(404).json({ message: "Campaign not found" });
+    }
+
+    // Get the list of user tracking IDs from the campaign
+    const usersList = campaign.usersList.map(user => user.trackingId);
+    if (!usersList.length) {
+      return res.status(200).json({ message: "No users found for this campaign" });
+    }
+
+    // Fetch excel data for all users in the campaign
+    const data = await excelData.find({ trackingId: { $in: usersList }, campaignId: campaignId }).skip(skip).limit(pageSize);
+
+    //const currentDate = new Date();
+
+    // Calculate commission for each data entry
+    const resultData = await Promise.all(data.map(async entry => {
+      console.log(entry);
+      const revenue = entry.revenue || 0;
+      const categoryName = entry.category;
+
+      let commissionRate;
+
+      const category = await Category.findOne({ categoryName: categoryName, campaignId: campaignId });
+
+      if (category) {
+        const categoryId = category._id;
+        const specialDiscount = await SpecialDiscountCategory.findOne({
+          categoryId: categoryId,
+          campaignId: campaignId,
+          startDate: { $lte: entry.shippedDate },
+          endDate: { $gte: entry.shippedDate },
+          isActive: true
+        });
+
+        if (specialDiscount) {
+          commissionRate = specialDiscount.rate;
+        } else {
+          commissionRate = category.defaultRate;
+        }
+      }
+
+      const commission = (commissionRate && revenue) ? (revenue * (commissionRate / 100)) : 0;
+      return {
+        ...entry._doc,
+        commission
+      };
+    }));
+
+    res.status(200).json(resultData);
   } catch (err) {
-    console.error("Error(getExcelData)....", err);
-    return sendResponse(
-      res,
-      constants.WEB_STATUS_CODE.SERVER_ERROR,
-      constants.STATUS_CODE.FAIL,
-      "GENERAL.general_error_content",
-      err.message,
-      req.headers.lang
-    );
+    console.error("Error(getExcelDataForAdmin)....", err);
+    res.status(500).json({ error: "Internal server error" });
   }
+};
+
+exports.getTotalRevenueAndCommissionForUser = async (req, res) => {
 };
 
 // exports.getExcelDataForUser = async (req, res) => {
@@ -996,7 +1062,7 @@ exports.getExcelDataForUser = async (req, res) => {
     console.log("userId:", userId);
     console.log("campaignId:", campaignId);
     
-    const currentDate = new Date();
+    //const currentDate = new Date();
     let trackingId;
 
     const campaign = await Campaign.findOne({ "usersList.userId": userId });
@@ -1024,8 +1090,8 @@ exports.getExcelDataForUser = async (req, res) => {
           const specialDiscount = await SpecialDiscountCategory.findOne({
             categoryId: categoryId,
             campaignId: campaignId,
-            startDate: { $lte: currentDate },
-            endDate: { $gte: currentDate },
+            startDate: { $lte: entry.shippedDate },
+            endDate: { $gte: entry.shippedDate },
             isActive: true
           });
 
