@@ -284,7 +284,8 @@ exports.updateCampaign = async (req, res) => {
 
 exports.getCampaign = async (req, res) => {
   try {
-    const { campaignID } = req.params;
+    const { campaignId } = req.params;
+    console.log(campaignId);
     const userId = req.user._id;
     const users = await User.findById(userId);
 
@@ -298,7 +299,7 @@ exports.getCampaign = async (req, res) => {
         req.headers.lang
       );
 
-    const campaign = await Campaign.findById(campaignID);
+    const campaign = await Campaign.findById(campaignId);
 
     if (!campaign)
       return sendResponse(
@@ -848,6 +849,7 @@ exports.adduserToCampaignViaAdmin = async (req, res) => {
 module.exports.addCategory = async (req,res) =>{
 try{
   const data = req.body;
+  console.log(data);
   const savedData = await Category.create(data);
   return sendResponse(
     res,
