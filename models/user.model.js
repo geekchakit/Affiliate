@@ -108,6 +108,12 @@ const userSchema = new Schema({
     deleted_at: {
         type: String,
     },
+    referral_code:{
+        type: String
+    },
+    referred_by:{
+        type:String
+    },
 });
 
 userSchema.index({
