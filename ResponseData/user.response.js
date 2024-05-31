@@ -59,6 +59,7 @@ exports.LoginResponse = (users) => {
         name: users.name,
         user_type: users.user_type,
         mobile_number: users.mobile_number,
+        referal_code: users.referral_code,
         tokens: users.tokens,
         refresh_tokens: users.refresh_tokens,
         created_at: users.created_at,
