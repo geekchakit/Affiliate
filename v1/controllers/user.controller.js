@@ -86,8 +86,14 @@ exports.signUp = async (req, res, next) => {
         // Generate a unique referral code
         reqBody.referral_code = generateReferralCode();
 
+
+
+        // Save the user to the database
+        const user = await Usersave(reqBody);
         if (reqBody.referred_by) {
+            console.log("referred_by:", reqBody.referred_by)
             const referrer = await User.findOne({ referral_code: reqBody.referred_by });
+            console.log("referrer:", referrer)
             if (referrer) {
                 const referral = new Referral({
                     referee: user._id,
@@ -100,9 +106,6 @@ exports.signUp = async (req, res, next) => {
                 return res.status(201).json({ message: "Invalid referral code" });
             }
         }
-
-        // Save the user to the database
-        const user = await Usersave(reqBody);
         const users = signUpResponse(user);
 
         return sendResponse(
@@ -995,7 +998,7 @@ exports.saveExcelData = async (req, res) => {
             return newItem;
         });
 
-         console.log("updatedData:", updatedData.length);
+        console.log("updatedData:", updatedData.length);
 
         const dataWithCampaignId = updatedData.map((item) => ({
             ...item,
