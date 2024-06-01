@@ -85,11 +85,6 @@ exports.signUp = async (req, res, next) => {
         // Generate a unique referral code
         reqBody.referral_code = generateReferralCode();
 
-        // Save the user to the database
-        const user = await Usersave(reqBody);
-        const users = signUpResponse(user);
-
-        // Handle referral logic
         if (reqBody.referred_by) {
             const referrer = await User.findOne({ referral_code: reqBody.referred_by });
             if (referrer) {
@@ -101,16 +96,13 @@ exports.signUp = async (req, res, next) => {
                 });
                 await referral.save();
             } else {
-                const referral = new Referral({
-                    referee: user._id,
-                    refereeCode: reqBody.referral_code,
-                    referrer: null,
-                    referrerCode: null
-                });
-                await referral.save();
-                console.log("Invalid referral code provided");
+                return res.status(201).json({ message: "Invalid referral code" });
             }
         }
+
+        // Save the user to the database
+        const user = await Usersave(reqBody);
+        const users = signUpResponse(user);
 
         return sendResponse(
             res,
