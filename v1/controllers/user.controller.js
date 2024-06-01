@@ -1134,6 +1134,82 @@ exports.getExcelDataForAdmin = async (req, res) => {
 };
 
 exports.getTotalRevenueAndCommissionForUser = async (req, res) => {
+    try {
+        const { userId, campaignId } = req.body;
+        console.log("userId:", userId);
+        console.log("campaignId:", campaignId);
+
+        // Set the date to yesterday
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setHours(23, 59, 59, 999);
+
+        let trackingId;
+
+        const campaign = await Campaign.findOne({ "usersList.userId": userId });
+        if (campaign) {
+            const user = campaign.usersList.find(user => user.userId.toString() === userId);
+            trackingId = user ? user.trackingId : null;
+
+            // Get the dynamic model for the user
+            const ExcelData = getExcelDataModel(userId);
+
+            const data = await ExcelData.find({
+                trackingId: trackingId,
+                campaignId: campaignId,
+                shippedDate: { $lte: yesterday }
+            });
+
+            let totalRevenue = 0;
+            let totalCommission = 0;
+
+            for (const entry of data) {
+                const revenue = entry.revenue || 0;
+                const categoryName = entry.category;
+
+                let commissionRate;
+                console.log(categoryName);
+                console.log(campaignId);
+                const category = await Category.findOne({ categoryName: categoryName, campaignId: campaignId });
+
+                console.log(category);
+
+                if (category) {
+                    const categoryId = category._id;
+                    const specialDiscount = await SpecialDiscountCategory.findOne({
+                        categoryId: categoryId,
+                        campaignId: campaignId,
+                        startDate: { $lte: entry.shippedDate },
+                        endDate: { $gte: entry.shippedDate },
+                        isActive: true
+                    });
+
+                    if (specialDiscount) {
+                        console.log("Special");
+                        commissionRate = specialDiscount.rate;
+                    } else {
+                        console.log("Master");
+                        commissionRate = category.defaultRate;
+                    }
+                }
+
+                const commission = (commissionRate && revenue) ? (revenue * (commissionRate / 100)) : 0;
+                totalRevenue += revenue;
+                totalCommission += commission;
+            }
+
+            res.status(200).json({
+                totalRevenue,
+                totalCommission
+            });
+        } else {
+            console.log("Campaign not found for userId:", userId);
+            res.status(200).json({ message: "Campaign not found for userId" });
+        }
+    } catch (err) {
+        console.error("Error(getTotalRevenueAndCommissionForUser)....", err);
+        res.status(500).json({ error: "Internal server error" });
+    }
 };
 
 // exports.getExcelDataForUser = async (req, res) => {

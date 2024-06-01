@@ -649,6 +649,7 @@ exports.getRequestedUserList = async (req, res) => {
           user_type: userDetails.user_type,
           is_verify: userDetails.is_verify,
           is_upload: userDetails.is_upload,
+          _id: userDetails._id,
           userId: userDetails._id,
         };
         // console.log(data);
@@ -883,7 +884,8 @@ module.exports.addSpecialCategory = async (req, res) => {
       startDate: data.startDate,
       endDate: data.endDate,
       rate: data.rate,
-      campignId: data.campignId,
+      campaignId: data.campaignId,
+      userId: data.userId
     };
     const specialCategoryData = await SpecialDiscountCategory.create(specialCategory);
     return sendResponse(

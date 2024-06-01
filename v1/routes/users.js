@@ -46,7 +46,7 @@ router.post('/getExcelDataForAdmin', getExcelDataForAdmin);
 router.post('/getExcelDataForUser', getExcelDataForUser);
 router.post('/addUserViaAdmin', addUserViaAdmin);
 router.get('/getCategory/:campignId', getCategory);
-router.post('/addCatergory', addCategory);
+router.post('/addCategory', addCategory);
 router.post('/getTotalRevenueAndCommissionForUser',getTotalRevenueAndCommissionForUser);
 router.get('/getUserUnderReferral/:referralCode',getUserUnderReferral);
 
