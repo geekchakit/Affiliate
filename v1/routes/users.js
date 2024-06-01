@@ -21,7 +21,8 @@ const {
   addUserViaAdmin,
   getCategory,
   addCategory,
-  getTotalRevenueAndCommissionForUser
+  getTotalRevenueAndCommissionForUser,
+  getUserUnderReferral,
 } = require('../controllers/user.controller');
 const upload = require('../../middleware/excelUpload')
 
@@ -46,9 +47,7 @@ router.post('/getExcelDataForUser', getExcelDataForUser);
 router.post('/addUserViaAdmin', addUserViaAdmin);
 router.get('/getCategory/:campignId', getCategory);
 router.post('/addCatergory', addCategory);
-router.post('/getTotalRevenueAndCommissionForUser',getTotalRevenueAndCommissionForUser)
-
-
-
+router.post('/getTotalRevenueAndCommissionForUser',getTotalRevenueAndCommissionForUser);
+router.get('/getUserUnderReferral/:referralCode',getUserUnderReferral);
 
 module.exports = router;

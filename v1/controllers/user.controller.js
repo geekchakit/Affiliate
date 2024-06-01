@@ -130,6 +130,25 @@ const generateReferralCode = () => {
     return crypto.randomBytes(3).toString('hex'); // Generates a 6-character long hex string
 };
 
+exports.getUserUnderReferral = async (req, res) => {
+    try{
+        const { referralCode } = req.params;
+        const usersList = await User.find({ referred_by: referralCode });
+        res.status(200).json(usersList);
+    }
+    catch(err){
+        console.error("Error(getUserUnderReferral)....", err);
+        return sendResponse(
+            res,
+            constants.WEB_STATUS_CODE.SERVER_ERROR,
+            constants.STATUS_CODE.FAIL,
+            "GENERAL.general_error_content",
+            err.message,
+            req.headers.lang
+        );
+    }
+};
+
 exports.logout = async (req, res, next) => {
     try {
         const reqBody = req.user;
@@ -433,9 +452,11 @@ exports.get_profile = async (req, res) => {
 
         const userData = await User.findById(userId);
 
+        console.log("userData:", userData);
+
         const taxList = await Tax.find({ userId: userData._id });
         const billList = await Billing.find({ userId: userData._id });
-
+        const  referred_by = await User.findOne({ referral_code: userData.referred_by });
         const data = {
             userData:
                 {
@@ -453,6 +474,8 @@ exports.get_profile = async (req, res) => {
                     pancard: userData.pancard,
                     address: userData.address,
                     adharacard: userData.adharacard,
+                    referralCode: userData.referral_code,
+                    referred_by: referred_by ? referred_by.name : null,
                 } || {},
             taxList:
                 taxList.map((data) => ({
@@ -888,60 +911,109 @@ function convertExcelSerialToMongoDBDate(serial) {
     return jsDate.toISOString();
 }
 
+// exports.saveExcelData = async (req, res) => {
+//     try {
+//         const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
+//         const sheetName = workbook.SheetNames[0];
+//         const worksheet = workbook.Sheets[sheetName];
+//         const jsonData = xlsx.utils.sheet_to_json(worksheet);
+//         const headers = req.body.headers;
+//         const campaignId = req.body.campaignId;
+//         const parsedHeaders = JSON.parse(headers);
+
+//         const mappingLookup = parsedHeaders.reduce(
+//             (acc, { oldHeader, newHeader }) => {
+//                 acc[oldHeader] = newHeader;
+//                 return acc;
+//             },
+//             {}
+//         );
+
+//         const updatedData = jsonData.map((item) => {
+//             const newItem = {};
+//             for (const key in item) {
+//                 const newKey = mappingLookup[key];
+//                 newItem[newKey] = item[key];
+//             }
+//             return newItem;
+//         });
+
+//         console.log("updatedData:", updatedData);
+
+//         const dataWithCampaignId = updatedData.map((item) => ({
+//             ...item,
+//             campaignId,
+//             shippedDate: convertExcelSerialToMongoDBDate(item.shippedDate),
+//         }));
+//         console.log("dataWithCampaignId:", dataWithCampaignId);
+//         const saveData = await excelData.insertMany(dataWithCampaignId);
+//         res.status(200).json("Data saved successfully");
+//     } catch (err) {
+//         console.error("Error fetching or adding product data:", err);
+//         res.status(500).json({ error: "Internal server error" });
+//     }
+// };
+
 exports.saveExcelData = async (req, res) => {
     try {
-        const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = xlsx.utils.sheet_to_json(worksheet);
-        const headers = req.body.headers;
-        const campaignId = req.body.campaignId;
-        const parsedHeaders = JSON.parse(headers);
-
-        const mappingLookup = parsedHeaders.reduce(
-            (acc, { oldHeader, newHeader }) => {
-                acc[oldHeader] = newHeader;
-                return acc;
-            },
-            {}
-        );
-
-        const updatedData = jsonData.map((item) => {
-            const newItem = {};
-            for (const key in item) {
-                const newKey = mappingLookup[key];
-                newItem[newKey] = item[key];
-            }
-            return newItem;
-        });
-
-        console.log("updatedData:", updatedData);
-
-        const dataWithCampaignId = updatedData.map((item) => ({
-            ...item,
-            campaignId,
-            shippedDate: convertExcelSerialToMongoDBDate(item.shippedDate),
-        }));
-        console.log("dataWithCampaignId:", dataWithCampaignId);
-        const saveData = await excelData.insertMany(dataWithCampaignId);
-        // const categoryData = dataWithCampaignId.map((item) => item.category);
-        // const saveCategories = categoryData.map((category) => {
-        //   const dataCount = Category.countDocuments();
-        //   if (dataCount > 0) {
-        //     const existingData = Category.findOne({ categoryName: category });
-        //     return new Category({ categoryName: category, campignId: campaignId });
-        //   } else {
-        //     return new Category({ categoryName: category });
-        //   }
-        // });
-        // await Category.insertMany(saveCategories);
-
-        res.status(200).json("Data saved successfully");
+      const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = xlsx.utils.sheet_to_json(worksheet);
+      const headers = req.body.headers;
+      const campaignId = req.body.campaignId;
+      const parsedHeaders = JSON.parse(headers);
+  
+      const mappingLookup = parsedHeaders.reduce(
+        (acc, { oldHeader, newHeader }) => {
+          acc[oldHeader] = newHeader;
+          return acc;
+        },
+        {}
+      );
+  
+      const updatedData = jsonData.map((item) => {
+        const newItem = {};
+        for (const key in item) {
+          const newKey = mappingLookup[key];
+          newItem[newKey] = item[key];
+        }
+        return newItem;
+      });
+  
+      console.log("updatedData:", updatedData);
+  
+      const dataWithCampaignId = updatedData.map((item) => ({
+        ...item,
+        campaignId,
+        shippedDate: convertExcelSerialToMongoDBDate(item.shippedDate),
+      }));
+  
+      console.log("dataWithCampaignId:", dataWithCampaignId);
+  
+      // Process each item to get the user ID and save to the corresponding collection
+      const savePromises = dataWithCampaignId.map(async (item) => {
+        // Find the user ID based on the tracking ID in the Campaign table
+        const campaign = await Campaign.findOne({ "usersList.trackingId": item.trackingId });
+        if (campaign) {
+          const user = campaign.usersList.find(user => user.trackingId === item.trackingId);
+          if (user && user.userId) {
+            const userId = user.userId;
+            const ExcelData = getExcelDataModel(userId);
+            const saveData = new ExcelData(item);
+            await saveData.save();
+          }
+        }
+      });
+  
+      await Promise.all(savePromises);
+  
+      res.status(200).json("Data saved successfully");
     } catch (err) {
-        console.error("Error fetching or adding product data:", err);
-        res.status(500).json({ error: "Internal server error" });
+      console.error("Error fetching or adding product data:", err);
+      res.status(500).json({ error: "Internal server error" });
     }
-};
+  };
 
 exports.getCategory = async (req, res) => {
     try {

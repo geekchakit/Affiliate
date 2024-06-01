@@ -63,5 +63,5 @@ const campaginSchema = new mongoose.Schema({
   },
 });
 
-const Campaign = mongoose.model("campaign", campaginSchema);
+const Campaign = mongoose.model("campaigns", campaginSchema);
 module.exports = Campaign;
