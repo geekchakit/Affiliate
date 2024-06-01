@@ -32,6 +32,7 @@ const Category = require("../../models/category");
 const { name } = require("ejs");
 const SpecialDiscountCategory = require("../../models/specialDiscountCategory");
 const Referral = require("../../models/referrals");
+const getExcelDataModel = require("../../models/excelDataDynamic");
 
 exports.signUp = async (req, res, next) => {
     try {
@@ -131,12 +132,12 @@ const generateReferralCode = () => {
 };
 
 exports.getUserUnderReferral = async (req, res) => {
-    try{
+    try {
         const { referralCode } = req.params;
         const usersList = await User.find({ referred_by: referralCode });
         res.status(200).json(usersList);
     }
-    catch(err){
+    catch (err) {
         console.error("Error(getUserUnderReferral)....", err);
         return sendResponse(
             res,
@@ -456,7 +457,7 @@ exports.get_profile = async (req, res) => {
 
         const taxList = await Tax.find({ userId: userData._id });
         const billList = await Billing.find({ userId: userData._id });
-        const  referred_by = await User.findOne({ referral_code: userData.referred_by });
+        const referred_by = await User.findOne({ referral_code: userData.referred_by });
         const data = {
             userData:
                 {
@@ -892,24 +893,37 @@ exports.calculateUserRevenue = async (req, res) => {
     }
 };
 
-function convertExcelSerialToMongoDBDate(serial) {
-    // Excel's date format starts on January 1, 1900
-    const excelStartDate = new Date(1900, 0, 1);
+function convertExcelSerialToMongoDBDate(serialOrDate) {
+    // Check if the input is a valid Excel serial number
+    const isExcelSerial = Number.isFinite(serialOrDate) && serialOrDate > 0;
 
-    // Adjust for the fact that Excel considers 1900 a leap year, which it is not
-    const offsetDays = Math.floor(serial) - 2; // Subtract 2 to account for the leap year bug
-    const offsetMilliseconds = (serial % 1) * 24 * 60 * 60 * 1000; // Convert fractional part to milliseconds
+    if (isExcelSerial) {
+        // Excel's date format starts on January 1, 1900
+        const excelStartDate = new Date(1900, 0, 1);
+        const millisecondsInADay = 24 * 60 * 60 * 1000;
 
-    // Add the serial date offset to the start date
-    const jsDate = new Date(
-        excelStartDate.getTime() +
-        offsetDays * 24 * 60 * 60 * 1000 +
-        offsetMilliseconds
-    );
+        // Adjust for the fact that Excel considers 1900 a leap year, which it is not
+        const offsetDays = Math.floor(serialOrDate) - 1;
+        const fractionalPart = serialOrDate % 1;
+        const offsetMilliseconds = fractionalPart * millisecondsInADay;
 
-    // Convert to ISO string for MongoDB
-    return jsDate.toISOString();
+        const jsDate = new Date(excelStartDate.getTime() + offsetDays * millisecondsInADay + offsetMilliseconds);
+
+        // Convert to ISO string for MongoDB
+        return jsDate.toISOString();
+    } else {
+        // If not an Excel serial number, parse the given date directly
+        const parsedDate = new Date(serialOrDate);
+        if (!isNaN(parsedDate.getTime())) {
+            // If parsing successful, return ISO string
+            return parsedDate.toISOString();
+        } else {
+            // If parsing failed, return null or handle the error as needed
+            return null;
+        }
+    }
 }
+
 
 // exports.saveExcelData = async (req, res) => {
 //     try {
@@ -953,67 +967,68 @@ function convertExcelSerialToMongoDBDate(serial) {
 //         res.status(500).json({ error: "Internal server error" });
 //     }
 // };
-
 exports.saveExcelData = async (req, res) => {
     try {
-      const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const jsonData = xlsx.utils.sheet_to_json(worksheet);
-      const headers = req.body.headers;
-      const campaignId = req.body.campaignId;
-      const parsedHeaders = JSON.parse(headers);
-  
-      const mappingLookup = parsedHeaders.reduce(
-        (acc, { oldHeader, newHeader }) => {
-          acc[oldHeader] = newHeader;
-          return acc;
-        },
-        {}
-      );
-  
-      const updatedData = jsonData.map((item) => {
-        const newItem = {};
-        for (const key in item) {
-          const newKey = mappingLookup[key];
-          newItem[newKey] = item[key];
-        }
-        return newItem;
-      });
-  
-      console.log("updatedData:", updatedData);
-  
-      const dataWithCampaignId = updatedData.map((item) => ({
-        ...item,
-        campaignId,
-        shippedDate: convertExcelSerialToMongoDBDate(item.shippedDate),
-      }));
-  
-      console.log("dataWithCampaignId:", dataWithCampaignId);
-  
-      // Process each item to get the user ID and save to the corresponding collection
-      const savePromises = dataWithCampaignId.map(async (item) => {
-        // Find the user ID based on the tracking ID in the Campaign table
-        const campaign = await Campaign.findOne({ "usersList.trackingId": item.trackingId });
-        if (campaign) {
-          const user = campaign.usersList.find(user => user.trackingId === item.trackingId);
-          if (user && user.userId) {
-            const userId = user.userId;
-            const ExcelData = getExcelDataModel(userId);
-            const saveData = new ExcelData(item);
-            await saveData.save();
-          }
-        }
-      });
-  
-      await Promise.all(savePromises);
-  
-      res.status(200).json("Data saved successfully");
+        const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
+        const sheetName = workbook.SheetNames[0];
+        console.log(sheetName);
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = xlsx.utils.sheet_to_json(worksheet);
+        const headers = req.body.headers;
+        const campaignId = req.body.campaignId;
+        const parsedHeaders = JSON.parse(headers);
+
+        const mappingLookup = parsedHeaders.reduce(
+            (acc, { oldHeader, newHeader }) => {
+                acc[oldHeader] = newHeader;
+                return acc;
+            },
+            {}
+        );
+
+        const updatedData = jsonData.map((item) => {
+            const newItem = {};
+            for (const key in item) {
+                const newKey = mappingLookup[key];
+                newItem[newKey] = item[key];
+            }
+            return newItem;
+        });
+
+         console.log("updatedData:", updatedData.length);
+
+        const dataWithCampaignId = updatedData.map((item) => ({
+            ...item,
+            campaignId,
+            shippedDate: convertExcelSerialToMongoDBDate(item.shippedDate),
+        }));
+
+        console.log("dataWithCampaignId:", dataWithCampaignId);
+
+        //Process each item to get the user ID and save to the corresponding collection
+        const savePromises = dataWithCampaignId.map(async (item) => {
+            // Find the user ID based on the tracking ID in the Campaign table
+            const campaign = await Campaign.findOne({ "usersList.trackingId": item.trackingId });
+            if (campaign) {
+                const user = campaign.usersList.find(user => user.trackingId === item.trackingId);
+                if (user && user.userId) {
+                    const userId = user.userId;
+                    const ExcelData = getExcelDataModel(userId);
+                    const saveData = new ExcelData(item);
+                    // console.log("saveData:", saveData);
+                    await saveData.save();
+                }
+            }
+        });
+
+        await Promise.all(savePromises);
+
+        res.status(200).json("Data saved successfully");
     } catch (err) {
-      console.error("Error fetching or adding product data:", err);
-      res.status(500).json({ error: "Internal server error" });
+        console.error("Error fetching or adding product data:", err);
+        res.status(500).json({ error: "Internal server error" });
     }
-  };
+};
 
 exports.getCategory = async (req, res) => {
     try {
@@ -1160,13 +1175,78 @@ exports.getTotalRevenueAndCommissionForUser = async (req, res) => {
 //   }
 // };
 
+// exports.getExcelDataForUser = async (req, res) => {
+//     try {
+//         const { userId, campaignId, page = 1, pageSize = 10 } = req.body;
+//         console.log("userId:", userId);
+//         console.log("campaignId:", campaignId);
+
+//         //const currentDate = new Date();
+//         let trackingId;
+
+//         const campaign = await Campaign.findOne({ "usersList.userId": userId });
+//         if (campaign) {
+//             const user = campaign.usersList.find(user => user.userId.toString() === userId);
+//             trackingId = user ? user.trackingId : null;
+
+//             const skip = (page - 1) * pageSize;
+//             const data = await excelData.find({ trackingId: trackingId, campaignId: campaignId }).skip(skip).limit(pageSize);
+
+//             // Calculate the commission for each data entry
+//             const resultData = await Promise.all(data.map(async entry => {
+//                 const revenue = entry.revenue || 0; // Assuming 'revenue' field exists in excelData
+//                 const categoryName = entry.category; // Assuming each entry has a category field with the name of the category
+
+//                 let commissionRate;
+//                 console.log(categoryName)
+//                 console.log(campaignId)
+//                 const category = await Category.findOne({ categoryName: categoryName, campaignId: campaignId });
+
+//                 console.log(category);
+
+//                 if (category) {
+//                     const categoryId = category._id;
+//                     const specialDiscount = await SpecialDiscountCategory.findOne({
+//                         categoryId: categoryId,
+//                         campaignId: campaignId,
+//                         startDate: { $lte: entry.shippedDate },
+//                         endDate: { $gte: entry.shippedDate },
+//                         isActive: true
+//                     });
+
+//                     if (specialDiscount) {
+//                         console.log("Special");
+//                         commissionRate = specialDiscount.rate;
+//                     } else {
+//                         console.log("Master");
+//                         commissionRate = category.defaultRate;
+//                     }
+//                 }
+
+//                 const commission = (commissionRate && revenue) ? (revenue * (commissionRate / 100)) : 0;
+//                 return {
+//                     ...entry._doc,
+//                     commission
+//                 };
+//             }));
+
+//             res.status(200).json(resultData);
+//         } else {
+//             console.log("Campaign not found for userId:", userId);
+//             res.status(200).json({ message: "Campaign not found for userId" });
+//         }
+//     } catch (err) {
+//         console.error("Error(getExcelDataForUser)....", err);
+//         res.status(500).json({ error: "Internal server error" });
+//     }
+// };
+
 exports.getExcelDataForUser = async (req, res) => {
     try {
         const { userId, campaignId, page = 1, pageSize = 10 } = req.body;
         console.log("userId:", userId);
         console.log("campaignId:", campaignId);
 
-        //const currentDate = new Date();
         let trackingId;
 
         const campaign = await Campaign.findOne({ "usersList.userId": userId });
@@ -1175,7 +1255,11 @@ exports.getExcelDataForUser = async (req, res) => {
             trackingId = user ? user.trackingId : null;
 
             const skip = (page - 1) * pageSize;
-            const data = await excelData.find({ trackingId: trackingId, campaignId: campaignId }).skip(skip).limit(pageSize);
+
+            // Get the dynamic model for the user
+            const ExcelData = getExcelDataModel(userId);
+
+            const data = await ExcelData.find({ trackingId: trackingId, campaignId: campaignId }).skip(skip).limit(pageSize);
 
             // Calculate the commission for each data entry
             const resultData = await Promise.all(data.map(async entry => {
@@ -1183,8 +1267,8 @@ exports.getExcelDataForUser = async (req, res) => {
                 const categoryName = entry.category; // Assuming each entry has a category field with the name of the category
 
                 let commissionRate;
-                console.log(categoryName)
-                console.log(campaignId)
+                console.log(categoryName);
+                console.log(campaignId);
                 const category = await Category.findOne({ categoryName: categoryName, campaignId: campaignId });
 
                 console.log(category);

@@ -1,7 +1,12 @@
-// excelData.model.js
 const mongoose = require('mongoose');
 
 const getExcelDataModel = (userId) => {
+  const modelName = "ExcelData_"+userId;
+
+  if (mongoose.models[modelName]) {
+    return mongoose.models[modelName];
+  }
+
   const excelSchema = new mongoose.Schema({
     campaignId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -23,7 +28,7 @@ const getExcelDataModel = (userId) => {
     totalAmount: Number,
   });
 
-return mongoose.model('excelData_' + userId+"s", excelSchema);
+  return mongoose.model(modelName, excelSchema);
 };
 
 module.exports = getExcelDataModel;
