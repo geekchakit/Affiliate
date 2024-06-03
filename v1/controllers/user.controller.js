@@ -137,6 +137,20 @@ const generateReferralCode = () => {
 exports.getUserUnderReferral = async (req, res) => {
     try {
         const { referralCode } = req.params;
+        const adminId = req.user._id;
+
+        const user = await User.findById(adminId);
+
+        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(
+                res,
+                constants.WEB_STATUS_CODE.UNAUTHORIZED,
+                constants.STATUS_CODE.UNAUTHENTICATED,
+                "GENERAL.invalid_user",
+                {},
+                req.headers.lang
+            );
+
         const usersList = await User.find({ referred_by: referralCode });
         res.status(200).json(usersList);
     }
@@ -826,6 +840,20 @@ exports.AllExcelData = async (req, res) => {
 exports.getExcelHeaders = async (req, res) => {
     try {
         console.log("getExcelHeaders");
+        const adminId = req.user._id;
+
+        const user = await User.findById(adminId);
+
+        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(
+                res,
+                constants.WEB_STATUS_CODE.UNAUTHORIZED,
+                constants.STATUS_CODE.UNAUTHENTICATED,
+                "GENERAL.invalid_user",
+                {},
+                req.headers.lang
+            );
+            
         const headers = await ExcelHeaders.find();
         res.status(200).json(headers);
     } catch (err) {
@@ -1036,6 +1064,19 @@ exports.saveExcelData = async (req, res) => {
 exports.getCategory = async (req, res) => {
     try {
         const campignId = req.params.campignId;
+        const adminId = req.user._id;
+
+        const user = await User.findById(adminId);
+
+        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(
+                res,
+                constants.WEB_STATUS_CODE.UNAUTHORIZED,
+                constants.STATUS_CODE.UNAUTHENTICATED,
+                "GENERAL.invalid_user",
+                {},
+                req.headers.lang
+            );
         const categories = await Category.find({ campaignId: campignId });
         res.status(200).json(categories);
     } catch (err) {
@@ -1077,6 +1118,20 @@ exports.getExcelDataForAdmin = async (req, res) => {
     try {
         const { campaignId, page = 1, pageSize = 10 } = req.body;
         const skip = (page - 1) * pageSize;
+
+        const adminId = req.user._id;
+
+        const user = await User.findById(adminId);
+
+        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(
+                res,
+                constants.WEB_STATUS_CODE.UNAUTHORIZED,
+                constants.STATUS_CODE.UNAUTHENTICATED,
+                "GENERAL.invalid_user",
+                {},
+                req.headers.lang
+            );
 
         // Fetch campaign data to get the list of users
         const campaign = await Campaign.findById(campaignId);
@@ -1139,6 +1194,20 @@ exports.getExcelDataForAdmin = async (req, res) => {
 exports.getTotalRevenueAndCommissionForUserSpecific = async (req, res) => {
     try {
         const { userId, campaignId } = req.body;
+        const adminId = req.user._id;
+
+        const user = await User.findById(adminId);
+
+        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(
+                res,
+                constants.WEB_STATUS_CODE.UNAUTHORIZED,
+                constants.STATUS_CODE.UNAUTHENTICATED,
+                "GENERAL.invalid_user",
+                {},
+                req.headers.lang
+            );
+
         console.log("userId:", userId);
         console.log("campaignId:", campaignId);
         console.log("req.body:", req.body);
@@ -1221,6 +1290,20 @@ exports.getTotalRevenueAndCommissionForUserSpecific = async (req, res) => {
 exports.getTotalRevenueAndCommissionForUser = async (req, res) => {
     try {
         const { userId } = req.body;
+
+        const adminId = req.user._id;
+
+        const user = await User.findById(adminId);
+
+        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(
+                res,
+                constants.WEB_STATUS_CODE.UNAUTHORIZED,
+                constants.STATUS_CODE.UNAUTHENTICATED,
+                "GENERAL.invalid_user",
+                {},
+                req.headers.lang
+            );
         console.log("userId:", userId);
         console.log("req.body:", req.body);
 
@@ -1414,6 +1497,20 @@ exports.getExcelDataForUser = async (req, res) => {
         const { userId, campaignId, page = 1, pageSize = 10 } = req.body;
         console.log("userId:", userId);
         console.log("campaignId:", campaignId);
+
+        const adminId = req.user._id;
+
+        const user = await User.findById(adminId);
+
+        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+            return sendResponse(
+                res,
+                constants.WEB_STATUS_CODE.UNAUTHORIZED,
+                constants.STATUS_CODE.UNAUTHENTICATED,
+                "GENERAL.invalid_user",
+                {},
+                req.headers.lang
+            );
 
         let trackingId;
 

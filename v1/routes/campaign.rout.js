@@ -14,16 +14,16 @@ router.put('/updateCampaign/:campaignId', authenticate, updateCampaign)
 router.delete('/deleteCampaign/:campaignId', authenticate, deleteCampaign)
 router.post('/uploadImage', upload.single('image'), authenticate, uploadImage)
 router.get('/getCampaign/:campaignId', authenticate, getCampaign);
-router.get('/getAllCampaignsRequestList', getAllCampaignsRequestList);
+router.get('/getAllCampaignsRequestList', authenticate,getAllCampaignsRequestList);
 router.post('/updateCampaignRequest', authenticate, updateCampaignRequest);
-router.post('/requestToJoinCampaign', requestToJoinCampaign);
-router.post('/getRequestedUserList', getRequestedUserList);
-router.post('/updateRequestToJoinCampaign', updateRequestToJoinCampaign);
-router.post('/getCampaignForUser', getCampaignForUser);
-router.post('/adduserToCampaignViaAdmin', adduserToCampaignViaAdmin);
-router.post('/addSpecialCategory', addSpecialCategory);
-router.get('/getSpecialCategory/:campignId', getSpecialCategory);
-router.post('/addCategory', addCategory);
+router.post('/requestToJoinCampaign', authenticate,requestToJoinCampaign);
+router.post('/getRequestedUserList', authenticate,getRequestedUserList);
+router.post('/updateRequestToJoinCampaign', authenticate,updateRequestToJoinCampaign);
+router.post('/getCampaignForUser', authenticate,getCampaignForUser);
+router.post('/adduserToCampaignViaAdmin',authenticate ,adduserToCampaignViaAdmin);
+router.post('/addSpecialCategory', authenticate,addSpecialCategory);
+router.get('/getSpecialCategory/:campignId',authenticate,getSpecialCategory);
+router.post('/addCategory', authenticate,addCategory);
 
 
 module.exports = router;
