@@ -583,6 +583,20 @@ exports.updateCampaignRequest = async (req, res) => {
 exports.requestToJoinCampaign = async (req, res) => {
   try {
     console.log("requestToJoinCampaign");
+    const adminId = req.user._id;
+
+    const user = await User.findById(adminId);
+
+    if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        return sendResponse(
+            res,
+            constants.WEB_STATUS_CODE.UNAUTHORIZED,
+            constants.STATUS_CODE.UNAUTHENTICATED,
+            "GENERAL.invalid_user",
+            {},
+            req.headers.lang
+        );
+
     const { userId, campaignId } = req.body;
     const userDetails = await User.findById(userId);
     const update_campaign = await Campaign.findOneAndUpdate(
@@ -614,6 +628,20 @@ exports.requestToJoinCampaign = async (req, res) => {
 exports.getRequestedUserList = async (req, res) => {
   try {
     const { campaignID } = req.body;
+    const adminId = req.user._id;
+
+    const user = await User.findById(adminId);
+
+    if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        return sendResponse(
+            res,
+            constants.WEB_STATUS_CODE.UNAUTHORIZED,
+            constants.STATUS_CODE.UNAUTHENTICATED,
+            "GENERAL.invalid_user",
+            {},
+            req.headers.lang
+        );
+
     console.log("campaignId", campaignID);
     const campaign = await Campaign.findOne({ _id: campaignID });
     if (!campaign) {
@@ -686,6 +714,19 @@ exports.getRequestedUserList = async (req, res) => {
 exports.updateRequestToJoinCampaign = async (req, res) => {
   try {
     const { userId, campaignId, trackingId } = req.body;
+    const adminId = req.user._id;
+
+    const user = await User.findById(adminId);
+
+    if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        return sendResponse(
+            res,
+            constants.WEB_STATUS_CODE.UNAUTHORIZED,
+            constants.STATUS_CODE.UNAUTHENTICATED,
+            "GENERAL.invalid_user",
+            {},
+            req.headers.lang
+        );
     console.log(userId);
     console.log(campaignId);
     console.log(trackingId);
@@ -727,6 +768,20 @@ exports.updateRequestToJoinCampaign = async (req, res) => {
 exports.getCampaignForUser = async (req, res) => {
   try {
     const { userId } = req.body;
+
+    const adminId = req.user._id;
+
+    const user = await User.findById(adminId);
+
+    if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        return sendResponse(
+            res,
+            constants.WEB_STATUS_CODE.UNAUTHORIZED,
+            constants.STATUS_CODE.UNAUTHENTICATED,
+            "GENERAL.invalid_user",
+            {},
+            req.headers.lang
+        );
     console.log("userId", userId);
 
     // Fetch all campaigns
@@ -779,6 +834,20 @@ exports.getCampaignForUser = async (req, res) => {
 exports.adduserToCampaignViaAdmin = async (req, res) => {
   try {
     const { userId, campaignId, trackingId,email } = req.body;
+    const adminId = req.user._id;
+
+    const authUSER = await User.findById(adminId);
+
+    if (!authUSER || authUSER.user_type !== constants.USER_TYPE.ADMIN)
+        return sendResponse(
+            res,
+            constants.WEB_STATUS_CODE.UNAUTHORIZED,
+            constants.STATUS_CODE.UNAUTHENTICATED,
+            "GENERAL.invalid_user",
+            {},
+            req.headers.lang
+        );
+
     const campaign = await Campaign.findOne({ _id: campaignId });
     if (!campaign) {
       return sendResponse(
@@ -849,6 +918,19 @@ exports.adduserToCampaignViaAdmin = async (req, res) => {
 
 module.exports.addCategory = async (req,res) =>{
 try{
+  const adminId = req.user._id;
+
+  const user = await User.findById(adminId);
+
+  if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+      return sendResponse(
+          res,
+          constants.WEB_STATUS_CODE.UNAUTHORIZED,
+          constants.STATUS_CODE.UNAUTHENTICATED,
+          "GENERAL.invalid_user",
+          {},
+          req.headers.lang
+      );
   const data = req.body;
   console.log(data);
   const savedData = await Category.create(data);
@@ -876,6 +958,20 @@ catch(err){
 
 module.exports.addSpecialCategory = async (req, res) => {
   try{
+    const adminId = req.user._id;
+
+    const user = await User.findById(adminId);
+
+    if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        return sendResponse(
+            res,
+            constants.WEB_STATUS_CODE.UNAUTHORIZED,
+            constants.STATUS_CODE.UNAUTHENTICATED,
+            "GENERAL.invalid_user",
+            {},
+            req.headers.lang
+        );
+
     const data = req.body;
     const category= await Category.findById(data.categoryId);
     const specialCategory ={
@@ -912,6 +1008,19 @@ module.exports.addSpecialCategory = async (req, res) => {
 
 module.exports.getSpecialCategory = async (req, res) => {
   try{
+    const adminId = req.user._id;
+
+    const user = await User.findById(adminId);
+
+    if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        return sendResponse(
+            res,
+            constants.WEB_STATUS_CODE.UNAUTHORIZED,
+            constants.STATUS_CODE.UNAUTHENTICATED,
+            "GENERAL.invalid_user",
+            {},
+            req.headers.lang
+        );
     const campignId= req.params.campignId;
     const specialCategory = await SpecialDiscountCategory.find({campignId: campignId});
     return sendResponse(

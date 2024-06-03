@@ -39,17 +39,17 @@ router.get('/getProfile/:userId', authenticate, get_profile);
 router.put('/updateProfile', authenticate, update_profile);
 router.delete('/deleteProfile/:userId', authenticate, delete_profile)
 router.post('/uploadExcelFile', upload.single('file'), authenticate, uploadUserData)
-router.post('/getAllExcelData', AllExcelData)
-router.get('/getExcelHeaders', getExcelHeaders);
-router.post('/calculateUserRevenue', calculateUserRevenue);
+router.post('/getAllExcelData', authenticate,AllExcelData)
+router.get('/getExcelHeaders', authenticate,getExcelHeaders);
+router.post('/calculateUserRevenue', authenticate,calculateUserRevenue);
 router.post('/saveExcelData',upload.single('file'), authenticate,saveExcelData);
 router.post('/getExcelDataForAdmin', getExcelDataForAdmin);
-router.post('/getExcelDataForUser', getExcelDataForUser);
-router.post('/addUserViaAdmin', addUserViaAdmin);
-router.get('/getCategory/:campignId', getCategory);
-router.post('/addCategory', addCategory);
-router.post('/getTotalRevenueAndCommissionForUser',getTotalRevenueAndCommissionForUser);
-router.get('/getUserUnderReferral/:referralCode',getUserUnderReferral);
-router.post('/getTotalRevenueAndCommissionForUserSpecific',getTotalRevenueAndCommissionForUserSpecific);
+router.post('/getExcelDataForUser', authenticate,getExcelDataForUser);
+router.post('/addUserViaAdmin', authenticate,addUserViaAdmin);
+router.get('/getCategory/:campignId', authenticate,getCategory);
+router.post('/addCategory', authenticate,addCategory);
+router.post('/getTotalRevenueAndCommissionForUser',authenticate,getTotalRevenueAndCommissionForUser);
+router.get('/getUserUnderReferral/:referralCode',authenticate,getUserUnderReferral);
+router.post('/getTotalRevenueAndCommissionForUserSpecific',authenticate,getTotalRevenueAndCommissionForUserSpecific);
 
 module.exports = router;
