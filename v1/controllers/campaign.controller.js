@@ -21,6 +21,7 @@ exports.addNewCampaign = async (req, res, next) => {
   try {
     const reqBody = req.body;
     const userId = req.user._id;
+    console.log("userId", userId);
     const users = await User.findById(userId);
 
     if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
