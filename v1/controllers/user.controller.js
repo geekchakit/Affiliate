@@ -1136,7 +1136,7 @@ exports.getExcelDataForAdmin = async (req, res) => {
     }
 };
 
-exports.getTotalRevenueAndCommissionForUser = async (req, res) => {
+exports.getTotalRevenueAndCommissionForUserSpecific = async (req, res) => {
     try {
         const { userId, campaignId } = req.body;
         console.log("userId:", userId);
@@ -1186,6 +1186,7 @@ exports.getTotalRevenueAndCommissionForUser = async (req, res) => {
                         campaignId: campaignId,
                         startDate: { $lte: entry.shippedDate },
                         endDate: { $gte: entry.shippedDate },
+                        userId: userId,
                         isActive: true
                     });
 
@@ -1216,6 +1217,92 @@ exports.getTotalRevenueAndCommissionForUser = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
+exports.getTotalRevenueAndCommissionForUser = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        console.log("userId:", userId);
+        console.log("req.body:", req.body);
+
+        // Set the date to yesterday
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setHours(23, 59, 59, 999);
+
+        let totalRevenue = 0;
+        let totalCommission = 0;
+
+        // Find all campaigns associated with the user
+        const campaigns = await Campaign.find({ "usersList.userId": userId });
+
+        console.log("campaigns:", campaigns);
+        
+        for (const campaign of campaigns) {
+            const user = campaign.usersList.find(user => user.userId.toString() === userId);
+            const trackingId = user ? user.trackingId : null;
+            console.log("trackingId:", trackingId);
+            if(trackingId == null) continue;
+
+            // Get the dynamic model for the user
+            const ExcelData = getExcelDataModel(userId);
+
+            // console.log("yesterday:", yesterday);
+
+            // console.log("campaign:", campaign);
+
+            // console.log(ExcelData)
+
+            const data = await ExcelData.find({
+                trackingId: trackingId,
+                campaignId: campaign._id,
+                shippedDate: { $lte: yesterday }
+            });
+
+            // console.log("data:", data);
+
+            for (const entry of data) {
+                const revenue = entry.revenue || 0;
+                const categoryName = entry.category;
+
+                const category = await Category.findOne({ categoryName: categoryName, campaignId: campaign._id });
+
+                let commissionRate = 0;
+                if (category) {
+                    const categoryId = category._id;
+                    const specialDiscount = await SpecialDiscountCategory.findOne({
+                        categoryId: categoryId,
+                        campaignId: campaign._id,
+                        startDate: { $lte: entry.shippedDate },
+                        endDate: { $gte: entry.shippedDate },
+                        userId: userId,
+                        isActive: true
+                    });
+
+                    if (specialDiscount) {
+                        // console.log("Special");
+                        commissionRate = specialDiscount.rate;
+                    } else {
+                        // console.log("Master");
+                        commissionRate = category.defaultRate;
+                    }
+                }
+
+                const commission = (commissionRate && revenue) ? (revenue * (commissionRate / 100)) : 0;
+                totalRevenue += revenue;
+                totalCommission += commission;
+            }
+        }
+
+        res.status(200).json({
+            totalRevenue,
+            totalCommission
+        });
+    } catch (err) {
+        console.error("Error(getTotalRevenueAndCommissionForUser):", err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
 
 // exports.getExcelDataForUser = async (req, res) => {
 //   try {
