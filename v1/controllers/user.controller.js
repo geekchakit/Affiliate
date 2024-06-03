@@ -1141,6 +1141,7 @@ exports.getTotalRevenueAndCommissionForUser = async (req, res) => {
         const { userId, campaignId } = req.body;
         console.log("userId:", userId);
         console.log("campaignId:", campaignId);
+        console.log("req.body:", req.body);
 
         // Set the date to yesterday
         const yesterday = new Date();
@@ -1149,11 +1150,12 @@ exports.getTotalRevenueAndCommissionForUser = async (req, res) => {
 
         let trackingId;
 
-        const campaign = await Campaign.findOne({ "usersList.userId": userId });
+        const campaign = await Campaign.findById(campaignId);
+        console.log("campaign:", campaign);
         if (campaign) {
             const user = campaign.usersList.find(user => user.userId.toString() === userId);
             trackingId = user ? user.trackingId : null;
-
+            console.log("trackingId:", trackingId);
             // Get the dynamic model for the user
             const ExcelData = getExcelDataModel(userId);
 
