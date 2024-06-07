@@ -14,7 +14,7 @@ const {
   sendConfirmationForAddedToCampignViaAdmin,
 } = require("../../ResponseData/user.response");
 const { upload } = require("../../middleware/multer");
-const SpecialDiscountCategory = require('../../models/specialDiscountCategory');
+const SpecialDiscountCategory = require("../../models/specialDiscountCategory");
 const Category = require("../../models/category");
 
 exports.addNewCampaign = async (req, res, next) => {
@@ -102,11 +102,15 @@ exports.getAllCampaignsList = async (req, res) => {
     ]);
 
     const campaingsUserCount = campaigns.map((campaign) => {
-        return {
-            campaignName: campaign.campaignName,
-            totalJoinedUsers: campaign.usersList.filter(user => user.status === 'joined').length,
-            totalRequestedUsers: campaign.usersList.filter(user => user.status === 'pending').length,
-        };
+      return {
+        campaignName: campaign.campaignName,
+        totalJoinedUsers: campaign.usersList.filter(
+          (user) => user.status === "joined"
+        ).length,
+        totalRequestedUsers: campaign.usersList.filter(
+          (user) => user.status === "pending"
+        ).length,
+      };
     });
 
     if (!campaigns || campaigns.length === 0) {
@@ -119,20 +123,18 @@ exports.getAllCampaignsList = async (req, res) => {
         req.headers.lang
       );
     }
-    
+
     const campaignNameCounts = {};
     const userIdSet = new Set();
     // let totalJoinedUsers;
     campaigns.forEach((campaign) => {
       const { campaignName } = campaign;
-    //   totalJoinedUsers = campaign.usersList.length;
+      //   totalJoinedUsers = campaign.usersList.length;
       if (!campaignNameCounts[campaignName]) {
         campaignNameCounts[campaignName] = 0;
       }
       campaignNameCounts[campaignName]++;
     });
-    
-    
 
     const data = {
       totalCampaigns: totalCampaigns,
@@ -591,13 +593,11 @@ exports.requestToJoinCampaign = async (req, res) => {
       { new: true }
     );
     console.log(update_campaign);
-    res
-      .status(200)
-      .send({
-        status: 200,
-        message: "Request sent successfully",
-        data: update_campaign,
-      });
+    res.status(200).send({
+      status: 200,
+      message: "Request sent successfully",
+      data: update_campaign,
+    });
   } catch (err) {
     console.error("Error(requestToJoinCampaign)....", err);
     return sendResponse(
@@ -656,20 +656,22 @@ exports.getRequestedUserList = async (req, res) => {
         return data;
       })
     );
-    requestedUserListData = requestedUserListData.filter(data => data !== null);
+    requestedUserListData = requestedUserListData.filter(
+      (data) => data !== null
+    );
     const pendingUser = requestedUserListData.filter(
-      (requestedData) => requestedData.status !== undefined && requestedData.status === "pending"
+      (requestedData) =>
+        requestedData.status !== undefined && requestedData.status === "pending"
     );
     const joinedUser = requestedUserListData.filter(
-      (requestedData) => requestedData.status !== undefined && requestedData.status === "joined"
+      (requestedData) =>
+        requestedData.status !== undefined && requestedData.status === "joined"
     );
-    res
-      .status(200)
-      .send({
-        status: 200,
-        message: "Requested User List",
-        data: { pendingUser, joinedUser },
-      });
+    res.status(200).send({
+      status: 200,
+      message: "Requested User List",
+      data: { pendingUser, joinedUser },
+    });
   } catch (err) {
     console.error("Error(getRequestedUserList)....", err);
     return sendResponse(
@@ -778,7 +780,7 @@ exports.getCampaignForUser = async (req, res) => {
 
 exports.adduserToCampaignViaAdmin = async (req, res) => {
   try {
-    const { userId, campaignId, trackingId,email } = req.body;
+    const { userId, campaignId, trackingId, email } = req.body;
     const campaign = await Campaign.findOne({ _id: campaignId });
     if (!campaign) {
       return sendResponse(
@@ -790,7 +792,7 @@ exports.adduserToCampaignViaAdmin = async (req, res) => {
         req.headers.lang
       );
     }
-    const user = await User.findOne({ email: email});
+    const user = await User.findOne({ email: email });
     if (!user) {
       return sendResponse(
         res,
@@ -827,13 +829,11 @@ exports.adduserToCampaignViaAdmin = async (req, res) => {
         campaign.campaignName
       )
     );
-    res
-      .status(200)
-      .send({
-        status: 200,
-        message: "User added to campaign successfully",
-        data: campaign,
-      });
+    res.status(200).send({
+      status: 200,
+      message: "User added to campaign successfully",
+      data: campaign,
+    });
   } catch (err) {
     console.error("Error(adduserToCampaignViaAdmin)....", err);
     return sendResponse(
@@ -847,47 +847,48 @@ exports.adduserToCampaignViaAdmin = async (req, res) => {
   }
 };
 
-module.exports.addCategory = async (req,res) =>{
-try{
-  const data = req.body;
-  console.log(data);
-  const savedData = await Category.create(data);
-  return sendResponse(
-    res,
-    constants.WEB_STATUS_CODE.CREATED,
-    constants.STATUS_CODE.SUCCESS,
-    "CAMPAIGN.add_category",
-    savedData,
-    req.headers.lang
-  );
-}
-catch(err){
-  console.error("Error(addCategory)....", err);
-  return sendResponse(
-    res,
-    constants.WEB_STATUS_CODE.SERVER_ERROR,
-    constants.STATUS_CODE.FAIL,
-    "GENERAL.general_error_content",
-    err.message,
-    req.headers.lang
-  );
-}
+module.exports.addCategory = async (req, res) => {
+  try {
+    const data = req.body;
+    console.log(data);
+    const savedData = await Category.create(data);
+    return sendResponse(
+      res,
+      constants.WEB_STATUS_CODE.CREATED,
+      constants.STATUS_CODE.SUCCESS,
+      "CAMPAIGN.add_category",
+      savedData,
+      req.headers.lang
+    );
+  } catch (err) {
+    console.error("Error(addCategory)....", err);
+    return sendResponse(
+      res,
+      constants.WEB_STATUS_CODE.SERVER_ERROR,
+      constants.STATUS_CODE.FAIL,
+      "GENERAL.general_error_content",
+      err.message,
+      req.headers.lang
+    );
+  }
 };
 
 module.exports.addSpecialCategory = async (req, res) => {
-  try{
+  try {
     const data = req.body;
-    const category= await Category.findById(data.categoryId);
-    const specialCategory ={
+    const category = await Category.findById(data.categoryId);
+    const specialCategory = {
       categoryName: category.categoryName,
       categoryId: data.categoryId,
       startDate: data.startDate,
       endDate: data.endDate,
       rate: data.rate,
       campaignId: data.campaignId,
-      userId: data.userId
+      userId: data.userId,
     };
-    const specialCategoryData = await SpecialDiscountCategory.create(specialCategory);
+    const specialCategoryData = await SpecialDiscountCategory.create(
+      specialCategory
+    );
     return sendResponse(
       res,
       constants.WEB_STATUS_CODE.CREATED,
@@ -896,8 +897,7 @@ module.exports.addSpecialCategory = async (req, res) => {
       specialCategoryData,
       req.headers.lang
     );
-  }
-  catch(err){
+  } catch (err) {
     console.error("Error(addSpecialCategory)....", err);
     return sendResponse(
       res,
@@ -911,9 +911,11 @@ module.exports.addSpecialCategory = async (req, res) => {
 };
 
 module.exports.getSpecialCategory = async (req, res) => {
-  try{
-    const campignId= req.params.campignId;
-    const specialCategory = await SpecialDiscountCategory.find({campignId: campignId});
+  try {
+    const campignId = req.params.campignId;
+    const specialCategory = await SpecialDiscountCategory.find({
+      campignId: campignId,
+    });
     return sendResponse(
       res,
       constants.WEB_STATUS_CODE.OK,
@@ -922,9 +924,28 @@ module.exports.getSpecialCategory = async (req, res) => {
       specialCategory,
       req.headers.lang
     );
-  }
-  catch(err){
+  } catch (err) {
     console.error("Error(getSpecialCategory)....", err);
+    return sendResponse(
+      res,
+      constants.WEB_STATUS_CODE.SERVER_ERROR,
+      constants.STATUS_CODE.FAIL,
+      "GENERAL.general_error_content",
+      err.message,
+      req.headers.lang
+    );
+  }
+};
+
+exports.getCategory = async (req, res) => {
+  try {
+    console.log("try getCategory", req.params.campignId);
+    const campignId = req.params.campignId;
+
+    const categories = await Category.find({ campaignId: campignId });
+    res.status(200).json(categories);
+  } catch (err) {
+    console.error("Error(getCategory)....", err);
     return sendResponse(
       res,
       constants.WEB_STATUS_CODE.SERVER_ERROR,
