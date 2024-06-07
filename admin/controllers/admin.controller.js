@@ -232,7 +232,7 @@ exports.userJoinedCampaigned = async (req, res) => {
         let responseData = {
             name: data.userId.name,
             userId: data.userId._id,
-            _id:data._id,
+            _id: data._id,
             status: data.status,
             gender: data.userId.gender,
             date_of_birth: data.userId.date_of_birth,

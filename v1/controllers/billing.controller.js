@@ -40,6 +40,8 @@ exports.addBill = async (req, res, next) => {
             bank_name: addBill.bank_name,
             account_number: addBill.account_number,
             ref_id: addBill.ref_id,
+            swift_code: addBill.swift_code,
+            ifsc_code: addBill.ifsc_code,
             biil_id: addBill._id,
             created_at: addBill.created_at
         }
@@ -54,6 +56,7 @@ exports.addBill = async (req, res, next) => {
 
 
 
+
 exports.getAllBill = async (req, res, next) => {
 
     try {
@@ -62,12 +65,29 @@ exports.getAllBill = async (req, res, next) => {
         const { userId } = reqBody
         const { limit } = req.query;
 
-        const selectFields = '_id name pan_number entity_type entity country currency account_owner_name bank_name account_number ref_id'
+        const selectFields = '_id name pan_number entity_type ifsc_code swift_code entity country currency account_owner_name bank_name account_number ref_id'
         const alltheBilList = await Billing.find({ userId: userId }).limit(limit).sort().populate('userId', 'name email _id').select(selectFields)
 
         if (!alltheBilList || alltheBilList.length === 0)
             return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'BILL.bill_not_found', [], req.headers.lang);
 
+            const data = {
+                name: addBill.name,
+                pan_number: addBill.pan_number,
+                entity_type: addBill.entity_type,
+                entity: addBill.entity,
+                country: addBill.country,
+                currency: addBill.currency,
+                account_owner_name: addBill.account_owner_name,
+                bank_name: addBill.bank_name,
+                account_number: addBill.account_number,
+                ref_id: addBill.ref_id,
+                biil_id: addBill._id,
+                swift_code: addBill.swift_code,
+                ifsc_code: addBill.ifsc_code,
+                created_at: addBill.created_at
+            }
+    
 
         return sendResponse(res, constants.WEB_STATUS_CODE.OK, constants.STATUS_CODE.SUCCESS, 'BILL.get_all_bill', alltheBilList, req.headers.lang);
 
@@ -109,6 +129,8 @@ exports.updateBill = async (req, res, next) => {
             account_number: addBill.account_number,
             ref_id: addBill.ref_id,
             biil_id: addBill._id,
+            swift_code: addBill.swift_code,
+            ifsc_code: addBill.ifsc_code,
             created_at: addBill.created_at
         }
 
