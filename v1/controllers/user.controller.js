@@ -1040,28 +1040,6 @@ exports.saveExcelData = async (req, res) => {
   }
 };
 
-// exports.getCategory = async (req, res) => {
-//     try {
-//       console.log("try getCategory", req.params.campignId);
-//     const campignId = req.params.campignId;
-
-//     const categories = await Category.find({ campaignId: campignId });
-//     res.status(200).json(categories);
-//   } catch (err) {
-//     console.error("Error(getCategory)....", err);
-//     return sendResponse(
-//       res,
-//       constants.WEB_STATUS_CODE.SERVER_ERROR,
-//       constants.STATUS_CODE.FAIL,
-//       "GENERAL.general_error_content",
-//       err.message,
-//       req.headers.lang
-//     );
-//   }
-// };
-
-
-
 // exports.getExcelDataForAdmin = async (req, res) => {
 //   try {
 //     const { campaignId, page = 1, pageSize = 10 } = req.body;

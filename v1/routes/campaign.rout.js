@@ -40,8 +40,6 @@ router.post("/adduserToCampaignViaAdmin", adduserToCampaignViaAdmin);
 router.post("/addSpecialCategory", addSpecialCategory);
 router.get("/getSpecialCategory/:campignId", getSpecialCategory);
 router.post("/addCategory", addCategory);
-// router.get("/getCategory/:campignId", getCategory);
-// router.get("/getCategory/:campignId", getCategory);
-router.get("/getCategory/:campaignId", getCategory);
+router.get("/getCategory/:campaignId",getCategory);
 
 module.exports = router;

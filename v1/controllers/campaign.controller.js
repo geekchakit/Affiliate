@@ -939,8 +939,8 @@ module.exports.getSpecialCategory = async (req, res) => {
 
 exports.getCategory = async (req, res) => {
   try {
-    console.log("try getCategory", req.params.campignId);
-    const campignId = req.params.campignId;
+    console.log("try getCategory", req.params.campaignId);
+    const campignId = req.params.campaignId;
 
     const categories = await Category.find({ campaignId: campignId });
     res.status(200).json(categories);

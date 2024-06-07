@@ -19,7 +19,6 @@ const {
   getExcelDataForAdmin,
   getExcelDataForUser,
   addUserViaAdmin,
-  getCategory,
   addCategory,
   getTotalRevenueAndCommissionForUser,
   getUserUnderReferral,
@@ -46,7 +45,6 @@ router.post('/saveExcelData',upload.single('file'), authenticate,saveExcelData);
 router.post('/getExcelDataForAdmin', getExcelDataForAdmin);
 router.post('/getExcelDataForUser', getExcelDataForUser);
 router.post('/addUserViaAdmin', addUserViaAdmin);
-router.get('/getCategory/:campignId', getCategory);
 router.post('/addCategory', addCategory);
 router.post('/getTotalRevenueAndCommissionForUser',getTotalRevenueAndCommissionForUser);
 router.get('/getUserUnderReferral/:referralCode',getUserUnderReferral);
