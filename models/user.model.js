@@ -133,48 +133,48 @@ userSchema.methods.toJSON = function () {
 };
 
 //Checking for user credentials
-userSchema.statics.findByCredentials = async function (email, password, user_type) {
+// userSchema.statics.findByCredentials = async function (email, password, user_type) {
 
-    const user = await User.findOne({
-        $or: [{ email: email }, { user_name: email }],
-        user_type: user_type,
-        deleted_at: null
-    });
+//     const user = await User.findOne({
+//         $or: [{ email: email }, { user_name: email }],
+//         user_type: user_type,
+//         deleted_at: null
+//     });
 
-    if (!user) {
-        return 1
-    }
+//     if (!user) {
+//         return 1
+//     }
 
-    if (!user.validPassword(password)) {
-        return 2
-    }
+//     if (!user.validPassword(password)) {
+//         return 2
+//     }
 
-    return user;
-}
+//     return user;
+// }
 
 //Generating auth token
-userSchema.methods.generateAuthToken = async function () {
-    const user = this;
-    const token = await jwt.sign({
-        _id: user._id.toString()
-    }, JWT_SECRET, { expiresIn: '48h' })
-    user.tokens = token
-    user.updated_at = await dateFormat.set_current_timestamp();
-    user.refresh_tokens_expires = await dateFormat.add_time_current_date(7, 'days')
-    await user.save()
-    return token
-}
+// userSchema.methods.generateAuthToken = async function () {
+//     const user = this;
+//     const token = await jwt.sign({
+//         _id: user._id.toString()
+//     }, JWT_SECRET, { expiresIn: '48h' })
+//     user.tokens = token
+//     user.updated_at = await dateFormat.set_current_timestamp();
+//     user.refresh_tokens_expires = await dateFormat.add_time_current_date(7, 'days')
+//     await user.save()
+//     return token
+// }
 
-userSchema.methods.generateRefreshToken = async function () {
-    const user = this;
-    const refresh_tokens = await jwt.sign({
-        _id: user._id.toString()
-    }, JWT_SECRET)
-    user.refresh_tokens = refresh_tokens
-    user.updated_at = await dateFormat.set_current_timestamp();
-    await user.save()
-    return refresh_tokens
-}
+// userSchema.methods.generateRefreshToken = async function () {
+//     const user = this;
+//     const refresh_tokens = await jwt.sign({
+//         _id: user._id.toString()
+//     }, JWT_SECRET)
+//     user.refresh_tokens = refresh_tokens
+//     user.updated_at = await dateFormat.set_current_timestamp();
+//     await user.save()
+//     return refresh_tokens
+// }
 
 //Define user model
 const User = mongoose.model('users', userSchema);

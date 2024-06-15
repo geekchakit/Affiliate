@@ -3,26 +3,21 @@ const router = express.Router();
 const { login_validator, ValidatorResult } = require('../../validation/user.validator')
 const { verifyAccessToken } = require('../../middleware/admin.middleware')
 const {
-  login,
-  logout,
   getAllUsers,
   getAllPendingUsersList,
   userJoinedCampaigned
 } = require('../controllers/admin.controller');
 const authenticate = require('../../middleware/authenticate');
 
+const { middleware, loginAdmin,logout } = require("../../auth/authenticate");
 
 
-
-
-router.post('/login', login_validator, ValidatorResult, login)
-router.get('/logout', authenticate, logout)
-router.get('/getAllUsers', authenticate, getAllUsers)
-router.get('/pendingUserList', authenticate, getAllPendingUsersList);
-router.put('/userJoinedCampaigned', authenticate, userJoinedCampaigned)
-
-
-
+router.get('/middleware', middleware);
+router.post('/login', loginAdmin);
+router.get('/logout', logout);
+router.get('/getAllUsers', getAllUsers)
+router.get('/pendingUserList', getAllPendingUsersList);
+router.put('/userJoinedCampaigned', userJoinedCampaigned);
 
 module.exports = router;
 

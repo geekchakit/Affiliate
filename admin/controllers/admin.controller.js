@@ -84,12 +84,12 @@ exports.getAllUsers = async (req, res) => {
 
     try {
 
-        const userId = req.user._id;
+        // const userId = req.user._id;
         const { name, email, keyword, userType } = req.query;
-        const user = await User.findById(userId);
+        // const user = await User.findById(userId);
 
-        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
+        // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        //     return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
 
         const query = { user_type: 2 };
 
@@ -155,12 +155,12 @@ exports.getAllPendingUsersList = async (req, res) => {
 
     try {
         
-        const userId = req.user._id;
-        const user = await User.findById(userId);
+        // const userId = req.user._id;
+        // const user = await User.findById(userId);
         const { status } = req.query;
 
-        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
+        // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        //     return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
 
         const selectFields = '_id status';
         const users = await JoinedCampaign.find({ status }).select(selectFields).populate('userId').populate('campaignId')
@@ -211,12 +211,12 @@ exports.userJoinedCampaigned = async (req, res) => {
 
     try {
 
-        const adminId = req.user._id;
-        const user = await User.findById(adminId);
+        // const adminId = req.user._id;
+        // const user = await User.findById(adminId);
         const { id, trackingId } = req.body;
 
-        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
+        // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        //     return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'GENERAL.invalid_user', {}, req.headers.lang);
 
         const selectFields = '_id status';
         const data = await JoinedCampaign.findOneAndUpdate({ _id: id }, {

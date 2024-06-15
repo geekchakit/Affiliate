@@ -137,19 +137,19 @@ const generateReferralCode = () => {
 exports.getUserUnderReferral = async (req, res) => {
     try {
         const { referralCode } = req.params;
-        const adminId = req.user._id;
+        // const adminId = req.user._id;
 
-        const user = await User.findById(adminId);
+        // const user = await User.findById(adminId);
 
-        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(
-                res,
-                constants.WEB_STATUS_CODE.UNAUTHORIZED,
-                constants.STATUS_CODE.UNAUTHENTICATED,
-                "GENERAL.invalid_user",
-                {},
-                req.headers.lang
-            );
+        // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        //     return sendResponse(
+        //         res,
+        //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+        //         constants.STATUS_CODE.UNAUTHENTICATED,
+        //         "GENERAL.invalid_user",
+        //         {},
+        //         req.headers.lang
+        //     );
 
         const usersList = await User.find({ referred_by: referralCode });
         res.status(200).json(usersList);
@@ -385,20 +385,20 @@ exports.update_document = async (req, res) => {
 
 exports.account_verify = async (req, res) => {
     try {
-        const adminId = req.user._id;
+        // const adminId = req.user._id;
         const { userId } = req.params;
 
-        const user = await User.findById(adminId);
+        // const user = await User.findById(adminId);
 
-        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(
-                res,
-                constants.WEB_STATUS_CODE.UNAUTHORIZED,
-                constants.STATUS_CODE.UNAUTHENTICATED,
-                "GENERAL.invalid_user",
-                {},
-                req.headers.lang
-            );
+        // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        //     return sendResponse(
+        //         res,
+        //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+        //         constants.STATUS_CODE.UNAUTHENTICATED,
+        //         "GENERAL.invalid_user",
+        //         {},
+        //         req.headers.lang
+        //     );
 
         const users = await User.findById(userId);
 
@@ -449,24 +449,24 @@ exports.account_verify = async (req, res) => {
 
 exports.get_profile = async (req, res) => {
     try {
-        const user_id = req.user._id;
+        // const user_id = req.user._id;
         const { userId } = req.params;
-        const user = await User.findById(user_id);
+        // const user = await User.findById(user_id);
 
-        if (
-            !user ||
-            ![constants.USER_TYPE.ADMIN, constants.USER_TYPE.USER].includes(
-                user.user_type
-            )
-        )
-            return sendResponse(
-                res,
-                constants.WEB_STATUS_CODE.BAD_REQUEST,
-                constants.STATUS_CODE.FAIL,
-                "GENERAL.unauthorized_user",
-                {},
-                req.headers.lang
-            );
+        // if (
+        //     !user ||
+        //     ![constants.USER_TYPE.ADMIN, constants.USER_TYPE.USER].includes(
+        //         user.user_type
+        //     )
+        // )
+        //     return sendResponse(
+        //         res,
+        //         constants.WEB_STATUS_CODE.BAD_REQUEST,
+        //         constants.STATUS_CODE.FAIL,
+        //         "GENERAL.unauthorized_user",
+        //         {},
+        //         req.headers.lang
+        //     );
 
         const userData = await User.findById(userId);
 
@@ -546,18 +546,18 @@ exports.get_profile = async (req, res) => {
 
 exports.update_profile = async (req, res) => {
     try {
-        const userId = req.user._id;
-        const user = await User.findById(userId);
+        const userId = req.body;
+        // const user = await User.findById(userId);
 
-        if (!user || user.user_type !== constants.USER_TYPE.USER)
-            return sendResponse(
-                res,
-                constants.WEB_STATUS_CODE.UNAUTHORIZED,
-                constants.STATUS_CODE.UNAUTHENTICATED,
-                "GENERAL.invalid_user",
-                {},
-                req.headers.lang
-            );
+        // if (!user || user.user_type !== constants.USER_TYPE.USER)
+        //     return sendResponse(
+        //         res,
+        //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+        //         constants.STATUS_CODE.UNAUTHENTICATED,
+        //         "GENERAL.invalid_user",
+        //         {},
+        //         req.headers.lang
+        //     );
 
         const userData = await User.findOneAndUpdate({ _id: userId }, req.body, {
             new: true,
@@ -613,19 +613,19 @@ exports.update_profile = async (req, res) => {
 
 exports.delete_profile = async (req, res) => {
     try {
-        const adminId = req.user._id;
-        const user = await User.findOne({ _id: adminId });
+        // const adminId = req.user._id;
+        // const user = await User.findOne({ _id: adminId });
         const { userId } = req.params;
 
-        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(
-                res,
-                constants.WEB_STATUS_CODE.UNAUTHORIZED,
-                constants.STATUS_CODE.UNAUTHENTICATED,
-                "GENERAL.invalid_user",
-                {},
-                req.headers.lang
-            );
+        // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        //     return sendResponse(
+        //         res,
+        //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+        //         constants.STATUS_CODE.UNAUTHENTICATED,
+        //         "GENERAL.invalid_user",
+        //         {},
+        //         req.headers.lang
+        //     );
 
         const userData = await User.findOneAndDelete({ _id: userId });
 
@@ -840,19 +840,19 @@ exports.AllExcelData = async (req, res) => {
 exports.getExcelHeaders = async (req, res) => {
     try {
         console.log("getExcelHeaders");
-        const adminId = req.user._id;
+        // const adminId = req.user._id;
 
-        const user = await User.findById(adminId);
+        // const user = await User.findById(adminId);
 
-        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(
-                res,
-                constants.WEB_STATUS_CODE.UNAUTHORIZED,
-                constants.STATUS_CODE.UNAUTHENTICATED,
-                "GENERAL.invalid_user",
-                {},
-                req.headers.lang
-            );
+        // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        //     return sendResponse(
+        //         res,
+        //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+        //         constants.STATUS_CODE.UNAUTHENTICATED,
+        //         "GENERAL.invalid_user",
+        //         {},
+        //         req.headers.lang
+        //     );
             
         const headers = await ExcelHeaders.find();
         res.status(200).json(headers);
@@ -1064,19 +1064,19 @@ exports.saveExcelData = async (req, res) => {
 exports.getCategory = async (req, res) => {
     try {
         const campignId = req.params.campignId;
-        const adminId = req.user._id;
+        // const adminId = req.user._id;
 
-        const user = await User.findById(adminId);
+        // const user = await User.findById(adminId);
 
-        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(
-                res,
-                constants.WEB_STATUS_CODE.UNAUTHORIZED,
-                constants.STATUS_CODE.UNAUTHENTICATED,
-                "GENERAL.invalid_user",
-                {},
-                req.headers.lang
-            );
+        // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        //     return sendResponse(
+        //         res,
+        //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+        //         constants.STATUS_CODE.UNAUTHENTICATED,
+        //         "GENERAL.invalid_user",
+        //         {},
+        //         req.headers.lang
+        //     );
         const categories = await Category.find({ campaignId: campignId });
         res.status(200).json(categories);
     } catch (err) {
@@ -1119,19 +1119,19 @@ exports.getExcelDataForAdmin = async (req, res) => {
         const { campaignId, page = 1, pageSize = 10 } = req.body;
         const skip = (page - 1) * pageSize;
 
-        const adminId = req.user._id;
+        // const adminId = req.user._id;
 
-        const user = await User.findById(adminId);
+        // const user = await User.findById(adminId);
 
-        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(
-                res,
-                constants.WEB_STATUS_CODE.UNAUTHORIZED,
-                constants.STATUS_CODE.UNAUTHENTICATED,
-                "GENERAL.invalid_user",
-                {},
-                req.headers.lang
-            );
+        // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        //     return sendResponse(
+        //         res,
+        //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+        //         constants.STATUS_CODE.UNAUTHENTICATED,
+        //         "GENERAL.invalid_user",
+        //         {},
+        //         req.headers.lang
+        //     );
 
         // Fetch campaign data to get the list of users
         const campaign = await Campaign.findById(campaignId);
@@ -1194,19 +1194,19 @@ exports.getExcelDataForAdmin = async (req, res) => {
 exports.getTotalRevenueAndCommissionForUserSpecific = async (req, res) => {
     try {
         const { userId, campaignId } = req.body;
-        const adminId = req.user._id;
+        // const adminId = req.user._id;
 
-        const user = await User.findById(adminId);
+        // const user = await User.findById(adminId);
 
-        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(
-                res,
-                constants.WEB_STATUS_CODE.UNAUTHORIZED,
-                constants.STATUS_CODE.UNAUTHENTICATED,
-                "GENERAL.invalid_user",
-                {},
-                req.headers.lang
-            );
+        // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        //     return sendResponse(
+        //         res,
+        //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+        //         constants.STATUS_CODE.UNAUTHENTICATED,
+        //         "GENERAL.invalid_user",
+        //         {},
+        //         req.headers.lang
+        //     );
 
         console.log("userId:", userId);
         console.log("campaignId:", campaignId);
@@ -1291,19 +1291,19 @@ exports.getTotalRevenueAndCommissionForUser = async (req, res) => {
     try {
         const { userId } = req.body;
 
-        const adminId = req.user._id;
+        // const adminId = req.user._id;
 
-        const user = await User.findById(adminId);
+        // const user = await User.findById(adminId);
 
-        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(
-                res,
-                constants.WEB_STATUS_CODE.UNAUTHORIZED,
-                constants.STATUS_CODE.UNAUTHENTICATED,
-                "GENERAL.invalid_user",
-                {},
-                req.headers.lang
-            );
+        // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+            // return sendResponse(
+            //     res,
+            //     constants.WEB_STATUS_CODE.UNAUTHORIZED,
+            //     constants.STATUS_CODE.UNAUTHENTICATED,
+            //     "GENERAL.invalid_user",
+            //     {},
+            //     req.headers.lang
+            // );
         console.log("userId:", userId);
         console.log("req.body:", req.body);
 
@@ -1498,19 +1498,19 @@ exports.getExcelDataForUser = async (req, res) => {
         console.log("userId:", userId);
         console.log("campaignId:", campaignId);
 
-        const adminId = req.user._id;
+        // const adminId = req.user._id;
 
-        const user = await User.findById(adminId);
+        // const user = await User.findById(adminId);
 
-        if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-            return sendResponse(
-                res,
-                constants.WEB_STATUS_CODE.UNAUTHORIZED,
-                constants.STATUS_CODE.UNAUTHENTICATED,
-                "GENERAL.invalid_user",
-                {},
-                req.headers.lang
-            );
+        // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+        //     return sendResponse(
+        //         res,
+        //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+        //         constants.STATUS_CODE.UNAUTHENTICATED,
+        //         "GENERAL.invalid_user",
+        //         {},
+        //         req.headers.lang
+        //     );
 
         let trackingId;
 

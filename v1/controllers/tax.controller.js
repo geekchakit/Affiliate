@@ -21,16 +21,16 @@ exports.addTax = async (req, res, next) => {
     try {
 
         const reqBody = req.body
-        const userId = req.user._id;
-        const users = await User.findById(userId);
+        // const userId = req.user._id;
+        // const users = await User.findById(userId);
 
-        if (!users || users.user_type !== constants.USER_TYPE.USER)
-            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
+        // if (!users || users.user_type !== constants.USER_TYPE.USER)
+        //     return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
 
         reqBody.created_at = await dateFormat.set_current_timestamp();
         reqBody.updated_at = await dateFormat.set_current_timestamp();
         reqBody.ref_id = uuid()
-        reqBody.userId = userId;
+        // reqBody.userId = userId;
         const addTaxs = await Tax.create(reqBody);
 
         const data = {
@@ -90,12 +90,12 @@ exports.updateTax = async (req, res, next) => {
     try {
 
         const reqBody = req.body
-        const userId = req.user._id;
+        // const userId = req.user._id;
         const { taxId } = req.params;
-        const users = await User.findById(userId);
+        // const users = await User.findById(userId);
 
-        if (!users || ![constants.USER_TYPE.USER, constants.USER_TYPE.ADMIN].includes(users.user_type))
-            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
+        // if (!users || ![constants.USER_TYPE.USER, constants.USER_TYPE.ADMIN].includes(users.user_type))
+        //     return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
 
         const addTaxs = await Tax.findOneAndUpdate({ _id: taxId }, reqBody, { new: true });
         addTaxs.updated_at = await dateFormat.set_current_timestamp();
@@ -133,12 +133,12 @@ exports.deleteTax = async (req, res, next) => {
     try {
 
         const reqBody = req.body
-        const userId = req.user._id;
+        // const userId = req.user._id;
         const { taxId } = req.params;
-        const users = await User.findById(userId);
+        // const users = await User.findById(userId);
 
-        if (!users || ![constants.USER_TYPE.USER, constants.USER_TYPE.ADMIN].includes(users.user_type))
-            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
+        // if (!users || ![constants.USER_TYPE.USER, constants.USER_TYPE.ADMIN].includes(users.user_type))
+        //     return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
 
         const addTaxs = await Tax.findOneAndDelete({ _id: taxId });
 

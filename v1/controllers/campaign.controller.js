@@ -17,22 +17,22 @@ const { upload } = require("../../middleware/multer");
 const SpecialDiscountCategory = require('../../models/specialDiscountCategory');
 const Category = require("../../models/category");
 
-exports.addNewCampaign = async (req, res, next) => {
+exports.addNewCampaign = async (req, res) => {
   try {
     const reqBody = req.body;
-    const userId = req.user._id;
-    console.log("userId", userId);
-    const users = await User.findById(userId);
+    // const userId = req.user._id;
+    // console.log("userId", userId);
+    // const users = await User.findById(userId);
 
-    if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
-      return sendResponse(
-        res,
-        constants.WEB_STATUS_CODE.UNAUTHORIZED,
-        constants.STATUS_CODE.UNAUTHENTICATED,
-        "USER.invalid_user",
-        {},
-        req.headers.lang
-      );
+    // if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
+    //   return sendResponse(
+    //     res,
+    //     constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //     constants.STATUS_CODE.UNAUTHENTICATED,
+    //     "USER.invalid_user",
+    //     {},
+    //     req.headers.lang
+    //   );
 
     const existCampaignName = await Campaign.findOne({
       campaignName: reqBody.campaignName,
@@ -166,18 +166,18 @@ exports.getAllCampaignsList = async (req, res) => {
 exports.isFavouriteCampaign = async (req, res) => {
   try {
     const { campaignId } = req.params;
-    const userId = req.user._id;
-    const users = await User.findById(userId);
+    // const userId = req.user._id;
+    // const users = await User.findById(userId);
 
-    if (!users || users.user_type !== constants.USER_TYPE.USER)
-      return sendResponse(
-        res,
-        constants.WEB_STATUS_CODE.UNAUTHORIZED,
-        constants.STATUS_CODE.UNAUTHENTICATED,
-        "USER.invalid_user",
-        {},
-        req.headers.lang
-      );
+    // if (!users || users.user_type !== constants.USER_TYPE.USER)
+    //   return sendResponse(
+    //     res,
+    //     constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //     constants.STATUS_CODE.UNAUTHENTICATED,
+    //     "USER.invalid_user",
+    //     {},
+    //     req.headers.lang
+    //   );
 
     const campaign = await Campaign.findById(campaignId);
 
@@ -221,19 +221,19 @@ exports.isFavouriteCampaign = async (req, res) => {
 exports.updateCampaign = async (req, res) => {
   try {
     const { campaignId } = req.params;
-    const userId = req.user._id;
+    // const userId = req.user._id;
     const reqBody = req.body;
-    const users = await User.findById(userId);
+    // const users = await User.findById(userId);
 
-    if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
-      return sendResponse(
-        res,
-        constants.WEB_STATUS_CODE.UNAUTHORIZED,
-        constants.STATUS_CODE.UNAUTHENTICATED,
-        "USER.invalid_user",
-        {},
-        req.headers.lang
-      );
+    // if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
+    //   return sendResponse(
+    //     res,
+    //     constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //     constants.STATUS_CODE.UNAUTHENTICATED,
+    //     "USER.invalid_user",
+    //     {},
+    //     req.headers.lang
+    //   );
 
     const campaign = await Campaign.findById(campaignId);
 
@@ -287,18 +287,18 @@ exports.getCampaign = async (req, res) => {
   try {
     const { campaignId } = req.params;
     console.log(campaignId);
-    const userId = req.user._id;
-    const users = await User.findById(userId);
+    // const userId = req.user._id;
+    // const users = await User.findById(userId);
 
-    if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
-      return sendResponse(
-        res,
-        constants.WEB_STATUS_CODE.UNAUTHORIZED,
-        constants.STATUS_CODE.UNAUTHENTICATED,
-        "USER.invalid_user",
-        {},
-        req.headers.lang
-      );
+    // if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
+    //   return sendResponse(
+    //     res,
+    //     constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //     constants.STATUS_CODE.UNAUTHENTICATED,
+    //     "USER.invalid_user",
+    //     {},
+    //     req.headers.lang
+    //   );
 
     const campaign = await Campaign.findById(campaignId);
 
@@ -336,18 +336,18 @@ exports.getCampaign = async (req, res) => {
 exports.deleteCampaign = async (req, res) => {
   try {
     const { campaignId } = req.params;
-    const userId = req.user._id;
-    const users = await User.findById(userId);
+    // const userId = req.user._id;
+    // const users = await User.findById(userId);
 
-    if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
-      return sendResponse(
-        res,
-        constants.WEB_STATUS_CODE.UNAUTHORIZED,
-        constants.STATUS_CODE.UNAUTHENTICATED,
-        "USER.invalid_user",
-        {},
-        req.headers.lang
-      );
+    // if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
+    //   return sendResponse(
+    //     res,
+    //     constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //     constants.STATUS_CODE.UNAUTHENTICATED,
+    //     "USER.invalid_user",
+    //     {},
+    //     req.headers.lang
+    //   );
 
     const campaign = await Campaign.findByIdAndDelete(campaignId);
 
@@ -390,18 +390,18 @@ exports.uploadImage = async (req, res) => {
     console.log(req.file);
     console.log(req.campaignId);
     const { campaignId } = req.body;
-    const userId = req.user._id;
-    const users = await User.findById(userId);
+    // const userId = req.user._id;
+    // const users = await User.findById(userId);
 
-    if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
-      return sendResponse(
-        res,
-        constants.WEB_STATUS_CODE.UNAUTHORIZED,
-        constants.STATUS_CODE.UNAUTHENTICATED,
-        "USER.invalid_user",
-        {},
-        req.headers.lang
-      );
+    // if (!users || users.user_type !== constants.USER_TYPE.ADMIN)
+    //   return sendResponse(
+    //     res,
+    //     constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //     constants.STATUS_CODE.UNAUTHENTICATED,
+    //     "USER.invalid_user",
+    //     {},
+    //     req.headers.lang
+    //   );
 
     const campaign = await Campaign.findById(campaignId);
 
@@ -443,25 +443,25 @@ exports.uploadImage = async (req, res) => {
 
 exports.getAllCampaignsRequestList = async (req, res) => {
   try {
-    const userId = req.user._id;
+    // const userId = req.user._id;
     const { status, campaignRequest } = req.query;
 
-    const user = await User.findById(userId);
+    // const user = await User.findById(userId);
 
-    if (
-      !user ||
-      ![constants.USER_TYPE.ADMIN, constants.USER_TYPE.USER].includes(
-        user.user_type
-      )
-    )
-      return sendResponse(
-        res,
-        constants.WEB_STATUS_CODE.BAD_REQUEST,
-        constants.STATUS_CODE.FAIL,
-        "GENERAL.unauthorized_user",
-        {},
-        req.headers.lang
-      );
+    // if (
+    //   !user ||
+    //   ![constants.USER_TYPE.ADMIN, constants.USER_TYPE.USER].includes(
+    //     user.user_type
+    //   )
+    // )
+    //   return sendResponse(
+    //     res,
+    //     constants.WEB_STATUS_CODE.BAD_REQUEST,
+    //     constants.STATUS_CODE.FAIL,
+    //     "GENERAL.unauthorized_user",
+    //     {},
+    //     req.headers.lang
+    //   );
 
     const query = {};
     if (status) {
@@ -538,25 +538,25 @@ exports.getAllCampaignsRequestList = async (req, res) => {
 
 exports.updateCampaignRequest = async (req, res) => {
   try {
-    const userId = req.user._id;
+    // const userId = req.user._id;
     const reqBody = req.body;
     const { campaignId } = reqBody;
-    const users = await User.findById(userId);
+    // const users = await User.findById(userId);
 
-    if (!users || users.user_type !== constants.USER_TYPE.USER)
-      return sendResponse(
-        res,
-        constants.WEB_STATUS_CODE.UNAUTHORIZED,
-        constants.STATUS_CODE.UNAUTHENTICATED,
-        "USER.invalid_user",
-        {},
-        req.headers.lang
-      );
+    // if (!users || users.user_type !== constants.USER_TYPE.USER)
+    //   return sendResponse(
+    //     res,
+    //     constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //     constants.STATUS_CODE.UNAUTHENTICATED,
+    //     "USER.invalid_user",
+    //     {},
+    //     req.headers.lang
+    //   );
 
     reqBody.created_at = dateFormat.set_current_timestamp();
     reqBody.updated_at = dateFormat.set_current_timestamp();
     reqBody.campaignId = campaignId;
-    reqBody.userId = userId;
+    // reqBody.userId = userId;
 
     const campaign = await JoinedCampaign.create(reqBody);
 
@@ -584,19 +584,19 @@ exports.updateCampaignRequest = async (req, res) => {
 exports.requestToJoinCampaign = async (req, res) => {
   try {
     console.log("requestToJoinCampaign");
-    const adminId = req.user._id;
+    // const adminId = req.user._id;
 
-    const user = await User.findById(adminId);
+    // const user = await User.findById(adminId);
 
-    if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-        return sendResponse(
-            res,
-            constants.WEB_STATUS_CODE.UNAUTHORIZED,
-            constants.STATUS_CODE.UNAUTHENTICATED,
-            "GENERAL.invalid_user",
-            {},
-            req.headers.lang
-        );
+    // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+    //     return sendResponse(
+    //         res,
+    //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //         constants.STATUS_CODE.UNAUTHENTICATED,
+    //         "GENERAL.invalid_user",
+    //         {},
+    //         req.headers.lang
+    //     );
 
     const { userId, campaignId } = req.body;
     const userDetails = await User.findById(userId);
@@ -629,19 +629,19 @@ exports.requestToJoinCampaign = async (req, res) => {
 exports.getRequestedUserList = async (req, res) => {
   try {
     const { campaignID } = req.body;
-    const adminId = req.user._id;
+    // const adminId = req.user._id;
 
-    const user = await User.findById(adminId);
+    // const user = await User.findById(adminId);
 
-    if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-        return sendResponse(
-            res,
-            constants.WEB_STATUS_CODE.UNAUTHORIZED,
-            constants.STATUS_CODE.UNAUTHENTICATED,
-            "GENERAL.invalid_user",
-            {},
-            req.headers.lang
-        );
+    // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+    //     return sendResponse(
+    //         res,
+    //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //         constants.STATUS_CODE.UNAUTHENTICATED,
+    //         "GENERAL.invalid_user",
+    //         {},
+    //         req.headers.lang
+    //     );
 
     console.log("campaignId", campaignID);
     const campaign = await Campaign.findOne({ _id: campaignID });
@@ -715,19 +715,19 @@ exports.getRequestedUserList = async (req, res) => {
 exports.updateRequestToJoinCampaign = async (req, res) => {
   try {
     const { userId, campaignId, trackingId } = req.body;
-    const adminId = req.user._id;
+    // const adminId = req.user._id;
 
-    const user = await User.findById(adminId);
+    // const user = await User.findById(adminId);
 
-    if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-        return sendResponse(
-            res,
-            constants.WEB_STATUS_CODE.UNAUTHORIZED,
-            constants.STATUS_CODE.UNAUTHENTICATED,
-            "GENERAL.invalid_user",
-            {},
-            req.headers.lang
-        );
+    // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+    //     return sendResponse(
+    //         res,
+    //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //         constants.STATUS_CODE.UNAUTHENTICATED,
+    //         "GENERAL.invalid_user",
+    //         {},
+    //         req.headers.lang
+    //     );
     console.log(userId);
     console.log(campaignId);
     console.log(trackingId);
@@ -770,19 +770,19 @@ exports.getCampaignForUser = async (req, res) => {
   try {
     const { userId } = req.body;
 
-    const adminId = req.user._id;
+    // const adminId = req.user._id;
 
-    const user = await User.findById(adminId);
+    // const user = await User.findById(adminId);
 
-    if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-        return sendResponse(
-            res,
-            constants.WEB_STATUS_CODE.UNAUTHORIZED,
-            constants.STATUS_CODE.UNAUTHENTICATED,
-            "GENERAL.invalid_user",
-            {},
-            req.headers.lang
-        );
+    // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+    //     return sendResponse(
+    //         res,
+    //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //         constants.STATUS_CODE.UNAUTHENTICATED,
+    //         "GENERAL.invalid_user",
+    //         {},
+    //         req.headers.lang
+    //     );
     console.log("userId", userId);
 
     // Fetch all campaigns
@@ -835,19 +835,19 @@ exports.getCampaignForUser = async (req, res) => {
 exports.adduserToCampaignViaAdmin = async (req, res) => {
   try {
     const { userId, campaignId, trackingId,email } = req.body;
-    const adminId = req.user._id;
+    // const adminId = req.user._id;
 
-    const authUSER = await User.findById(adminId);
+    // const authUSER = await User.findById(adminId);
 
-    if (!authUSER || authUSER.user_type !== constants.USER_TYPE.ADMIN)
-        return sendResponse(
-            res,
-            constants.WEB_STATUS_CODE.UNAUTHORIZED,
-            constants.STATUS_CODE.UNAUTHENTICATED,
-            "GENERAL.invalid_user",
-            {},
-            req.headers.lang
-        );
+    // if (!authUSER || authUSER.user_type !== constants.USER_TYPE.ADMIN)
+    //     return sendResponse(
+    //         res,
+    //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //         constants.STATUS_CODE.UNAUTHENTICATED,
+    //         "GENERAL.invalid_user",
+    //         {},
+    //         req.headers.lang
+    //     );
 
     const campaign = await Campaign.findOne({ _id: campaignId });
     if (!campaign) {
@@ -919,19 +919,19 @@ exports.adduserToCampaignViaAdmin = async (req, res) => {
 
 module.exports.addCategory = async (req,res) =>{
 try{
-  const adminId = req.user._id;
+  // const adminId = req.user._id;
 
-  const user = await User.findById(adminId);
+  // const user = await User.findById(adminId);
 
-  if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-      return sendResponse(
-          res,
-          constants.WEB_STATUS_CODE.UNAUTHORIZED,
-          constants.STATUS_CODE.UNAUTHENTICATED,
-          "GENERAL.invalid_user",
-          {},
-          req.headers.lang
-      );
+  // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+  //     return sendResponse(
+  //         res,
+  //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+  //         constants.STATUS_CODE.UNAUTHENTICATED,
+  //         "GENERAL.invalid_user",
+  //         {},
+  //         req.headers.lang
+  //     );
   const data = req.body;
   console.log(data);
   const savedData = await Category.create(data);
@@ -959,19 +959,19 @@ catch(err){
 
 module.exports.addSpecialCategory = async (req, res) => {
   try{
-    const adminId = req.user._id;
+    // const adminId = req.user._id;
 
-    const user = await User.findById(adminId);
+    // const user = await User.findById(adminId);
 
-    if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-        return sendResponse(
-            res,
-            constants.WEB_STATUS_CODE.UNAUTHORIZED,
-            constants.STATUS_CODE.UNAUTHENTICATED,
-            "GENERAL.invalid_user",
-            {},
-            req.headers.lang
-        );
+    // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+    //     return sendResponse(
+    //         res,
+    //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //         constants.STATUS_CODE.UNAUTHENTICATED,
+    //         "GENERAL.invalid_user",
+    //         {},
+    //         req.headers.lang
+    //     );
 
     const data = req.body;
     const category= await Category.findById(data.categoryId);
@@ -1009,19 +1009,19 @@ module.exports.addSpecialCategory = async (req, res) => {
 
 module.exports.getSpecialCategory = async (req, res) => {
   try{
-    const adminId = req.user._id;
+    // const adminId = req.user._id;
 
-    const user = await User.findById(adminId);
+    // const user = await User.findById(adminId);
 
-    if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-        return sendResponse(
-            res,
-            constants.WEB_STATUS_CODE.UNAUTHORIZED,
-            constants.STATUS_CODE.UNAUTHENTICATED,
-            "GENERAL.invalid_user",
-            {},
-            req.headers.lang
-        );
+    // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
+    //     return sendResponse(
+    //         res,
+    //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
+    //         constants.STATUS_CODE.UNAUTHENTICATED,
+    //         "GENERAL.invalid_user",
+    //         {},
+    //         req.headers.lang
+    //     );
     const campignId= req.params.campignId;
     const specialCategory = await SpecialDiscountCategory.find({campignId: campignId});
     return sendResponse(
