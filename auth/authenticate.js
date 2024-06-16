@@ -23,6 +23,8 @@ module.exports.middleware = (req, res) => {
     const cookies = cookieString.split("; ");
     const tokenCookie = cookies.find(cookie => cookie.startsWith("token="));
 
+    console.log(tokenCookie);
+
     if (!tokenCookie) {
         console.log("No token cookie found");
         return res.status(401).send("Unauthorized");
