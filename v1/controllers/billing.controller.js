@@ -12,21 +12,15 @@ const { v4: uuid } = require('uuid');
 
 
 
-exports.addBill = async (req, res, next) => {
+exports.addBill = async (req, res) => {
 
     try {
 
-        const reqBody = req.body
-        const userId = req.user._id;
-        const users = await User.findById(userId);
-
-        if (!users || users.user_type !== constants.USER_TYPE.USER)
-            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
-
+        const reqBody = req.body;
         reqBody.created_at = await dateFormat.set_current_timestamp();
         reqBody.updated_at = await dateFormat.set_current_timestamp();
         reqBody.ref_id = uuid()
-        reqBody.userId = userId;
+        reqBody.userId = reqBody.userId;
         const addBill = await Billing.create(reqBody);
 
         const data = {
@@ -60,7 +54,8 @@ exports.getAllBill = async (req, res, next) => {
 
         const reqBody = req.body
         const { userId } = reqBody
-        const { limit } = req.query;
+        let { limit } = req.query;
+        limit = limit ? parseInt(limit) : 10;
 
         const selectFields = '_id name pan_number entity_type entity country currency account_owner_name bank_name account_number ref_id'
         const alltheBilList = await Billing.find({ userId: userId }).limit(limit).sort().populate('userId', 'name email _id').select(selectFields)
@@ -82,14 +77,9 @@ exports.updateBill = async (req, res, next) => {
 
     try {
 
-        const reqBody = req.body
-        const userId = req.user._id;
+        const reqBody = req.body;
         const { billId } = req.params;
-        const users = await User.findById(userId);
-
-        if (!users || ![constants.USER_TYPE.USER, constants.USER_TYPE.ADMIN].includes(users.user_type))
-            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
-
+        console.log("billId......", billId)
         const addBill = await Billing.findOneAndUpdate({ _id: billId }, reqBody, { new: true });
         addBill.updated_at = await dateFormat.set_current_timestamp();
         await addBill.save();
@@ -125,14 +115,7 @@ exports.updateBill = async (req, res, next) => {
 exports.deleteBill = async (req, res, next) => {
 
     try {
-
-        const userId = req.user._id;
         const { billId } = req.params;
-        const users = await User.findById(userId);
-
-        if (!users || ![constants.USER_TYPE.USER, constants.USER_TYPE.ADMIN].includes(users.user_type))
-            return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
-
         const addBill = await Billing.findOneAndDelete({ _id: billId });
 
         if (!addBill)

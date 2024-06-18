@@ -38,6 +38,12 @@ const billingSchema = new mongoose.Schema({
     account_number: {
         type: String,
     },
+    ifsc:{
+        type: String
+    },
+    bis_swift_code:{
+        type: String
+    },
     ref_id: {
         type: String
     },

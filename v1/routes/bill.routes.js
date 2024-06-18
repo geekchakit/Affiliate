@@ -6,9 +6,9 @@ const authenticate = require('../../middleware/authenticate')
 
 
 
-router.post('/addNewBill' , authenticate , addBill)
-router.get('/getAllBill' , authenticate , getAllBill)
-router.put('/updateBill/:billId' , authenticate , updateBill)
-router.delete('/deleteBill/:billId' , authenticate , deleteBill)
+router.post('/addNewBill', addBill)
+router.get('/getAllBill' , getAllBill)
+router.put('/updateBill/:billId' , updateBill)
+router.delete('/deleteBill/:billId' , deleteBill)
 
 module.exports = router;

@@ -16,21 +16,14 @@ const { v4: uuid } = require('uuid');
 
 
 
-exports.addTax = async (req, res, next) => {
+exports.addTax = async (req, res) => {
 
     try {
 
-        const reqBody = req.body
-        // const userId = req.user._id;
-        // const users = await User.findById(userId);
-
-        // if (!users || users.user_type !== constants.USER_TYPE.USER)
-        //     return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
-
+        const reqBody = req.body;
         reqBody.created_at = await dateFormat.set_current_timestamp();
         reqBody.updated_at = await dateFormat.set_current_timestamp();
         reqBody.ref_id = uuid()
-        // reqBody.userId = userId;
         const addTaxs = await Tax.create(reqBody);
 
         const data = {
@@ -57,17 +50,13 @@ exports.addTax = async (req, res, next) => {
 
 
 
-exports.getAllTax = async (req, res, next) => {
+exports.getAllTax = async (req, res) => {
 
     try {
 
-        const { limit } = req.query;
-        const userId = req.user._id;
-
-        const user = await User.findById(userId)
-
-        if (!user || ![constants.USER_TYPE.ADMIN, constants.USER_TYPE.USER].includes(user.user_type))
-            return sendResponse(res, constants.WEB_STATUS_CODE.BAD_REQUEST, constants.STATUS_CODE.FAIL, 'GENERAL.unauthorized_user', {}, req.headers.lang);
+        let { limit,userId } = req.params;
+        limit = limit ? parseInt(limit) : 10;
+        console.log("userId......",userId);
 
         const selectFields = '_id name type_of_entity state pancard country city ref_id address zipcode';
         const alltheTaxList = await Tax.find({ userId: userId }).limit(limit).sort().populate('userId', 'name email _id').select(selectFields)
@@ -90,13 +79,7 @@ exports.updateTax = async (req, res, next) => {
     try {
 
         const reqBody = req.body
-        // const userId = req.user._id;
         const { taxId } = req.params;
-        // const users = await User.findById(userId);
-
-        // if (!users || ![constants.USER_TYPE.USER, constants.USER_TYPE.ADMIN].includes(users.user_type))
-        //     return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
-
         const addTaxs = await Tax.findOneAndUpdate({ _id: taxId }, reqBody, { new: true });
         addTaxs.updated_at = await dateFormat.set_current_timestamp();
         await addTaxs.save();
@@ -131,15 +114,7 @@ exports.updateTax = async (req, res, next) => {
 exports.deleteTax = async (req, res, next) => {
 
     try {
-
-        const reqBody = req.body
-        // const userId = req.user._id;
         const { taxId } = req.params;
-        // const users = await User.findById(userId);
-
-        // if (!users || ![constants.USER_TYPE.USER, constants.USER_TYPE.ADMIN].includes(users.user_type))
-        //     return sendResponse(res, constants.WEB_STATUS_CODE.UNAUTHORIZED, constants.STATUS_CODE.UNAUTHENTICATED, 'USER.invalid_user', {}, req.headers.lang);
-
         const addTaxs = await Tax.findOneAndDelete({ _id: taxId });
 
         if (!addTaxs)

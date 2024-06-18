@@ -7,10 +7,10 @@ const router = express.Router();
 
 
 
-router.post('/addNewTax', authenticate, addTax)
-router.get('/getAllTax', authenticate, getAllTax)
-router.put('/updateTax/:taxId', authenticate, updateTax)
-router.delete('/deleteTax/:taxId', authenticate, deleteTax)
+router.post('/addNewTax', addTax)
+router.get('/getAllTax/:userId/:limit', getAllTax)
+router.put('/updateTax/:taxId', updateTax)
+router.delete('/deleteTax/:taxId', deleteTax)
 
 
 
