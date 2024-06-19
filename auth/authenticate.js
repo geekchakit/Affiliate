@@ -35,13 +35,16 @@ module.exports.middleware = (req, res) => {
     console.log(token);
 
     if (token) {
-        jwt.verify(token, process.env.TOKEN_KEY, (err) => {
+        jwt.verify(token, process.env.TOKEN_KEY, (err, decoded) => {
             if (err) {
                 console.log(err);
                 return res.status(403).send("Unauthorized");
             } else {
                 console.log("Middleware Success");
-                return res.status(200).send("Authorized");
+                console.log(decoded); // This will log the decoded token payload
+                const userId = decoded.id; // Assuming the payload has an 'id' field
+                console.log(`User ID: ${userId}`);
+                return res.status(200).send({ message: "Authorized", userId:userId});
             }
         });
     } else {
