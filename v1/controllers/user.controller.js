@@ -33,6 +33,7 @@ const { name } = require("ejs");
 const SpecialDiscountCategory = require("../../models/specialDiscountCategory");
 const Referral = require("../../models/referrals");
 const getExcelDataModel = require("../../models/excelDataDynamic");
+const getFinalExcelDataModel = require("../../models/finalExcelDataDynamic");
 
 exports.signUp = async (req, res, next) => {
     try {
@@ -1057,6 +1058,69 @@ exports.saveExcelData = async (req, res) => {
         res.status(200).json("Data saved successfully");
     } catch (err) {
         console.error("Error fetching or adding product data:", err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+exports.saveFinalExcelData = async (req, res) => {
+    try {
+        const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
+        const sheetName = workbook.SheetNames[0];
+        console.log(sheetName);
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = xlsx.utils.sheet_to_json(worksheet);
+        const headers = req.body.headers;
+        const campaignId = req.body.campaignId;
+        const parsedHeaders = JSON.parse(headers);
+
+        const mappingLookup = parsedHeaders.reduce(
+            (acc, { oldHeader, newHeader }) => {
+                acc[oldHeader] = newHeader;
+                return acc;
+            },
+            {}
+        );
+
+        const updatedData = jsonData.map((item) => {
+            const newItem = {};
+            for (const key in item) {
+                const newKey = mappingLookup[key];
+                newItem[newKey] = item[key];
+            }
+            return newItem;
+        });
+
+        console.log("updatedData:", updatedData.length);
+
+        const dataWithCampaignId = updatedData.map((item) => ({
+            ...item,
+            campaignId,
+            shippedDate: convertExcelSerialToMongoDBDate(item.shippedDate),
+        }));
+
+        console.log("dataWithCampaignId:", dataWithCampaignId);
+
+        //Process each item to get the user ID and save to the corresponding collection
+        const savePromises = dataWithCampaignId.map(async (item) => {
+            // Find the user ID based on the tracking ID in the Campaign table
+            const campaign = await Campaign.findOne({ "usersList.trackingId": item.trackingId });
+            if (campaign) {
+                const user = campaign.usersList.find(user => user.trackingId === item.trackingId);
+                if (user && user.userId) {
+                    const userId = user.userId;
+                    const FinalExcelData = getFinalExcelDataModel(userId);
+                    const saveData = new FinalExcelData(item);
+                    // console.log("saveData:", saveData);
+                    await saveData.save();
+                }
+            }
+        });
+
+        await Promise.all(savePromises);
+
+        res.status(200).json("Final Data saved successfully");
+    } catch (err) {
+        console.error("Error fetching or adding final product data:", err);
         res.status(500).json({ error: "Internal server error" });
     }
 };

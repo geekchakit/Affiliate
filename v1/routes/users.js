@@ -23,7 +23,8 @@ const {
   addCategory,
   getTotalRevenueAndCommissionForUser,
   getUserUnderReferral,
-  getTotalRevenueAndCommissionForUserSpecific
+  getTotalRevenueAndCommissionForUserSpecific,
+  saveFinalExcelData
 } = require('../controllers/user.controller');
 const upload = require('../../middleware/excelUpload')
 
@@ -53,5 +54,6 @@ router.post('/addCategory',addCategory);
 router.post('/getTotalRevenueAndCommissionForUser',getTotalRevenueAndCommissionForUser);
 router.get('/getUserUnderReferral/:referralCode',getUserUnderReferral);
 router.post('/getTotalRevenueAndCommissionForUserSpecific',getTotalRevenueAndCommissionForUserSpecific);
+router.post('/saveFinalExcelData',upload.single('file'),saveFinalExcelData);
 
 module.exports = router;
