@@ -2,6 +2,7 @@ const User = require("../models/user.model.js");
 require('dotenv').config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcryptjs');
+const message = require("../lang/en/message.js");
 
 
 function createSecretToken(id) {
@@ -80,18 +81,19 @@ module.exports.login = async (req, res) => {
         const user = await User.findOne({ email });
         console.log(user);
         if (user) {
-            // if (user.user_type === 2) {
-                if (bcrypt.compareSync(password, user.password)) {
-                    const token = createSecretToken(user._id);
-                    console.log(token);
-                    res.status(201).json({ message: "Login Success", success: true, jwttoken: token, user:user });
-                } else {
-                    res.json({ message: "Wrong Password" });
-                }
-            // }
-            // else{
-            //     res.json({message:"You are not authorished to access the panel"});
-            // }
+            if (user.is_upload == false) {
+                res.json({ is_upload: user.is_upload, message: "Not uploaded" });
+            }
+            else if (user.is_verify == false) {
+                res.json({ is_verify: user.is_verify, message: "User is not verified" });
+            }
+            else if (bcrypt.compareSync(password, user.password)) {
+                const token = createSecretToken(user._id);
+                console.log(token);
+                res.status(201).json({ message: "Login Success", success: true, jwttoken: token, user: user });
+            } else {
+                res.json({ message: "Wrong Password" });
+            }
         } else {
             res.json({ message: "User not found" });
         }
