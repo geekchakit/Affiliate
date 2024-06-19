@@ -52,9 +52,9 @@ exports.getAllBill = async (req, res, next) => {
 
     try {
 
-        const reqBody = req.body
-        const { userId } = reqBody
-        let { limit } = req.query;
+        
+        const userId = req.params.userId;
+        let { limit } = req.params.limit;
         limit = limit ? parseInt(limit) : 10;
 
         const selectFields = '_id name pan_number entity_type entity country currency account_owner_name bank_name account_number ref_id'
