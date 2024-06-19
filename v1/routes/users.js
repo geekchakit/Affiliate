@@ -39,7 +39,7 @@ router.get('/logout', logout);
 router.put('/updateDocument/:userId', update_document);
 router.put('/accountVerify/:userId', account_verify);
 router.get('/getProfile/:userId', get_profile);
-router.put('/updateProfile', update_profile);
+router.put('/updateProfile/:userId', update_profile);
 router.delete('/deleteProfile/:userId', delete_profile)
 router.post('/uploadExcelFile', upload.single('file'), uploadUserData)
 router.post('/getAllExcelData',AllExcelData)

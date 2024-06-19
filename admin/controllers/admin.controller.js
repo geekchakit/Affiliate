@@ -4,7 +4,8 @@ const dateFormat = require('../../helper/dateformat.helper');
 const constants = require('../../config/constants');
 const User = require('../../models/user.model');
 const { LoginResponse } = require('../../ResponseData/user.response');
-const JoinedCampaign = require('../../models/joinedCampaign.model')
+const JoinedCampaign = require('../../models/joinedCampaign.model');
+const message = require('../../lang/en/message');
 
 
 
@@ -40,6 +41,32 @@ exports.login = async (req, res) => {
         return sendResponse(res, constants.WEB_STATUS_CODE.SERVER_ERROR, constants.STATUS_CODE.FAIL, 'GENERAL.general_error_content', err.message, req.headers.lang)
     }
 }
+
+exports.getAdminDetail =async (req,res)=>{
+    try{
+      const userid= req.params.userid;
+      const admin = await User.findById(userid);
+      res.json({admin:admin,message:"Data fetched succesfully"});
+    }
+    catch(err){
+      console.log("An error occured while fethicng data",err);
+      res.send({message:"An Error occured",err:err});
+    }
+};
+
+exports.updateAdminProfile = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const userData = await User.findOneAndUpdate({ _id: userId }, req.body, {
+            new: true,
+        });
+        res.json({message:"Updated Succesfully",data:userData,success:true});
+    }
+    catch (err) {
+        console.log("An error occured", err);
+        res.json({ message: "An error occured", success: false });
+    }
+};
 
 
 exports.logout = async (req, res) => {

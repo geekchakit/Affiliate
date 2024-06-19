@@ -547,19 +547,7 @@ exports.get_profile = async (req, res) => {
 
 exports.update_profile = async (req, res) => {
     try {
-        const userId = req.body;
-        // const user = await User.findById(userId);
-
-        // if (!user || user.user_type !== constants.USER_TYPE.USER)
-        //     return sendResponse(
-        //         res,
-        //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
-        //         constants.STATUS_CODE.UNAUTHENTICATED,
-        //         "GENERAL.invalid_user",
-        //         {},
-        //         req.headers.lang
-        //     );
-
+        const userId = req.params.userId;
         const userData = await User.findOneAndUpdate({ _id: userId }, req.body, {
             new: true,
         });
