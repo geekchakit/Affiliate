@@ -43,7 +43,7 @@ const userSchema = new Schema({
         type: String,
         default: null
     },
-    ciy: {
+    city: {
         type: String,
         default: null
     },
