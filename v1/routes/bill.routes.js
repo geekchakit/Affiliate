@@ -7,7 +7,7 @@ const authenticate = require('../../middleware/authenticate')
 
 
 router.post('/addNewBill', addBill)
-router.get('/getAllBill' , getAllBill)
+router.get('/getAllBill/:userId/:limit' , getAllBill)
 router.put('/updateBill/:billId' , updateBill)
 router.delete('/deleteBill/:billId' , deleteBill)
 
