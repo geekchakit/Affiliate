@@ -17,8 +17,9 @@ const {
     updateResponse,
     accountVerifyResponse,
     sendUserWelcomeEmailJoinedViaAdmin,
+    sendOtpMessage,
 } = require("../../ResponseData/user.response");
-const { sendMail } = require("../../services/email.services");
+const { sendMail,sendEmailForOTP } = require("../../services/email.services");
 const Campaign = require("../../models/campaign.model");
 const excelData = require("../../models/excelData.model");
 const fs = require("fs");
@@ -34,6 +35,9 @@ const SpecialDiscountCategory = require("../../models/specialDiscountCategory");
 const Referral = require("../../models/referrals");
 const getExcelDataModel = require("../../models/excelDataDynamic");
 const getFinalExcelDataModel = require("../../models/finalExcelDataDynamic");
+const generateOtp = require("../../services/generateOtp");
+const message = require('../../lang/en/message');
+const { error } = require('console');
 
 exports.signUp = async (req, res, next) => {
     try {
@@ -134,6 +138,54 @@ exports.signUp = async (req, res, next) => {
 const generateReferralCode = () => {
     return crypto.randomBytes(3).toString('hex'); // Generates a 6-character long hex string
 };
+
+exports.forgetPassword = async (req,res) => {
+    try{
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        console.log(user);
+      
+        if (!user) {
+          return res.status(404).send('User not found');
+        }
+      
+        const otp = generateOtp();
+        user.otp = otp;
+        user.otpExpiry = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+        await user.save();
+      
+        await sendEmailForOTP(email, sendOtpMessage(user.name, otp));
+        res.send({message:'OTP sent to your email',success:true});
+    }
+    catch(err){
+        console.log("An error occured while generating otp.",err);
+        res.send({message:"An error occured while generating otp.",error:err});
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { email, otp, newPassword } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user || user.otp !== otp || Date.now() > user.otpExpiry) {
+            return res.status(400).send('Invalid OTP or OTP expired');
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        user.otp = undefined;
+        user.otpExpiry = undefined;
+        await user.save();
+
+        res.send('Password reset successful');
+    }
+    catch (err) {
+        console.log("An error occured while generating otp.", err);
+        res.send({ message: "An error occured while generating otp.", error: err });
+    }
+}
 
 exports.getUserUnderReferral = async (req, res) => {
     try {

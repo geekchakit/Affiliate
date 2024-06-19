@@ -114,6 +114,8 @@ const userSchema = new Schema({
     referred_by:{
         type:String
     },
+    otp: String,
+    otpExpiry: Date,
 });
 
 userSchema.index({

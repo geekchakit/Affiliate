@@ -28,6 +28,12 @@ exports.sendVerifyEmail = (customerName) => {
             Your account has been successfully verified please go to login`;
 }
 
+exports.sendOtpMessage = (customerName,otp) => {
+    return `Welcome To Our AFFILIATE MARKETING Services !
+    Dear ${customerName},
+    Your OTP is ${otp} to reset your password`;
+}
+
 exports.sendCampignAcceptanceEmail = (customerName, campaignName) => {
     return `Welcome To Our AFFILIATE MARKETING Services !
             Dear ${customerName},

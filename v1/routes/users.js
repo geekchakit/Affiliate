@@ -24,7 +24,9 @@ const {
   getTotalRevenueAndCommissionForUser,
   getUserUnderReferral,
   getTotalRevenueAndCommissionForUserSpecific,
-  saveFinalExcelData
+  saveFinalExcelData,
+  forgetPassword,
+  resetPassword
 } = require('../controllers/user.controller');
 const upload = require('../../middleware/excelUpload')
 
@@ -55,5 +57,7 @@ router.post('/getTotalRevenueAndCommissionForUser',getTotalRevenueAndCommissionF
 router.get('/getUserUnderReferral/:referralCode',getUserUnderReferral);
 router.post('/getTotalRevenueAndCommissionForUserSpecific',getTotalRevenueAndCommissionForUserSpecific);
 router.post('/saveFinalExcelData',upload.single('file'),saveFinalExcelData);
+router.post('/forgetPassword',forgetPassword);
+router.post('/resetPassword',resetPassword);
 
 module.exports = router;
