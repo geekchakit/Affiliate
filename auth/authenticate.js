@@ -82,10 +82,10 @@ module.exports.login = async (req, res) => {
         console.log(user);
         if (user) {
             if (user.is_upload == false) {
-                res.json({ is_upload: user.is_upload, message: "Not uploaded" });
+                res.json({ is_upload: user.is_upload, message: "Not uploaded", userId:user._id });
             }
             else if (user.is_verify == false) {
-                res.json({ is_verify: user.is_verify, message: "User is not verified" });
+                res.json({ is_verify: user.is_verify, message: "User is not verified", userId:user._id });
             }
             else if (bcrypt.compareSync(password, user.password)) {
                 const token = createSecretToken(user._id);
