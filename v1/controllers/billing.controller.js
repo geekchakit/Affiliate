@@ -57,7 +57,7 @@ exports.getAllBill = async (req, res, next) => {
         let { limit } = req.params.limit;
         limit = limit ? parseInt(limit) : 10;
 
-        const selectFields = '_id name pan_number entity_type entity country currency account_owner_name bank_name account_number ref_id'
+        const selectFields = '_id name pan_number entity_type entity country currency account_owner_name bank_name account_number ref_id ifsc bis_swift_code'
         const alltheBilList = await Billing.find({ userId: userId }).limit(limit).sort().populate('userId', 'name email _id').select(selectFields)
 
         if (!alltheBilList || alltheBilList.length === 0)
