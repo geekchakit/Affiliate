@@ -82,7 +82,7 @@ exports.sendMailForCampaign = (email, text) => {
             name: "AFFILIATE MARKETING Services",
             address: EMAIL_FORM,
           },
-          to: "chakitsharma444@gmail.com",
+          to: email,
           subject: "AFFILIATE MARKETING Services",
           html: text,
         };
