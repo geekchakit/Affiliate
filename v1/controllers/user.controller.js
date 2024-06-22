@@ -804,27 +804,6 @@ exports.uploadUserData = async (req, res) => {
     }
 };
 
-exports.addCategory = async (req, res) => {
-    try {
-        const { categoryName, rate } = req.body;
-        const category = new Category({
-            categoryName,
-            defaultRate: rate,
-        });
-        const newCategory = await category.save();
-        res.status(200).json(newCategory);
-    } catch (err) {
-        console.error("Error(addCategory)....", err);
-        return sendResponse(
-            res,
-            constants.WEB_STATUS_CODE.SERVER_ERROR,
-            constants.STATUS_CODE.FAIL,
-            "GENERAL.general_error_content",
-            err.message,
-            req.headers.lang
-        );
-    }
-};
 
 exports.AllExcelData = async (req, res) => {
     try {
@@ -1168,19 +1147,6 @@ exports.saveFinalExcelData = async (req, res) => {
 exports.getCategory = async (req, res) => {
     try {
         const campignId = req.params.campignId;
-        // const adminId = req.user._id;
-
-        // const user = await User.findById(adminId);
-
-        // if (!user || user.user_type !== constants.USER_TYPE.ADMIN)
-        //     return sendResponse(
-        //         res,
-        //         constants.WEB_STATUS_CODE.UNAUTHORIZED,
-        //         constants.STATUS_CODE.UNAUTHENTICATED,
-        //         "GENERAL.invalid_user",
-        //         {},
-        //         req.headers.lang
-        //     );
         const categories = await Category.find({ campaignId: campignId });
         res.status(200).json(categories);
     } catch (err) {
@@ -1627,6 +1593,75 @@ exports.getExcelDataForUser = async (req, res) => {
 
             // Get the dynamic model for the user
             const ExcelData = getExcelDataModel(userId);
+
+            const data = await ExcelData.find({ trackingId: trackingId, campaignId: campaignId }).skip(skip).limit(pageSize);
+
+            // Calculate the commission for each data entry
+            const resultData = await Promise.all(data.map(async entry => {
+                const revenue = entry.revenue || 0; // Assuming 'revenue' field exists in excelData
+                const categoryName = entry.category; // Assuming each entry has a category field with the name of the category
+
+                let commissionRate;
+                console.log(categoryName);
+                console.log(campaignId);
+                const category = await Category.findOne({ categoryName: categoryName, campaignId: campaignId });
+
+                console.log(category);
+
+                if (category) {
+                    const categoryId = category._id;
+                    const specialDiscount = await SpecialDiscountCategory.findOne({
+                        categoryId: categoryId,
+                        campaignId: campaignId,
+                        startDate: { $lte: entry.shippedDate },
+                        endDate: { $gte: entry.shippedDate },
+                        isActive: true
+                    });
+
+                    if (specialDiscount) {
+                        console.log("Special");
+                        commissionRate = specialDiscount.rate;
+                    } else {
+                        console.log("Master");
+                        commissionRate = category.defaultRate;
+                    }
+                }
+
+                const commission = (commissionRate && revenue) ? (revenue * (commissionRate / 100)) : 0;
+                return {
+                    ...entry._doc,
+                    commission
+                };
+            }));
+
+            res.status(200).json(resultData);
+        } else {
+            console.log("Campaign not found for userId:", userId);
+            res.status(200).json({ message: "Campaign not found for userId" });
+        }
+    } catch (err) {
+        console.error("Error(getExcelDataForUser)....", err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+exports.getFinalExcelDataForUser = async (req, res) => {
+    try {
+        const { userId, campaignId, page = 1, pageSize = 10 } = req.body;
+        console.log("userId:", userId);
+        console.log("campaignId:", campaignId);
+
+        let trackingId;
+
+        const campaign = await Campaign.findOne({ "usersList.userId": userId });
+        if (campaign) {
+            const user = campaign.usersList.find(user => user.userId.toString() === userId);
+            trackingId = user ? user.trackingId : null;
+
+            const skip = (page - 1) * pageSize;
+
+            // Get the dynamic model for the user
+            const ExcelData = getFinalExcelDataModel(userId);
 
             const data = await ExcelData.find({ trackingId: trackingId, campaignId: campaignId }).skip(skip).limit(pageSize);
 

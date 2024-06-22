@@ -1,6 +1,6 @@
 
 const express = require('express');
-const { addNewCampaign, getAllCampaignsList, isFavouriteCampaign, addCategory, updateCampaign, deleteCampaign, uploadImage, getCampaign, getAllCampaignsRequestList, updateCampaignRequest, requestToJoinCampaign, getRequestedUserList, updateRequestToJoinCampaign, getCampaignForUser, adduserToCampaignViaAdmin, addSpecialCategory, getSpecialCategory } = require('../controllers/campaign.controller');
+const { addNewCampaign, getAllCampaignsList, isFavouriteCampaign,getCategory, addCategory, updateCampaign, deleteCampaign, uploadImage, getCampaign, getAllCampaignsRequestList, updateCampaignRequest, requestToJoinCampaign, getRequestedUserList, updateRequestToJoinCampaign, getCampaignForUser, adduserToCampaignViaAdmin, addSpecialCategory, getSpecialCategory } = require('../controllers/campaign.controller');
 const router = express.Router();
 const authenticate = require('../../middleware/authenticate');
 const upload = require('../../middleware/multer')
@@ -23,6 +23,7 @@ router.post('/getCampaignForUser',getCampaignForUser);
 router.post('/adduserToCampaignViaAdmin' ,adduserToCampaignViaAdmin);
 router.post('/addSpecialCategory',addSpecialCategory);
 router.get('/getSpecialCategory/:campignId',getSpecialCategory);
+router.get('/getCategory/:campignId',getCategory);
 router.post('/addCategory',addCategory);
 
 

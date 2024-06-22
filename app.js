@@ -13,6 +13,7 @@ const adminRouter = require('./admin/routes/admin');
 const campaginRouter = require('./v1/routes/campaign.rout');
 const taxRouter = require('./v1/routes/tax.rout')
 const billRouter = require('./v1/routes/bill.routes')
+const paymentRouter = require('./v1/routes/payment');
 
 const app = express();
 
@@ -55,6 +56,7 @@ app.use('/admin', adminRouter);
 app.use('/v1/campaigns', campaginRouter);
 app.use('/v1/tax', taxRouter);
 app.use('/v1/bill', billRouter);
+app.use('/v1/payment', paymentRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

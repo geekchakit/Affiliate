@@ -19,14 +19,13 @@ const {
   getExcelDataForAdmin,
   getExcelDataForUser,
   addUserViaAdmin,
-  getCategory,
-  addCategory,
   getTotalRevenueAndCommissionForUser,
   getUserUnderReferral,
   getTotalRevenueAndCommissionForUserSpecific,
   saveFinalExcelData,
   forgetPassword,
-  resetPassword
+  resetPassword,
+  getFinalExcelDataForUser
 } = require('../controllers/user.controller');
 const upload = require('../../middleware/excelUpload')
 
@@ -51,13 +50,12 @@ router.post('/saveExcelData',upload.single('file'),saveExcelData);
 router.post('/getExcelDataForAdmin', getExcelDataForAdmin);
 router.post('/getExcelDataForUser',getExcelDataForUser);
 router.post('/addUserViaAdmin',addUserViaAdmin);
-router.get('/getCategory/:campignId',getCategory);
-router.post('/addCategory',addCategory);
 router.post('/getTotalRevenueAndCommissionForUser',getTotalRevenueAndCommissionForUser);
 router.get('/getUserUnderReferral/:referralCode',getUserUnderReferral);
 router.post('/getTotalRevenueAndCommissionForUserSpecific',getTotalRevenueAndCommissionForUserSpecific);
 router.post('/saveFinalExcelData',upload.single('file'),saveFinalExcelData);
 router.post('/forgetPassword',forgetPassword);
 router.post('/resetPassword',resetPassword);
+router.post('/getFinalExcelDataForUser',getFinalExcelDataForUser);
 
 module.exports = router;

@@ -441,6 +441,46 @@ exports.uploadImage = async (req, res) => {
   }
 };
 
+exports.getCategory = async (req, res) => {
+  try {
+      const campignId = req.params.campignId;
+      const categories = await Category.find({ campaignId: campignId });
+      res.status(200).json(categories);
+  } catch (err) {
+      console.error("Error(getCategory)....", err);
+      return sendResponse(
+          res,
+          constants.WEB_STATUS_CODE.SERVER_ERROR,
+          constants.STATUS_CODE.FAIL,
+          "GENERAL.general_error_content",
+          err.message,
+          req.headers.lang
+      );
+  }
+};
+
+exports.addCategory = async (req, res) => {
+  try {
+      const { categoryName, rate } = req.body;
+      const category = new Category({
+          categoryName,
+          defaultRate: rate,
+      });
+      const newCategory = await category.save();
+      res.status(200).json(newCategory);
+  } catch (err) {
+      console.error("Error(addCategory)....", err);
+      return sendResponse(
+          res,
+          constants.WEB_STATUS_CODE.SERVER_ERROR,
+          constants.STATUS_CODE.FAIL,
+          "GENERAL.general_error_content",
+          err.message,
+          req.headers.lang
+      );
+  }
+};
+
 exports.getAllCampaignsRequestList = async (req, res) => {
   try {
     // const userId = req.user._id;
