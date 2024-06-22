@@ -38,10 +38,11 @@ const mongoose = require('./config/database');
 app.use('/uploads', express.static('uploads'));
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: ["http://localhost:5173", "http://localhost:5174", "http://13.127.99.157", "http://13.127.99.157:7002", "http://13.127.99.157:7001"],
     credentials: true,
   })
 );
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
