@@ -189,3 +189,14 @@ module.exports.getWithdrawlRequests = async (req, res) => {
         res.json({ message: "An error occured while fetching withdrawl requests", success: false });
     }
 };
+
+module.exports.getTotalBalance = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const account = await Account.findOne({ userId: userId });
+        res.json({ message: "Total balance fetched successfully", success: true, data: account });
+    } catch (err) {
+        console.log("err(getTotalBalance)......", err);
+        res.json({ message: "An error occured while fetching total balance", success: false });
+    }
+}
