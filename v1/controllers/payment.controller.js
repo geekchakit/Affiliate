@@ -11,6 +11,7 @@ module.exports.requestWithdrawl = async (req, res) => {
     try {
         const { userId, amount, invoiceNumber,billingId } = req.body;
          const files = req.file;
+         console.log("files", req.file);
         console.log("files", files);
         const file = `${BASEURL}/uploads/${files.filename}`;
         console.log("req.body........", req.body);
@@ -191,6 +192,7 @@ module.exports.getWithdrawlRequests = async (req, res) => {
         const { userId } = req.params;
         console.log("userId........", userId);
         const withdrawls = await Withdrawal.find({ userId: userId });
+
         res.json({ message: "Withdrawl requests fetched successfully", success: true, data: withdrawls });
     } catch (err) {
         console.log("err(getWithdrawlRequests)......", err);
