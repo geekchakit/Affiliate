@@ -4,7 +4,7 @@ const { requestWithdrawl, updateWithdrawlRequest, approveOrder,getWithdrawlReque
 const upload = require('../../middleware/multer');
 const router = express.Router();
 
-router.post('/requestWithdrawl',upload.single('file'),requestWithdrawl);
+router.post('/requestWithdrawl',upload.single('invoice'),requestWithdrawl);
 router.put('/updateWithdrawlRequest', updateWithdrawlRequest);
 router.post('/approveOrder', approveOrder);
 router.get('/getWithdrawlRequests/:userId', getWithdrawlRequests);
