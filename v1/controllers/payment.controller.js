@@ -126,9 +126,14 @@ module.exports.approveOrder = async (req, res) => {
         // Calculate the commission
         const revenue = excelDataEntry.revenue || 0;
         const categoryName = excelDataEntry.category;
+        console.log("categoryName........", categoryName);
 
         let commissionRate;
         const category = await Category.findOne({ categoryName: categoryName, campaignId: campaignId });
+        console.log("category........", category);
+        if(!category){
+            return res.json({ message: 'Category not found', success: false });
+        }
 
         if (category) {
             const categoryId = category._id;
@@ -142,12 +147,15 @@ module.exports.approveOrder = async (req, res) => {
 
             if (specialDiscount) {
                 commissionRate = specialDiscount.rate;
+                console.log("commissionRate........", commissionRate);
             } else {
                 commissionRate = category.defaultRate;
+                console.log("commissionRate........", commissionRate);
             }
         }
 
         const commission = (commissionRate && revenue) ? (revenue * (commissionRate / 100)) : 0;
+        console.log("commission........", commission);
 
         // Update the Excel data entry to mark it as withdrawn
         excelDataEntry.isWithdrawl = true;
