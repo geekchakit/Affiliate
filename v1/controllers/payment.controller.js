@@ -9,7 +9,7 @@ const Account = require("../../models/account.model");
 //api for requesting withdrawl
 module.exports.requestWithdrawl = async (req, res) => {
     try {
-        const { userId, type, campaign, amount, invoiceNumber, statusMessage,billingId } = req.body;
+        const { userId, amount, invoiceNumber,billingId } = req.body;
          const files = req.file;
         console.log("files", files);
         const file = `${BASEURL}/uploads/${files.filename}`;
