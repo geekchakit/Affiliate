@@ -1647,7 +1647,7 @@ exports.getExcelDataForUser = async (req, res) => {
 
 exports.getFinalExcelDataForUser = async (req, res) => {
     try {
-        const { userId, campaignId, page = 1, pageSize = 10 } = req.body;
+        const { userId, campaignId, page = 1, pageSize = 10, isWithdrawal } = req.body;
         console.log("userId:", userId);
         console.log("campaignId:", campaignId);
 
@@ -1663,7 +1663,7 @@ exports.getFinalExcelDataForUser = async (req, res) => {
             // Get the dynamic model for the user
             const ExcelData = getFinalExcelDataModel(userId);
 
-            const data = await ExcelData.find({ trackingId: trackingId, campaignId: campaignId }).skip(skip).limit(pageSize);
+            const data = await ExcelData.find({ trackingId: trackingId, campaignId: campaignId,isWithdrawl: isWithdrawal}).skip(skip).limit(pageSize);
 
             // Calculate the commission for each data entry
             const resultData = await Promise.all(data.map(async entry => {
