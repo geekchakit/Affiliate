@@ -200,6 +200,17 @@ module.exports.getWithdrawlRequests = async (req, res) => {
     }
 };
 
+module.exports.getWithdrawalRequestsForAdmin = async (req, res) => {
+    try {
+        const status = req.params.status;
+        const withdrawls = await Withdrawal.find({status: status});
+        res.json({ message: "Withdrawl requests fetched successfully", success: true, data: withdrawls });
+    } catch (err) {
+        console.log("err(getWithdrawlRequests)......", err);
+        res.json({ message: "An error occured while fetching withdrawl requests", success: false });
+    }
+};
+
 module.exports.getTotalBalance = async (req, res) => {
     try {
         const { userId } = req.params;
