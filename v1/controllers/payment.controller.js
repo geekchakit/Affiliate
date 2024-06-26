@@ -9,10 +9,10 @@ const Account = require("../../models/account.model");
 //api for requesting withdrawl
 module.exports.requestWithdrawl = async (req, res) => {
     try {
-        const { userId, type, campaign, amount, invoiceNumber,file, statusMessage,billingId } = req.body;
-        // const files = req.file;
-        // console.log("files", files);
-        //const file = `${BASEURL}/uploads/${files.filename}`;
+        const { userId, type, campaign, amount, invoiceNumber, statusMessage,billingId } = req.body;
+         const files = req.file;
+        console.log("files", files);
+        const file = `${BASEURL}/uploads/${files.filename}`;
         console.log("req.body........", req.body);
         const availableBalance = await Account.findOne({ userId: userId });
         console.log("availableBalance........", availableBalance);
