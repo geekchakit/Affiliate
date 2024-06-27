@@ -185,7 +185,7 @@ module.exports.getWithdrawlRequests = async (req, res) => {
     try {
         const { userId } = req.params;
         console.log("userId........", userId);
-        const withdrawls = await Withdrawal.find({ userId: userId });
+        const withdrawls = await Withdrawal.find({ userId: userId }).populate('userId').populate('billingId');
         
         res.json({ message: "Withdrawl requests fetched successfully", success: true, data: withdrawls.reverse() });
     } catch (err) {
@@ -197,7 +197,7 @@ module.exports.getWithdrawlRequests = async (req, res) => {
 module.exports.getWithdrawalRequestsForAdmin = async (req, res) => {
     try {
         const status = req.params.status;
-        const withdrawls = await Withdrawal.find({ status: status });
+        const withdrawls = await Withdrawal.find({ status: status }).populate('userId',).populate('billingId');
         res.json({ message: "Withdrawl requests fetched successfully", success: true, data: withdrawls.reverse() });
     } catch (err) {
         console.log("err(getWithdrawlRequests)......", err);
