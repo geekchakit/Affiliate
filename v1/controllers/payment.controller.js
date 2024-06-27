@@ -9,15 +9,12 @@ const Account = require("../../models/account.model");
 //api for requesting withdrawl
 module.exports.requestWithdrawl = async (req, res) => {
     try {
-        const { userId, amount, invoiceNumber,billingId } = req.body;
-         const files = req.file;
-         console.log("files", req.file);
-        console.log("files", files);
-        const file = `${BASEURL}/uploads/${files.filename}`;
-        console.log("req.body........", req.body);
+        let { userId, amount, invoiceNumber, billingId } = req.body;
+        const file = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         const availableBalance = await Account.findOne({ userId: userId });
-        console.log("availableBalance........", availableBalance);
-        if(availableBalance.requestedAmount + amount > availableBalance.totalAmount){
+        amount =  parseInt(amount);
+        console.log(amount);
+        if (availableBalance.requestedAmount +  parseInt(amount) > availableBalance.totalAmount) {
             return res.json({
                 message: "Requested amount is greater than available balance",
                 success: false
@@ -32,13 +29,10 @@ module.exports.requestWithdrawl = async (req, res) => {
         else {
             const newWithdrawal = new Withdrawal({
                 userId,
-                type,
-                campaign,
                 amount,
                 invoiceNumber,
                 file,
-                billingId,
-                statusMessage
+                billingId
             });
 
             await newWithdrawal.save();
@@ -60,7 +54,7 @@ module.exports.requestWithdrawl = async (req, res) => {
 
 // admin will update the request like approvee reject
 module.exports.updateWithdrawlRequest = async (req, res) => {
-const { userId, withdrawlId, statusMessage, status,utrNumber } = req.body;
+    const { userId, withdrawlId, statusMessage, status, utrNumber } = req.body;
     try {
         const withdrawl = await Withdrawal.findOne({ _id: withdrawlId });
         const account = await Account.findOne({ userId: userId });
@@ -70,9 +64,9 @@ const { userId, withdrawlId, statusMessage, status,utrNumber } = req.body;
                 success: false
             });
         }
-        
+
         //Amount transfered to users account and status updated
-        if(status === "completed"){
+        if (status === "completed") {
             withdrawl.utrNumber = utrNumber;
         };
 
@@ -132,7 +126,7 @@ module.exports.approveOrder = async (req, res) => {
         let commissionRate;
         const category = await Category.findOne({ categoryName: categoryName, campaignId: campaignId });
         console.log("category........", category);
-        if(!category){
+        if (!category) {
             return res.json({ message: 'Category not found', success: false });
         }
 
@@ -192,8 +186,8 @@ module.exports.getWithdrawlRequests = async (req, res) => {
         const { userId } = req.params;
         console.log("userId........", userId);
         const withdrawls = await Withdrawal.find({ userId: userId });
-
-        res.json({ message: "Withdrawl requests fetched successfully", success: true, data: withdrawls });
+        
+        res.json({ message: "Withdrawl requests fetched successfully", success: true, data: withdrawls.reverse() });
     } catch (err) {
         console.log("err(getWithdrawlRequests)......", err);
         res.json({ message: "An error occured while fetching withdrawl requests", success: false });
@@ -203,8 +197,8 @@ module.exports.getWithdrawlRequests = async (req, res) => {
 module.exports.getWithdrawalRequestsForAdmin = async (req, res) => {
     try {
         const status = req.params.status;
-        const withdrawls = await Withdrawal.find({status: status});
-        res.json({ message: "Withdrawl requests fetched successfully", success: true, data: withdrawls });
+        const withdrawls = await Withdrawal.find({ status: status });
+        res.json({ message: "Withdrawl requests fetched successfully", success: true, data: withdrawls.reverse() });
     } catch (err) {
         console.log("err(getWithdrawlRequests)......", err);
         res.json({ message: "An error occured while fetching withdrawl requests", success: false });
