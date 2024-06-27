@@ -80,6 +80,8 @@ exports.updateTax = async (req, res, next) => {
 
         const reqBody = req.body
         const { taxId } = req.params;
+        console.log(req.body);
+        console.log(taxId);
         const addTaxs = await Tax.findOneAndUpdate({ _id: taxId }, reqBody, { new: true });
         addTaxs.updated_at = await dateFormat.set_current_timestamp();
         await addTaxs.save();

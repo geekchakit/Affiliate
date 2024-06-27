@@ -167,7 +167,10 @@ exports.forgetPassword = async (req,res) => {
 exports.resetPassword = async (req, res) => {
     try {
         const { email, otp, newPassword } = req.body;
+        console.log(req.body);
+        console.log(newPassword);
         const user = await User.findOne({ email });
+        console.log(user);
 
         if (!user || user.otp !== otp || Date.now() > user.otpExpiry) {
             return res.status(400).send('Invalid OTP or OTP expired');
@@ -1647,6 +1650,7 @@ exports.getExcelDataForUser = async (req, res) => {
 
 exports.getFinalExcelDataForUser = async (req, res) => {
     try {
+        console.log(req.body);
         const { userId, campaignId, page = 1, pageSize = 10, isWithdrawal } = req.body;
         console.log("userId:", userId);
         console.log("campaignId:", campaignId);
@@ -1659,12 +1663,13 @@ exports.getFinalExcelDataForUser = async (req, res) => {
             trackingId = user ? user.trackingId : null;
 
             const skip = (page - 1) * pageSize;
+            console.log(skip);
 
             // Get the dynamic model for the user
             const ExcelData = getFinalExcelDataModel(userId);
 
             const data = await ExcelData.find({ trackingId: trackingId, campaignId: campaignId,isWithdrawl: isWithdrawal}).skip(skip).limit(pageSize);
-
+            console.log(data.length)
             // Calculate the commission for each data entry
             const resultData = await Promise.all(data.map(async entry => {
                 const revenue = entry.revenue || 0; // Assuming 'revenue' field exists in excelData
@@ -1702,7 +1707,7 @@ exports.getFinalExcelDataForUser = async (req, res) => {
                     commission
                 };
             }));
-
+            // console.log(resultData);
             res.status(200).json(resultData);
         } else {
             console.log("Campaign not found for userId:", userId);

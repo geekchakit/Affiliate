@@ -785,7 +785,7 @@ exports.updateRequestToJoinCampaign = async (req, res) => {
     // console.log("update_campaign", update_campaign);
     // await sendMail(update_campaign.email, sendCampignAcceptanceEmail(update_campaign.name, campignDetails.campaignName));
     await sendMailForCampaign(
-      "chakitsharma444@gmail.com",
+      userData.email,
       sendCampignAcceptanceEmail(userData.name, update_campaign.name)
     );
     res.status(200).send({
