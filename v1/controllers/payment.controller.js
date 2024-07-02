@@ -174,6 +174,50 @@ module.exports.approveOrder = async (req, res) => {
         account.totalAmount += commission;
         account.updated_at = Date.now();
         await account.save();
+
+        // Referal commission
+        // Example created_at string
+        const user = await User.findById(userId);
+        console.log("users",user);
+        const created_at = user.created_at;
+
+        // Parse the created_at string to a Date object
+        const createdDate = new Date(created_at);
+
+        // Calculate one month after createdDate
+        const oneMonthAfterCreatedDate = new Date(createdDate);
+        oneMonthAfterCreatedDate.setMonth(createdDate.getMonth() + 1);
+
+        // Get the current date
+        const currentDate = new Date();
+
+        // Check if currentDate is within one month after createdDate
+        if (currentDate <= oneMonthAfterCreatedDate) {
+            console.log("Referred by user gets referral money");
+            const referalCode = user.referred_by;
+            console.log(referalCode);
+            const refredBy = await User.findOne({ referral_code: referalCode });
+            console.log("referedby",refredBy);
+            if (refredBy) {
+                const refredByAccount = await Account.findOne({ userId: refredBy._id });
+                if (refredByAccount) {
+                    const referalCommission = commission/10;
+                    refredByAccount.totalAmount += referalCommission;
+                    refredByAccount.updated_at = Date.now();
+                    await refredByAccount.save();
+                }
+                else{
+                    const refredByAccount = new Account({ userId: refredBy._id, campaigns: [], totalAmount: 0 });
+                    const referalCommission = commission/10;
+                    refredByAccount.totalAmount += referalCommission;
+                    refredByAccount.updated_at = Date.now();
+                    await refredByAccount.save();
+                }
+            }
+        } else {
+            console.log("The period for earning referral money has passed");
+        }
+        //end referal commission
         res.json({ message: 'Approved succesfully', success: true });
     } catch (err) {
         console.log("err(approveOrder)......", err);
