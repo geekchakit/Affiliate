@@ -1051,13 +1051,16 @@ exports.saveExcelData = async (req, res) => {
 
         console.log("updatedData:", updatedData.length);
 
+        console.log("data", updatedData[0])
+
         const dataWithCampaignId = updatedData.map((item) => ({
             ...item,
             campaignId,
             shippedDate: convertExcelSerialToMongoDBDate(item.shippedDate),
+            date: convertExcelSerialToMongoDBDate(item.date),
         }));
 
-        console.log("dataWithCampaignId:", dataWithCampaignId);
+        console.log("dataWithCampaignId:", dataWithCampaignId[0]);
 
         //Process each item to get the user ID and save to the corresponding collection
         const savePromises = dataWithCampaignId.map(async (item) => {
@@ -1118,6 +1121,7 @@ exports.saveFinalExcelData = async (req, res) => {
             ...item,
             campaignId,
             shippedDate: convertExcelSerialToMongoDBDate(item.shippedDate),
+            date: convertExcelSerialToMongoDBDate(item.date),
         }));
 
         console.log("dataWithCampaignId:", dataWithCampaignId);

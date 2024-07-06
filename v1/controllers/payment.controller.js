@@ -12,9 +12,9 @@ module.exports.requestWithdrawl = async (req, res) => {
         let { userId, amount, invoiceNumber, billingId } = req.body;
         const file = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         const availableBalance = await Account.findOne({ userId: userId });
-        amount =  parseInt(amount);
+        amount = parseInt(amount);
         console.log(amount);
-        if (availableBalance.requestedAmount +  parseInt(amount) > availableBalance.totalAmount) {
+        if (availableBalance.requestedAmount + parseInt(amount) > availableBalance.totalAmount) {
             return res.json({
                 message: "Requested amount is greater than available balance",
                 success: false
@@ -178,37 +178,37 @@ module.exports.approveOrder = async (req, res) => {
         // Referal commission
         // Example created_at string
         const user = await User.findById(userId);
-        console.log("users",user);
+        console.log("user", user);
         const created_at = user.created_at;
 
         // Parse the created_at string to a Date object
         const createdDate = new Date(created_at);
 
-        // Calculate one month after createdDate
+        // Calculate one month (30 days) after createdDate
         const oneMonthAfterCreatedDate = new Date(createdDate);
-        oneMonthAfterCreatedDate.setMonth(createdDate.getMonth() + 1);
+        oneMonthAfterCreatedDate.setDate(createdDate.getDate() + 30);
 
-        // Get the current date
-        const currentDate = new Date();
+        // Assuming you have an orderDate to compare
+        const orderDate = new Date(excelDataEntry.date); // Replace order_date with the actual order date variable
 
-        // Check if currentDate is within one month after createdDate
-        if (currentDate <= oneMonthAfterCreatedDate) {
+        // Check if the orderDate is within one month (30 days) from the createdDate
+        if (orderDate >= createdDate && orderDate <= oneMonthAfterCreatedDate) {
             console.log("Referred by user gets referral money");
             const referalCode = user.referred_by;
             console.log(referalCode);
             const refredBy = await User.findOne({ referral_code: referalCode });
-            console.log("referedby",refredBy);
+            console.log("referedby", refredBy);
             if (refredBy) {
                 const refredByAccount = await Account.findOne({ userId: refredBy._id });
                 if (refredByAccount) {
-                    const referalCommission = commission/10;
+                    const referalCommission = commission / 10;
                     refredByAccount.totalAmount += referalCommission;
                     refredByAccount.updated_at = Date.now();
                     await refredByAccount.save();
                 }
-                else{
+                else {
                     const refredByAccount = new Account({ userId: refredBy._id, campaigns: [], totalAmount: 0 });
-                    const referalCommission = commission/10;
+                    const referalCommission = commission / 10;
                     refredByAccount.totalAmount += referalCommission;
                     refredByAccount.updated_at = Date.now();
                     await refredByAccount.save();
@@ -230,7 +230,7 @@ module.exports.getWithdrawlRequests = async (req, res) => {
         const { userId } = req.params;
         console.log("userId........", userId);
         const withdrawls = await Withdrawal.find({ userId: userId }).populate('userId').populate('billingId');
-        
+
         res.json({ message: "Withdrawl requests fetched successfully", success: true, data: withdrawls.reverse() });
     } catch (err) {
         console.log("err(getWithdrawlRequests)......", err);
