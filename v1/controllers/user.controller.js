@@ -38,6 +38,8 @@ const getFinalExcelDataModel = require("../../models/finalExcelDataDynamic");
 const generateOtp = require("../../services/generateOtp");
 const message = require('../../lang/en/message');
 const { error } = require('console');
+const Banner = require('../../models/banner');
+const { BASEURL } = require("../../keys/development.keys");
 
 exports.signUp = async (req, res, next) => {
     try {
@@ -1745,6 +1747,49 @@ exports.addUserViaAdmin = async (req, res) => {
         res.status(200).json(newUser);
     } catch (err) {
         console.error("Error(addUserViaAdmin)....", err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+module.exports.addBannerImage = async (req,res) =>{
+    try {
+        console.log("uploadImage");
+        console.log(req.file);
+        const files = req.file;
+        console.log("files", files);
+        const imageUrl = `${BASEURL}/uploads/${files.originalname}`;
+        const newBanner = new Banner({ title:req.body.title, image: imageUrl });
+        await newBanner.save();    
+        res.status(200).json(newBanner);
+    }
+    catch (err) {
+        console.error("Error(addBannerImage)....", err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+module.exports.getBanner = async (req,res) =>{
+    try {
+        const banners = await Banner.find();
+        res.status(200).json({ message: "Banners fetched successfully", success: true, banners });
+      } catch (error) {
+        console.error("Error fetching banners:", error);
+        res.status(500).json({ error: "Banners fetching failed" });
+      }
+};
+
+module.exports.deleteBanner = async (req,res) =>{
+    try{
+        const bannerId = req.params.bannerId;
+        const banner = await Banner.findById(bannerId);
+        if (!banner) {
+            return res.status(404).json({ message: "Banner not found" });
+        }
+        await Banner.findByIdAndDelete(bannerId);
+        res.status(200).json({ message: "Banner deleted successfully" });
+    }
+    catch(err){
+        console.error("Error deleting banner:", err);
         res.status(500).json({ error: "Internal server error" });
     }
 };

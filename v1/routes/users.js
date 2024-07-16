@@ -25,7 +25,10 @@ const {
   saveFinalExcelData,
   forgetPassword,
   resetPassword,
-  getFinalExcelDataForUser
+  getFinalExcelDataForUser,
+  addBannerImage,
+  getBanner,
+  deleteBanner
 } = require('../controllers/user.controller');
 const upload = require('../../middleware/excelUpload')
 
@@ -57,5 +60,8 @@ router.post('/saveFinalExcelData',upload.single('file'),saveFinalExcelData);
 router.post('/forgetPassword',forgetPassword);
 router.post('/resetPassword',resetPassword);
 router.post('/getFinalExcelDataForUser',getFinalExcelDataForUser);
+router.post('/addBannerImage',upload.single('file'),addBannerImage);
+router.get('/getBanner',getBanner);
+router.delete('/deleteBanner/:bannerId',deleteBanner);
 
 module.exports = router;
