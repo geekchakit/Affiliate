@@ -1354,7 +1354,8 @@ exports.getTotalRevenueAndCommissionForUserSpecific = async (req, res) => {
 
             res.status(200).json({
                 totalRevenue,
-                totalCommission
+                totalCommission,
+                trackingId
             });
         } else {
             console.log("Campaign not found for userId:", userId);
