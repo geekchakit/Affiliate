@@ -11,6 +11,58 @@ const message = require('../../lang/en/message');
 
 
 
+module.exports.addAdminUser = async (req, res) => {
+    try {
+        const { email, password, name, mobile_number, gender, date_of_birth, state, country, city, adharacard, address, pancard } = req.body;
+
+        // Check if user already exists
+        let user = await User.findOne({ email });
+        if (user) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create new admin user
+        user = new User({
+            email,
+            password: hashedPassword,
+            name,
+            mobile_number,
+            gender,
+            date_of_birth,
+            state,
+            country,
+            city,
+            adharacard,
+            address,
+            pancard,
+            user_type: 1, // Set user_type to 1 for admin
+            created_at: dateFormat.set_current_timestamp(),
+            updated_at: dateFormat.set_current_timestamp()
+        });
+
+        // Save user to the database
+        await user.save();
+
+        res.status(201).json({ message: 'Admin user created successfully' });
+    } catch (err) {
+        console.error('Error creating admin user:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+exports.getAdmins = async(req,res) => {
+    try{
+        const admins = await User.find({user_type:"1"});
+        res.status(200).json({data:admins,message:"Successs"});
+    }
+    catch(err){
+        console.log("An error occured while getting admins",err);
+        res.status(201).json({message:"An error occured while getting admins", error:err.response.data.message});
+    }
+};
 
 exports.login = async (req, res) => {
 
