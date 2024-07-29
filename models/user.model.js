@@ -7,6 +7,7 @@ const dateFormat = require('../helper/dateformat.helper');
 const {
     JWT_SECRET
 } = require('../keys/keys')
+const { ROLES } = require('../models/role.enum');
 
 const Schema = mongoose.Schema;
 //Define user schema
@@ -60,7 +61,7 @@ const userSchema = new Schema({
         default: null
     },
     user_type: {
-        type: Number, //1-admin 2-user
+        type: Number, //1-admin 2-user 
         default: 2
     },
     status: {
@@ -113,6 +114,12 @@ const userSchema = new Schema({
     },
     referred_by:{
         type:String
+    },
+    role: { 
+        type: String, 
+        enum: Object.values(ROLES),
+        default: ROLES.ADMIN,
+        required: false
     },
     otp: String,
     otpExpiry: Date,

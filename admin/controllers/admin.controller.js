@@ -6,9 +6,27 @@ const User = require('../../models/user.model');
 const { LoginResponse } = require('../../ResponseData/user.response');
 const JoinedCampaign = require('../../models/joinedCampaign.model');
 const message = require('../../lang/en/message');
+const bcrypt = require('bcryptjs');
+const { ROLE_PERMISSIONS } = require('../../models/role.enum');
 
+// Example function to check if a user can perform a specific action
+function canPerformAction(user, action) {
+    if (!user || !user.role) return false;
+    return ROLE_PERMISSIONS[user.role].includes(action);
+}
 
+// Example usage
+const user = {
+    role: 'admin'
+};
 
+const action = 'create_edit_delete_campaigns';
+
+if (canPerformAction(user, action)) {
+    console.log('User can perform this action');
+} else {
+    console.log('User cannot perform this action');
+}
 
 
 module.exports.addAdminUser = async (req, res) => {
@@ -53,14 +71,14 @@ module.exports.addAdminUser = async (req, res) => {
     }
 };
 
-exports.getAdmins = async(req,res) => {
-    try{
-        const admins = await User.find({user_type:"1"});
-        res.status(200).json({data:admins,message:"Successs"});
+exports.getAdmins = async (req, res) => {
+    try {
+        const admins = await User.find({ user_type: "1" });
+        res.status(200).json({ data: admins, message: "Successs" });
     }
-    catch(err){
-        console.log("An error occured while getting admins",err);
-        res.status(201).json({message:"An error occured while getting admins", error:err.response.data.message});
+    catch (err) {
+        console.log("An error occured while getting admins", err);
+        res.status(201).json({ message: "An error occured while getting admins", error: err.response.data.message });
     }
 };
 
@@ -94,15 +112,15 @@ exports.login = async (req, res) => {
     }
 }
 
-exports.getAdminDetail =async (req,res)=>{
-    try{
-      const userid= req.params.userid;
-      const admin = await User.findById(userid);
-      res.json({admin:admin,message:"Data fetched succesfully"});
+exports.getAdminDetail = async (req, res) => {
+    try {
+        const userid = req.params.userid;
+        const admin = await User.findById(userid);
+        res.json({ admin: admin, message: "Data fetched succesfully" });
     }
-    catch(err){
-      console.log("An error occured while fethicng data",err);
-      res.send({message:"An Error occured",err:err});
+    catch (err) {
+        console.log("An error occured while fethicng data", err);
+        res.send({ message: "An Error occured", err: err });
     }
 };
 
@@ -112,7 +130,7 @@ exports.updateAdminProfile = async (req, res) => {
         const userData = await User.findOneAndUpdate({ _id: userId }, req.body, {
             new: true,
         });
-        res.json({message:"Updated Succesfully",data:userData,success:true});
+        res.json({ message: "Updated Succesfully", data: userData, success: true });
     }
     catch (err) {
         console.log("An error occured", err);
@@ -233,7 +251,7 @@ exports.getAllUsers = async (req, res) => {
 exports.getAllPendingUsersList = async (req, res) => {
 
     try {
-        
+
         // const userId = req.user._id;
         // const user = await User.findById(userId);
         const { status } = req.query;
@@ -311,7 +329,7 @@ exports.userJoinedCampaigned = async (req, res) => {
         let responseData = {
             name: data.userId.name,
             userId: data.userId._id,
-            _id:data._id,
+            _id: data._id,
             status: data.status,
             gender: data.userId.gender,
             date_of_birth: data.userId.date_of_birth,

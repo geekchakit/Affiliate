@@ -7,7 +7,8 @@ const {
   getAllPendingUsersList,
   userJoinedCampaigned,
   getAdminDetail,
-  updateAdminProfile
+  updateAdminProfile,
+  addAdminUser
 } = require('../controllers/admin.controller');
 const authenticate = require('../../middleware/authenticate');
 
@@ -22,6 +23,7 @@ router.get('/pendingUserList', getAllPendingUsersList);
 router.put('/userJoinedCampaigned', userJoinedCampaigned);
 router.get('/getAdminDetail/:userid',getAdminDetail);
 router.put('/updateAdminProfile/:userId',updateAdminProfile);
+router.post('/addAdminUser',addAdminUser);
 
 module.exports = router;
 
