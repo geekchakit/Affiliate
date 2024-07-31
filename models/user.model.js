@@ -115,11 +115,14 @@ const userSchema = new Schema({
     referred_by:{
         type:String
     },
-    role: { 
-        type: String, 
+    roles: {
+        type: [String],
         enum: Object.values(ROLES),
-        default: ROLES.ADMIN,
-        required: false
+        default: [ROLES.ADMIN],
+    },
+    role_permissions: {
+        type: [String],
+        default: [],
     },
     otp: String,
     otpExpiry: Date,

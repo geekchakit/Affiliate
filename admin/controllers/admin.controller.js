@@ -7,31 +7,11 @@ const { LoginResponse } = require('../../ResponseData/user.response');
 const JoinedCampaign = require('../../models/joinedCampaign.model');
 const message = require('../../lang/en/message');
 const bcrypt = require('bcryptjs');
-const { ROLE_PERMISSIONS } = require('../../models/role.enum');
-
-// Example function to check if a user can perform a specific action
-function canPerformAction(user, action) {
-    if (!user || !user.role) return false;
-    return ROLE_PERMISSIONS[user.role].includes(action);
-}
-
-// Example usage
-const user = {
-    role: 'admin'
-};
-
-const action = 'create_edit_delete_campaigns';
-
-if (canPerformAction(user, action)) {
-    console.log('User can perform this action');
-} else {
-    console.log('User cannot perform this action');
-}
-
+const { ROLES, ROLE_PERMISSIONS } = require('../../models/role.enum');
 
 module.exports.addAdminUser = async (req, res) => {
     try {
-        const { email, password, name, mobile_number, gender, date_of_birth, state, country, city, adharacard, address, pancard } = req.body;
+        const { email, password, name, mobile_number, gender, date_of_birth, state, country, city, adharacard, address, pancard, role, role_permissions } = req.body;
 
         // Check if user already exists
         let user = await User.findOne({ email });
@@ -57,6 +37,8 @@ module.exports.addAdminUser = async (req, res) => {
             address,
             pancard,
             user_type: 1, // Set user_type to 1 for admin
+            roles: [role || ROLES.ADMIN], // Default to admin role if not provided
+            role_permissions: role_permissions || ROLE_PERMISSIONS[role || ROLES.ADMIN],
             created_at: dateFormat.set_current_timestamp(),
             updated_at: dateFormat.set_current_timestamp()
         });
@@ -70,6 +52,92 @@ module.exports.addAdminUser = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+// Function to add multiple role permissions to a user
+module.exports.addRolePermissions = async (req, res) => {
+    try {
+        const { userId, permissions } = req.body;
+
+        // Validate permissions
+        if (!Array.isArray(permissions) || permissions.length === 0) {
+            return res.status(400).json({ message: 'Permissions must be provided in an array' });
+        }
+
+        const validPermissions = Object.values(ROLE_PERMISSIONS).flat();
+        const invalidPermissions = permissions.filter(p => !validPermissions.includes(p));
+
+        if (invalidPermissions.length > 0) {
+            return res.status(400).json({ message: `Invalid permissions: ${invalidPermissions.join(', ')}` });
+        }
+
+        // Find user by ID
+        let user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Add permissions if they do not exist
+        const newPermissions = permissions.filter(p => !user.role_permissions.includes(p));
+        if (newPermissions.length > 0) {
+            user.role_permissions.push(...newPermissions);
+            await user.save();
+        }
+
+        res.status(200).json({ message: 'Permissions added successfully' });
+    } catch (err) {
+        console.error('Error adding role permissions:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Function to remove multiple role permissions from a user
+module.exports.removeRolePermissions = async (req, res) => {
+    try {
+        const { userId, permissions } = req.body;
+
+        // Validate permissions
+        if (!Array.isArray(permissions) || permissions.length === 0) {
+            return res.status(400).json({ message: 'Permissions must be provided in an array' });
+        }
+
+        // Find user by ID
+        let user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Remove permissions if they exist
+        user.role_permissions = user.role_permissions.filter(p => !permissions.includes(p));
+        await user.save();
+
+        res.status(200).json({ message: 'Permissions removed successfully' });
+    } catch (err) {
+        console.error('Error removing role permissions:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Function to check if a user has a specific role permission
+module.exports.hasRolePermission = async (req, res) => {
+    try {
+        const { userId, permission } = req.body;
+
+        // Find user by ID
+        let user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if user has the permission
+        const hasPermission = user.role_permissions.includes(permission);
+
+        res.status(200).json({ hasPermission });
+    } catch (err) {
+        console.error('Error checking role permission:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 
 exports.getAdmins = async (req, res) => {
     try {
