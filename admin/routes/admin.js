@@ -11,7 +11,9 @@ const {
   addAdminUser,
   addRolePermissions,
   removeRolePermissions,
-  hasRolePermission
+  hasRolePermission,
+  getAdmins,
+  updateRolePermissions
 } = require('../controllers/admin.controller');
 const authenticate = require('../../middleware/authenticate');
 
@@ -30,6 +32,8 @@ router.post('/addAdminUser',addAdminUser);
 router.post('/addRolePermission',addRolePermissions);
 router.post('/removeRolePermission',removeRolePermissions);
 router.post('/hasRolePermission',hasRolePermission);
+router.get('/getAdmins',getAdmins);
+router.post('/updateRolePermissions', updateRolePermissions);
 
 module.exports = router;
 

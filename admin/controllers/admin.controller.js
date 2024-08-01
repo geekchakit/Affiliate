@@ -11,7 +11,7 @@ const { ROLES, ROLE_PERMISSIONS } = require('../../models/role.enum');
 
 module.exports.addAdminUser = async (req, res) => {
     try {
-        const { email, password, name, mobile_number, gender, date_of_birth, state, country, city, adharacard, address, pancard, role, role_permissions } = req.body;
+        const { email, password, name, mobile_number, role, role_permissions } = req.body;
 
         // Check if user already exists
         let user = await User.findOne({ email });
@@ -28,14 +28,6 @@ module.exports.addAdminUser = async (req, res) => {
             password: hashedPassword,
             name,
             mobile_number,
-            gender,
-            date_of_birth,
-            state,
-            country,
-            city,
-            adharacard,
-            address,
-            pancard,
             user_type: 1, // Set user_type to 1 for admin
             roles: [role || ROLES.ADMIN], // Default to admin role if not provided
             role_permissions: role_permissions || ROLE_PERMISSIONS[role || ROLES.ADMIN],
@@ -116,6 +108,41 @@ module.exports.removeRolePermissions = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+// Function to update role permissions of a user
+module.exports.updateRolePermissions = async (req, res) => {
+    try {
+        const { userId, permissions } = req.body;
+
+        // Validate permissions
+        if (!Array.isArray(permissions)) {
+            return res.status(400).json({ message: 'Permissions must be provided in an array' });
+        }
+
+        const validPermissions = Object.values(ROLE_PERMISSIONS).flat();
+        const invalidPermissions = permissions.filter(p => !validPermissions.includes(p));
+
+        if (invalidPermissions.length > 0) {
+            return res.status(400).json({ message: `Invalid permissions: ${invalidPermissions.join(', ')}` });
+        }
+
+        // Find user by ID
+        let user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Replace old permissions with the new ones
+        user.role_permissions = permissions;
+        await user.save();
+
+        res.status(200).json({ message: 'Permissions updated successfully', role_permissions: user.role_permissions });
+    } catch (err) {
+        console.error('Error updating role permissions:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 
 // Function to check if a user has a specific role permission
 module.exports.hasRolePermission = async (req, res) => {
